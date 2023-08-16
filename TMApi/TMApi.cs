@@ -42,50 +42,26 @@ namespace TMApi
 
         public UserInfo User { get; private set; }
 
-        public async Task<bool> LoginAsync(string login, string password)
+
+        public TMApi(string token, DateTime tokenTime, int id, byte[] aesKey)
         {
-            string serverRsaPublicKey;
-            var inputDecoder = new RsaEncrypter();
-
-            using (var uncryptRequester = new RequestSender(true))
+            Requester = new RequestSender(false, new AesEncrypter(aesKey))
             {
-                serverRsaPublicKey = (await uncryptRequester.PostAsync<RsaPublicKey, RsaPublicKey>(new RsaPublicKey(inputDecoder.PublicKey))).Key;
+                Token = token,
+                Id = id,
             };
-
-            var outputCoder = new RsaEncrypter(serverRsaPublicKey);
-
-            AuthorizationResponse? authResult = null;
-            using (var rsaRequester = new RequestSender(true, outputCoder, inputDecoder))
-            {
-                await rsaRequester.PostAsync<AuthorizationResponse, AuthorizationRequest>(new AuthorizationRequest(login, password));
-            }
-
-            if (authResult != null && authResult.IsSuccessful)
-            {
-                AuthComplete(authResult);
-                IsLoginIn = true;
-            }
-            return IsLoginIn;
+            Id = id;
+            AccesToken = token;
+            Expiration = tokenTime;
         }
 
         public async Task Init()
         {
             Users = new Users(Requester);
             Messages = new Messages(Requester);
-            Chats= new Chats(Requester);
-
+            Chats = new Chats(Requester);
             User = await Users.GetUserInfo(Id);
         }
-        private void AuthComplete(AuthorizationResponse auth)
-        {
-            Requester = new RequestSender(false, new AesEncrypter(auth.AesKey))
-            {
-                Token = auth.AccessToken,
-                Id=auth.Id,
-            };
-            Id = auth.Id;
-            AccesToken = auth.AccessToken;
-            Expiration = auth.Expiration;
-        }
+
     }
 }

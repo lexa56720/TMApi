@@ -11,4 +11,10 @@
     <ProjectReference Include="..\ApiTypes\ApiTypes.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="CSDTP">
+      <HintPath>..\ApiTypes\Lib\CSDTP.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>

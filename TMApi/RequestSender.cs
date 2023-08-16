@@ -71,6 +71,15 @@ namespace TMApi
         {
             return await Requester.GetAsync(new ApiRequest<T>(Token, Id, data));
         }
+
+        public async Task<T> PostRequestAsync<T, U>(string header,U data) where T : ISerializable<T> where U : ISerializable<U>
+        {
+            return await Requester.PostAsync<T, ApiRequest<U>>(new ApiRequest<U>(header, Token, Id, data), Timeout);
+        }
+        public async Task<bool> GetRequestAsync<T>(string header, T data) where T : ISerializable<T>
+        {
+            return await Requester.GetAsync(new ApiRequest<T>(header,Token, Id, data));
+        }
         public void Dispose()
         {
             Requester.Dispose();
