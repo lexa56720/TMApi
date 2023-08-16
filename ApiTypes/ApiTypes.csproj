@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="CSDTP">
+      <HintPath>Lib\CSDTP.dll</HintPath>
+    </Reference>
+    <Reference Include="Open.Nat">
+      <HintPath>Lib\Open.Nat.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>

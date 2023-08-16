@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ApiTypes\ApiTypes.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="CSDTP">
+      <HintPath>..\ApiTypes\Lib\CSDTP.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>
