@@ -17,6 +17,8 @@ namespace ApiTypes
 
         public int Id { get; private set; }
 
+        public int TotalMessages { get; private set; }
+
         public Chat(int id, User admin, params User[] users)
         {
             Id = id;
@@ -32,6 +34,7 @@ namespace ApiTypes
         {
             writer.Write(Id);
             writer.Write(MemberCount);
+            writer.Write(TotalMessages);
             Admin.Serialize(writer);
 
             for (int i = 0; i < Users.Length; i++)
@@ -44,6 +47,7 @@ namespace ApiTypes
             {
                 Id = reader.ReadInt32(),
                 MemberCount = reader.ReadInt32(),
+                TotalMessages = reader.ReadInt32(),
                 Admin = User.Deserialize(reader),
             };
 

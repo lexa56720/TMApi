@@ -9,22 +9,23 @@ namespace ApiTypes
 {
     public class UserInfo : ISerializable<UserInfo>
     {
-
+        public User MainInfo { get; private set; }
         public User[] Friends { get; private set; } = Array.Empty<User>();
 
         public int FriendsCount { get; private set; }
 
-        public Chat[] Chats { get; private set; } = Array.Empty<Chat>();
+        public int[] Chats { get; private set; } = Array.Empty<int>();
 
         public int ChatsCount { get; private set; }
 
-        public UserInfo(User[] friends, Chat[] chats)
+        public UserInfo(User[] friends, int[] chats, User mainInfo)
         {
             Friends = friends;
             Chats = chats;
 
             FriendsCount = friends.Length;
             ChatsCount = chats.Length;
+            MainInfo = mainInfo;
         }
         public UserInfo()
         {
@@ -36,15 +37,16 @@ namespace ApiTypes
             {
                 FriendsCount = reader.ReadInt32(),
                 ChatsCount = reader.ReadInt32(),
+                MainInfo=User.Deserialize(reader)
             };
 
             userInfo.Friends = new User[userInfo.FriendsCount];
             for (int i = 0; i < userInfo.FriendsCount; i++)
                 userInfo.Friends[i] = User.Deserialize(reader);
 
-            userInfo.Chats= new Chat[userInfo.ChatsCount];
+            userInfo.Chats= new int[userInfo.ChatsCount];
             for (int i = 0; i < userInfo.ChatsCount; i++)
-                userInfo.Chats[i] = Chat.Deserialize(reader);
+                userInfo.Chats[i] = reader.ReadInt32();
             return userInfo;
         }
 
@@ -52,12 +54,13 @@ namespace ApiTypes
         {
             writer.Write(FriendsCount);
             writer.Write(ChatsCount);
+            MainInfo.Serialize(writer);
 
             for (int i = 0; i < FriendsCount; i++)
                 Friends[i].Serialize(writer);
 
             for (int i = 0; i < ChatsCount; i++)
-                Chats[i].Serialize(writer);
+                writer.Write(Chats[i]);
         }
     }
 }

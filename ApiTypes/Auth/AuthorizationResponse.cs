@@ -14,7 +14,7 @@ namespace ApiTypes.Auth
         public bool IsSuccessful { get; private set; }
 
         public string AccessToken { get; private set; } = string.Empty;
-
+        public int Id { get; private set; }
         public DateTime Expiration { get; private set; }
 
         public byte[] AesKey { get; private set; } = Array.Empty<byte>();
@@ -26,7 +26,8 @@ namespace ApiTypes.Auth
             response.IsSuccessful = reader.ReadBoolean();
             if (response.IsSuccessful)
             {
-                response.AesKey = reader.ReadBytes(reader.Read());
+                response.AesKey = reader.ReadBytes(reader.ReadInt32());
+                response.Id = reader.ReadInt32();
                 response.AccessToken = reader.ReadString();
                 response.Expiration = DateTime.FromBinary(reader.ReadInt64());
             }
@@ -41,6 +42,8 @@ namespace ApiTypes.Auth
             {
                 writer.Write(AesKey.Length);
                 writer.Write(AesKey);
+
+                writer.Write(Id);
                 writer.Write(AccessToken);
                 writer.Write(Expiration.ToBinary());
             }

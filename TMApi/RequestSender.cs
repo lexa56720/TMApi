@@ -22,6 +22,8 @@ namespace TMApi
 
         public string Token { get; set; }
 
+        public int Id { get; set; }
+
         Requester Requester { get; set; }
 
         public bool IsRsa { get; }
@@ -59,13 +61,15 @@ namespace TMApi
         {
             return await Requester.GetAsync<T>(data);
         }
+
+
         public async Task<T> PostRequestAsync<T, U>(U data) where T : ISerializable<T> where U : ISerializable<U>
         {
-            return await Requester.PostAsync<T, ApiRequest<U>>(new ApiRequest<U>(Token, data), Timeout);
+            return await Requester.PostAsync<T, ApiRequest<U>>(new ApiRequest<U>(Token,Id, data), Timeout);
         }
         public async Task<bool> GetRequestAsync<T>(T data) where T : ISerializable<T>
         {
-            return await Requester.GetAsync(new ApiRequest<T>(Token, data));
+            return await Requester.GetAsync(new ApiRequest<T>(Token, Id, data));
         }
         public void Dispose()
         {

@@ -7,7 +7,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TMApi.User;
+using TMApi.ApiRequests.Chats;
+using TMApi.ApiRequests.Messages;
+using TMApi.ApiRequests.Users;
 
 namespace TMApi
 {
@@ -26,9 +28,15 @@ namespace TMApi
 
         private DateTime Expiration { get; set; }
 
+        public int Id { get; private set; }
+
         public bool IsLoginIn { get; private set; }
 
         public Users Users { get; private set; }
+
+        public Messages Messages { get; private set; }
+
+        public Chats Chats { get; private set; }
 
         private RequestSender Requester { get; set; }
 
@@ -56,18 +64,26 @@ namespace TMApi
             {
                 AuthComplete(authResult);
                 IsLoginIn = true;
-                return true;
             }
-            else
-                return false;
+            return IsLoginIn;
         }
 
+        public async Task Init()
+        {
+            Users = new Users(Requester);
+            Messages = new Messages(Requester);
+            Chats= new Chats(Requester);
+
+            User = await Users.GetUserInfo(Id);
+        }
         private void AuthComplete(AuthorizationResponse auth)
         {
             Requester = new RequestSender(false, new AesEncrypter(auth.AesKey))
             {
-                Token = auth.AccessToken
+                Token = auth.AccessToken,
+                Id=auth.Id,
             };
+            Id = auth.Id;
             AccesToken = auth.AccessToken;
             Expiration = auth.Expiration;
         }

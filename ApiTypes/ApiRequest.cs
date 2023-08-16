@@ -11,24 +11,29 @@ namespace ApiTypes
     {
         public string Token { get; init; }
 
+        public int Id { get; init; }
+
         public T Data { get; init; }
 
 
-        public ApiRequest(string token,T data)
+        public ApiRequest(string token, int id, T data)
         {
             Token = token;
             Data = data;
+            Id = id;
         }
 
         public static ApiRequest<T> Deserialize(BinaryReader reader)
         {
-            return new ApiRequest<T>(reader.ReadString(), T.Deserialize(reader));
+            return new ApiRequest<T>(reader.ReadString(), reader.Read(),T.Deserialize(reader));
         }
 
         public void Serialize(BinaryWriter writer)
         {
-            writer.Write(Token);
+            writer.Write(Token); 
+            writer.Write(Id);
             Data.Serialize(writer);
+          
         }
     }
 }
