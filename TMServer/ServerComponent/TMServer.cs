@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TMServer.RequestHandlers;
+using TMServer.ServerComponent.Auth;
 using TMServer.ServerComponent.Basics;
 
 namespace TMServer.Servers
@@ -19,7 +20,7 @@ namespace TMServer.Servers
 
         public void RegisterAuthMethods()
         {
-            AuthServer.Register<UnauthorizedRequest< RsaPublicKey>, UnauthorizedRequest<RsaPublicKey>>(AuthHandler.RsaKeyTrade);
+            AuthServer.Register< RsaPublicKey, RsaPublicKey>(AuthHandler.RsaKeyTrade);
         }
 
         public override void Start()

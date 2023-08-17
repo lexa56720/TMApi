@@ -1,6 +1,8 @@
 ﻿using ApiTypes;
 using CSDTP;
 using CSDTP.Cryptography;
+using CSDTP.Cryptography.Algorithms;
+using CSDTP.Cryptography.Providers;
 using CSDTP.Requests;
 using System;
 using System.Collections.Generic;
@@ -32,12 +34,13 @@ namespace TMApi
 
         public RequestSender(bool isRsa, IEncrypter encrypter)
         {
-            Requester = new Requester(new IPEndPoint(Server, GetPort(isRsa)), encrypter);
+            Requester = new Requester(new IPEndPoint(Server, GetPort(isRsa)), new SimpleEncryptProvider(encrypter));
             IsRsa = isRsa;
         }
         public RequestSender(bool isRsa, IEncrypter encrypter, IEncrypter decrypter)
         {
-            Requester = new Requester(new IPEndPoint(Server, GetPort(isRsa)), encrypter, decrypter);
+            
+            Requester = new Requester(new IPEndPoint(Server, GetPort(isRsa)), new SimpleEncryptProvider(encrypter), new SimpleEncryptProvider(decrypter));
             IsRsa = isRsa;
         }
 

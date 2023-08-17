@@ -7,6 +7,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using CSDTP;
+using CSDTP.Cryptography.Algorithms;
+using CSDTP.Protocols;
+using System.Reflection;
 
 namespace TMApi
 {
@@ -18,13 +21,13 @@ namespace TMApi
 
             var inputDecoder = new RsaEncrypter();
 
-            var rsaData = await GetRsaKeyAndId(inputDecoder);
-            var outputCoder = new RsaEncrypter(rsaData.Item1);
+            var rsaKey = await GetRsaKeyAndId(inputDecoder);
+            var outputCoder = new RsaEncrypter(rsaKey);
 
             AuthorizationResponse? authResult = null;
             using (var rsaRequester = new RequestSender(true, outputCoder, inputDecoder))
             {
-                authResult = (await PostRequest<AuthorizationResponse, AuthorizationRequest>(rsaData.Item2,new AuthorizationRequest(login, password),rsaRequester)).Data;
+                authResult = await rsaRequester.PostAsync<AuthorizationResponse, AuthorizationRequest>(new AuthorizationRequest(login, password));
             }
 
             if (authResult != null && authResult.IsSuccessful)
@@ -36,26 +39,20 @@ namespace TMApi
             return null;
         }
 
-        private async Task<Tuple<string,int>> GetRsaKeyAndId(RsaEncrypter inputDecoder)
+        private async Task<string> GetRsaKeyAndId(RsaEncrypter inputDecoder)
         {
             string serverRsaPublicKey;
-            int tempId = -1;
 
 
             using (var uncryptRequester = new RequestSender(true))
             {
                 var request = new RsaPublicKey(inputDecoder.PublicKey);
-                var response = await PostRequest<RsaPublicKey, RsaPublicKey>(tempId, request, uncryptRequester);
+                var response = await uncryptRequester.PostAsync<RsaPublicKey, RsaPublicKey>(request);
 
-                serverRsaPublicKey = response.Data.Key;
-                tempId = response.Id;
+                serverRsaPublicKey = response.Key;
             };
-            return new Tuple<string, int>(serverRsaPublicKey, tempId);
+            return serverRsaPublicKey;
         }
 
-        private async Task<UnauthorizedRequest<T>> PostRequest<T,U>(int id,U data,RequestSender sender) where T:ISerializable<T> where U:ISerializable<U> 
-        {
-            return await sender.PostAsync<UnauthorizedRequest<T>, UnauthorizedRequest<U>>(new UnauthorizedRequest<U>(data,id));
-        }
     }
 }

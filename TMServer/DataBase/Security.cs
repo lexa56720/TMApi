@@ -9,23 +9,28 @@ namespace TMServer.DataBase
     internal static class Security
     {
 
-        public static int SaveRsaKeyPair(string serverKey,string clientKey)
+        public static void SaveRsaKeyPair(uint ip, string serverPrivateKey, string clientPublicKey)
         {
 
         }
 
-        public static (string,string) GetKeysById(int id)
+        public static KeyPair? GetRsaKeysByIp(uint ip)
         {
 
         }
 
-        public static int GetUserId(string login,string password)
+        public static int GetUserId(string login, string password)
         {
 
         }
 
-        public static void SaveToken(string token,int id) 
-        { 
+        public static void SaveAuth(int id, byte[] aesKey, byte[] aesIV, string token, DateTime expiration)
+        {
+
+        }
+
+        public static void UpdateAuth(int id, byte[] aesIV)
+        {
 
         }
     }

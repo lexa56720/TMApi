@@ -11,19 +11,21 @@ namespace ApiTypes.Auth
     public class AuthorizationResponse : ISerializable<AuthorizationResponse>
     {
 
-        public bool IsSuccessful { get; private set; }
+        public bool IsSuccessful { get;  init; }
 
-        public string AccessToken { get; private set; } = string.Empty;
-        public int Id { get; private set; }
-        public DateTime Expiration { get; private set; }
+        public string AccessToken { get; set; } = string.Empty;
+        public int Id { get; set; }
+        public DateTime Expiration { get; set; }
 
-        public byte[] AesKey { get; private set; } = Array.Empty<byte>();
+        public byte[] AesKey { get; set; } = Array.Empty<byte>();
 
 
         public static AuthorizationResponse Deserialize(BinaryReader reader)
         {
-            var response = new AuthorizationResponse();
-            response.IsSuccessful = reader.ReadBoolean();
+            var response = new AuthorizationResponse()
+            {
+                IsSuccessful = reader.ReadBoolean()
+            };
             if (response.IsSuccessful)
             {
                 response.AesKey = reader.ReadBytes(reader.ReadInt32());
