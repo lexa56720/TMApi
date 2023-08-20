@@ -20,5 +20,11 @@ namespace TMApi.ApiRequests.Messages
         {
             return (await Requester.PostRequestAsync<SerializableArray<Message>, IntArrayContainer>(new IntArrayContainer(chatId,count))).Items;
         }
+
+        public async Task SendMessage(string text,int destinationId)
+        {
+            await Requester.GetRequestAsync(new Message(text, destinationId));
+        }
+
     }
 }

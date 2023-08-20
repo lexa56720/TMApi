@@ -8,7 +8,6 @@ namespace TMServer.DataBase
 {
     internal static class Security
     {
-
         public static void SaveRsaKeyPair(uint ip, string serverPrivateKey, string clientPublicKey)
         {
 

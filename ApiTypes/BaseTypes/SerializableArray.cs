@@ -1,4 +1,5 @@
 ﻿using CSDTP;
+using CSDTP.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,30 +12,19 @@ namespace ApiTypes.BaseTypes
     {
         public T[] Items { get; set; }
 
-        public int Count { get; set; }
-
-
         public SerializableArray(params T[] items)
         {
             Items = items;
-            Count = items.Length;
         }
 
         public void Serialize(BinaryWriter writer)
         {
-            writer.Write(Items.Length);
-            for (int i = 0; i < Items.Length; i++)
-                Items[i].Serialize(writer);
+            writer.Write<T>(Items);
         }
 
         public static SerializableArray<T> Deserialize(BinaryReader reader)
         {
-            var length = reader.ReadInt32();
-            var items = new T[length];
-
-            for (int i = 0; i < length; i++)
-                items[i] = T.Deserialize(reader);
-            return new SerializableArray<T>(items);
+            return new SerializableArray<T>(reader.Read<T>());
         }
     }
 }

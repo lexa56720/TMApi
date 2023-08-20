@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ApiTypes
+namespace ApiTypes.Auth
 {
     public class RsaPublicKey : ISerializable<RsaPublicKey>
     {

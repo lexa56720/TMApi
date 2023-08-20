@@ -1,4 +1,5 @@
 ﻿using CSDTP;
+using CSDTP.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,19 +24,12 @@ namespace ApiTypes.BaseTypes
 
         public void Serialize(BinaryWriter writer)
         {
-            writer.Write(Values.Length);
-            for (int i = 0; i < Values.Length; i++)
-                writer.Write(Values[i]);
+            writer.Write(Values);
         }
 
         public static IntArrayContainer Deserialize(BinaryReader reader)
         {
-            var length = reader.ReadInt32();
-            var values = new int[length];
-
-            for (int i = 0; i < length; i++)
-                values[i] = reader.ReadInt32();
-            return new IntArrayContainer(values);
+            return new IntArrayContainer(reader.ReadInt32Array());
         }
     }
 }

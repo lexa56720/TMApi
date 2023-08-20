@@ -42,8 +42,7 @@ namespace ApiTypes
             writer.Write(Header);
             writer.Write(Token); 
             writer.Write(Id);
-            Data.Serialize(writer);
-          
+            Data.Serialize(writer);     
         }
     }
 }

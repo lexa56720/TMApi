@@ -1,4 +1,5 @@
-﻿using CSDTP;
+﻿using ApiTypes.Users;
+using CSDTP;
 
 namespace ApiTypes.Messages
 {

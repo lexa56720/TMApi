@@ -22,7 +22,7 @@ namespace TMApi
 
         private IPAddress Server { get; set; } = new IPAddress(new byte[] { 127, 0, 0, 1 });
 
-        public string Token { get; set; }
+        public string Token { get; set; } = string.Empty;
 
         public int Id { get; set; }
 

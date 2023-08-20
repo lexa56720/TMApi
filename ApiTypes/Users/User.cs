@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ApiTypes
+namespace ApiTypes.Users
 {
     public class User : ISerializable<User>
     {

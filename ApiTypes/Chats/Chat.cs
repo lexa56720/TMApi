@@ -1,23 +1,23 @@
-﻿using CSDTP;
+﻿using ApiTypes.Users;
+using CSDTP;
+using CSDTP.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ApiTypes
+namespace ApiTypes.Chats
 {
     public class Chat : ISerializable<Chat>
     {
-        public User[] Users { get; private set; } = Array.Empty<User>();
+        public required User[] Users { get; init; } = Array.Empty<User>();
 
-        public int MemberCount { get; private set; }
+        public required User Admin { get; init; }
 
-        public User Admin { get; private set; }
+        public required int Id { get; init; }
 
-        public int Id { get; private set; }
-
-        public int TotalMessages { get; private set; }
+        public required int TotalMessages { get; init; }
 
         public Chat(int id, User admin, params User[] users)
         {
@@ -33,12 +33,10 @@ namespace ApiTypes
         public void Serialize(BinaryWriter writer)
         {
             writer.Write(Id);
-            writer.Write(MemberCount);
             writer.Write(TotalMessages);
             Admin.Serialize(writer);
 
-            for (int i = 0; i < Users.Length; i++)
-                Users[i].Serialize(writer);
+            writer.Write(Users);
         }
 
         public static Chat Deserialize(BinaryReader reader)
@@ -46,15 +44,10 @@ namespace ApiTypes
             var chat = new Chat()
             {
                 Id = reader.ReadInt32(),
-                MemberCount = reader.ReadInt32(),
                 TotalMessages = reader.ReadInt32(),
                 Admin = User.Deserialize(reader),
+                Users = reader.Read<User>(),
             };
-
-            chat.Users=new User[chat.MemberCount];
-            for (int i = 0; i < chat.MemberCount; i++)
-                chat.Users[i] = User.Deserialize(reader);
-
             return chat;
         }
     }
