@@ -1,5 +1,6 @@
 ﻿using ApiTypes;
 using ApiTypes.Auth;
+using ApiTypes.Users;
 using CSDTP.Cryptography;
 using CSDTP.Cryptography.Algorithms;
 using CSDTP.Requests;
