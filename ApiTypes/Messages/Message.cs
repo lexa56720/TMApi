@@ -1,37 +1,36 @@
 ﻿using ApiTypes.Users;
 using CSDTP;
+using System.Diagnostics.CodeAnalysis;
 
 namespace ApiTypes.Messages
 {
     public class Message : ISerializable<Message>
     {
-        public string Text { get; private set; } = string.Empty;
+        public required string Text { get; init; } = string.Empty;
 
+
+        public required bool IsHasAuthor { get; init; }
         public User? Author { get; private set; }
 
-        public int Id { get; private set; } = -1;
+        public int Id { get; init; } = -1;
 
-        public int DestinationId { get; private set; }
+        public required int DestinationId { get; init; }
 
-
-        public bool IsHasAuthor { get; private set; }
-
-        public bool IsHasTime { get; private set; }
-
-        public bool IsHasId { get; private set; }
+        public bool IsHasTime { get; init; }
 
         public DateTime SendTime { get; private set; }
 
 
+        [SetsRequiredMembers]
         public Message(string text, int destinationId)
         {
             Text = text;
             DestinationId = destinationId;
             IsHasAuthor = false;
             IsHasTime = false;
-            IsHasId = false;
         }
 
+        [SetsRequiredMembers]
         public Message(string text, User author, int id, DateTime sendTime)
         {
             Text = text;
@@ -41,26 +40,11 @@ namespace ApiTypes.Messages
 
             IsHasAuthor = true;
             IsHasTime = true;
-            IsHasId = true;
         }
 
-        public static Message Deserialize(BinaryReader reader)
+        public Message()
         {
-            var message = new Message(reader.ReadString(), reader.Read())
-            {
-                IsHasId = reader.ReadBoolean(),
-                IsHasTime = reader.ReadBoolean(),
-                IsHasAuthor = reader.ReadBoolean(),
-            };
 
-            if (message.IsHasId)
-                message.Id = reader.ReadInt32();
-            if (message.IsHasTime)
-                message.SendTime = DateTime.FromBinary(reader.ReadInt64());
-            if (message.IsHasAuthor)
-                message.Author = User.Deserialize(reader);
-
-            return message;
         }
 
         public void Serialize(BinaryWriter writer)
@@ -68,21 +52,37 @@ namespace ApiTypes.Messages
             writer.Write(Text);
             writer.Write(DestinationId);
 
-            writer.Write(IsHasId);
             writer.Write(IsHasTime);
             writer.Write(IsHasAuthor);
 
-            if (IsHasId)
-                writer.Write(Id);
+            writer.Write(Id);
 
             writer.Write(IsHasTime);
             if (IsHasTime)
                 writer.Write(SendTime.ToBinary());
 
-
             writer.Write(IsHasAuthor);
             if (IsHasAuthor)
                 Author.Serialize(writer);
+        }
+
+        public static Message Deserialize(BinaryReader reader)
+        {
+            var message = new Message()
+            {
+                Text= reader.ReadString(),
+                DestinationId= reader.ReadInt32(),
+                IsHasTime = reader.ReadBoolean(),
+                IsHasAuthor = reader.ReadBoolean(),
+                Id = reader.ReadInt32(),
+            };
+
+            if (message.IsHasTime)
+                message.SendTime = DateTime.FromBinary(reader.ReadInt64());
+            if (message.IsHasAuthor)
+                message.Author = User.Deserialize(reader);
+
+            return message;
         }
     }
 }

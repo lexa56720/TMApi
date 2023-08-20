@@ -1,6 +1,7 @@
 ﻿using CSDTP;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,22 +10,29 @@ namespace ApiTypes.Users
 {
     public class User : ISerializable<User>
     {
-        public string Name { get; private set; }
+        public required string Name { get; init; }
 
-        public int Id { get; private set; }
+        public required int Id { get; init; }
 
-        public bool IsOnline { get; set; }=false;
+        public required bool IsOnline { get; init; } =false;
 
+        [SetsRequiredMembers]
         public User(string name, int id)
         {
             Name = name;
             Id = id;
         }
+        public User()
+        {
+
+        }
 
         public static User Deserialize(BinaryReader reader)
         {
-            return new User(reader.ReadString(), reader.ReadInt32())
+            return new User()
             {
+                Name= reader.ReadString(),
+                Id= reader.ReadInt32(),
                 IsOnline = reader.ReadBoolean()
             };
         }

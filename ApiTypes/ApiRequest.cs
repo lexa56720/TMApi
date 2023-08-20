@@ -1,6 +1,7 @@
 ﻿using CSDTP;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,19 +12,20 @@ namespace ApiTypes
     {
 
         public string Header { get; init; } = string.Empty;
-        public string Token { get; init; }
+        public required string Token { get; init; }
 
-        public int Id { get; init; }
+        public required int Id { get; init; }
 
-        public T Data { get; init; }
+        public required T Data { get; init; }
 
-
+        [SetsRequiredMembers]
         public ApiRequest(string token, int id, T data)
         {
             Token = token;
             Data = data;
             Id = id;
         }
+        [SetsRequiredMembers]
         public ApiRequest(string header ,string token, int id, T data)
         {
             Header = header;
@@ -32,9 +34,20 @@ namespace ApiTypes
             Id = id;
         }
 
+        public ApiRequest()
+        {
+
+        }
+
         public static ApiRequest<T> Deserialize(BinaryReader reader)
         {
-            return new ApiRequest<T>(reader.ReadString(),reader.ReadString(), reader.Read(),T.Deserialize(reader));
+            return new ApiRequest<T>()
+            {
+                Header = reader.ReadString(),
+                Token = reader.ReadString(),
+                Id = reader.Read(),
+                Data = T.Deserialize(reader)
+            };
         }
 
         public void Serialize(BinaryWriter writer)

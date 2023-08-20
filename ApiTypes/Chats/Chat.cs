@@ -3,6 +3,7 @@ using CSDTP;
 using CSDTP.Utils;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -19,6 +20,7 @@ namespace ApiTypes.Chats
 
         public required int TotalMessages { get; init; }
 
+        [SetsRequiredMembers]
         public Chat(int id, User admin, params User[] users)
         {
             Id = id;

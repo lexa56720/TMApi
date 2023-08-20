@@ -19,7 +19,7 @@ namespace ApiTypes.BaseTypes
 
         public void Serialize(BinaryWriter writer)
         {
-            writer.Write<T>(Items);
+            writer.Write(Items);
         }
 
         public static SerializableArray<T> Deserialize(BinaryReader reader)

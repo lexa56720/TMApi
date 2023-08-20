@@ -1,6 +1,7 @@
 ﻿using CSDTP;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,25 +11,34 @@ namespace ApiTypes.Auth
     public class AuthorizationRequest : ISerializable<AuthorizationRequest>
     {
 
-        public string Login { get; private set; }
+        public required string Login { get; init; }
 
-        public string Password { get; private set; }
+        public required string Password { get; init; }
 
+        [SetsRequiredMembers]
         public AuthorizationRequest(string login, string password)
         {
             Login = login;
             Password = password;
         }
-
-        public static AuthorizationRequest Deserialize(BinaryReader reader)
+        public AuthorizationRequest()
         {
-            return new AuthorizationRequest(reader.ReadString(), reader.ReadString());
+
         }
 
         public void Serialize(BinaryWriter writer)
         {
             writer.Write(Login);
             writer.Write(Password);
+        }
+
+        public static AuthorizationRequest Deserialize(BinaryReader reader)
+        {
+            return new AuthorizationRequest()
+            {
+                Login = reader.ReadString(),
+                Password = reader.ReadString()
+            };
         }
     }
 }

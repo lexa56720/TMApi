@@ -10,15 +10,27 @@ namespace ApiTypes.Auth
 {
     public class AuthorizationResponse : ISerializable<AuthorizationResponse>
     {
-
-        public bool IsSuccessful { get;  init; }
+        public required bool IsSuccessful { get;  init; }
 
         public string AccessToken { get; set; } = string.Empty;
         public int Id { get; set; }
         public DateTime Expiration { get; set; }
-
         public byte[] AesKey { get; set; } = Array.Empty<byte>();
 
+
+        public void Serialize(BinaryWriter writer)
+        {
+            writer.Write(IsSuccessful);
+            if (IsSuccessful)
+            {
+                writer.Write(AesKey.Length);
+                writer.Write(AesKey);
+
+                writer.Write(Id);
+                writer.Write(AccessToken);
+                writer.Write(Expiration.ToBinary());
+            }
+        }
 
         public static AuthorizationResponse Deserialize(BinaryReader reader)
         {
@@ -35,21 +47,6 @@ namespace ApiTypes.Auth
             }
 
             return response;
-        }
-
-        public void Serialize(BinaryWriter writer)
-        {
-            writer.Write(IsSuccessful);
-            if (IsSuccessful)
-            {
-                writer.Write(AesKey.Length);
-                writer.Write(AesKey);
-
-                writer.Write(Id);
-                writer.Write(AccessToken);
-                writer.Write(Expiration.ToBinary());
-            }
-
         }
     }
 }

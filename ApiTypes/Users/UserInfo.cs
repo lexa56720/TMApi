@@ -2,6 +2,7 @@
 using CSDTP.Utils;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,10 +12,13 @@ namespace ApiTypes.Users
     public class UserInfo : ISerializable<UserInfo>
     {
         public required User MainInfo { get; init; }
+
         public required User[] Friends { get; init; } = Array.Empty<User>();
 
         public required int[] Chats { get; init; } = Array.Empty<int>();
 
+
+        [SetsRequiredMembers]
         public UserInfo(User[] friends, int[] chats, User mainInfo)
         {
             Friends = friends;
@@ -25,6 +29,7 @@ namespace ApiTypes.Users
         {
 
         }
+
         public void Serialize(BinaryWriter writer)
         {
             MainInfo.Serialize(writer);
@@ -41,7 +46,6 @@ namespace ApiTypes.Users
                 Chats=reader.ReadInt32Array(),
             };
         }
-
 
     }
 }

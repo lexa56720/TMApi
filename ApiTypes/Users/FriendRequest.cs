@@ -1,6 +1,7 @@
 ﻿using CSDTP;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,6 +14,7 @@ namespace ApiTypes.Users
 
         public required int ToId { get; init; }
 
+        [SetsRequiredMembers]
         public FriendRequest(int from, int to) 
         { 
             FromId=from; 

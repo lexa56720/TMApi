@@ -10,7 +10,7 @@ namespace ApiTypes
 {
     internal class TMPacket<T> : Packet<T> where T : ISerializable<T>
     {
-        public int Id { get; set; }
+        public static int Id { get; set; } = -1;
 
 
         protected override void DeserializeCustomData(BinaryReader reader)

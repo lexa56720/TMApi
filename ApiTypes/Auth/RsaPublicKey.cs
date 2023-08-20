@@ -1,6 +1,7 @@
 ﻿using CSDTP;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,9 +10,10 @@ namespace ApiTypes.Auth
 {
     public class RsaPublicKey : ISerializable<RsaPublicKey>
     {
-        public string Key { get; private set; }
+        public required string Key { get; init; }
 
 
+        [SetsRequiredMembers]
         public RsaPublicKey(string key)
         {
             Key = key;
