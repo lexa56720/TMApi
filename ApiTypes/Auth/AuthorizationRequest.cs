@@ -10,10 +10,10 @@ namespace ApiTypes.Auth
 {
     public class AuthorizationRequest : ISerializable<AuthorizationRequest>
     {
-
         public required string Login { get; init; }
 
         public required string Password { get; init; }
+
 
         [SetsRequiredMembers]
         public AuthorizationRequest(string login, string password)

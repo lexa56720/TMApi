@@ -15,6 +15,7 @@ namespace TMServer.RequestHandlers
 {
     internal static class AuthHandler
     {
+        private static TimeSpan TokenLife = TimeSpan.FromDays(3);
 
         public static RsaPublicKey RsaKeyTrade(RsaPublicKey clientKey, IPacketInfo info)
         {
@@ -35,7 +36,7 @@ namespace TMServer.RequestHandlers
             {
                 var token = HashGenerator.GetRandomString();
                 var aesCrypter = new AesEncrypter();
-                var expiration = DateTime.UtcNow.AddDays(3);
+                var expiration = DateTime.UtcNow.Add(TokenLife);
 
                 var cryptId = Security.SaveAuth(id, aesCrypter.Key, aesCrypter.IV, token, expiration);
 
@@ -56,5 +57,18 @@ namespace TMServer.RequestHandlers
 
         }
 
+
+        public static RegisterResponse Register(AuthorizationRequest request)
+        {
+            var isSuccsessful = Security.IsLoginFree(request.Login);
+
+            if (isSuccsessful)
+                isSuccsessful = Security.CreateUser(request.Login, request.Password);
+
+            return new RegisterResponse()
+            {
+                IsSuccessful = isSuccsessful
+            };
+        }
     }
 }

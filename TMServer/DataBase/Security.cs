@@ -8,7 +8,7 @@ namespace TMServer.DataBase
 {
     internal static class Security
     {
-        public static void SaveRsaKeyPair(uint ip, string serverPrivateKey, string clientPublicKey)
+        public static bool SaveRsaKeyPair(uint ip, string serverPrivateKey, string clientPublicKey)
         {
 
         }
@@ -18,7 +18,22 @@ namespace TMServer.DataBase
 
         }
 
+        public static AesData? GetAesKeysByCryptId(int cryptId)
+        {
+
+        }
+
         public static int GetUserId(string login, string password)
+        {
+
+        }
+
+        public static bool IsLoginFree(string login)
+        {
+
+        }
+
+        public static bool CreateUser(string login, string password)
         {
 
         }

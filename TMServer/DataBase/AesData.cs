@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace TMServer.DataBase
 {
-    public class KeyPair
+    internal class AesData
     {
-        public required string ServerPrivateKey { get; init; }
-        public required string ClientPublicKey { get; init; }
-    }
+        public required byte[] Key { get; init; }
 
+        public required byte[] IV { get; init; }
+    }
 }
