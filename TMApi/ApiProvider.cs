@@ -32,7 +32,7 @@ namespace TMApi
 
             if (authResult != null && authResult.IsSuccessful)
             {
-                var api = new TMApi(authResult.AccessToken, authResult.Expiration, authResult.Id, authResult.AesKey);
+                var api = new TMApi(authResult.AccessToken, authResult.Expiration, authResult.UserId, authResult.CryptId, authResult.AesKey);
                 await api.Init();
                 return api;
             }

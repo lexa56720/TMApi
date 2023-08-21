@@ -8,21 +8,29 @@ using System.Threading.Tasks;
 
 namespace ApiTypes
 {
-    internal class TMPacket<T> : Packet<T> where T : ISerializable<T>
+    public class TMPacket<T> : Packet<T> where T : ISerializable<T>
     {
-        public static int Id { get; set; } = -1;
+        public static IdHolder Id { get; set; } = new IdHolder(-1);
 
+        public class IdHolder
+        {
+            public IdHolder(int id)
+            {
+                Value = id;
+            }
+            public static int Value { get; set; }
+        }
 
         protected override void DeserializeCustomData(BinaryReader reader)
         {
             base.DeserializeCustomData(reader);
-            Id = reader.ReadInt32();
+            Id = new IdHolder(reader.ReadInt32());
         }
 
         protected override void SerializeCustomData(BinaryWriter writer)
         {
             base.SerializeCustomData(writer);
-            writer.Write(Id);
+            writer.Write(IdHolder.Value);
         }
     }
 }

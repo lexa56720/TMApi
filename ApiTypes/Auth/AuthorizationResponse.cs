@@ -1,5 +1,6 @@
 ﻿using CSDTP;
 using CSDTP.Requests;
+using CSDTP.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,10 +11,12 @@ namespace ApiTypes.Auth
 {
     public class AuthorizationResponse : ISerializable<AuthorizationResponse>
     {
-        public required bool IsSuccessful { get;  init; }
+        public required bool IsSuccessful { get; init; }
 
         public string AccessToken { get; set; } = string.Empty;
-        public int Id { get; set; }
+        public int UserId { get; set; }
+        public int CryptId { get; set; }
+
         public DateTime Expiration { get; set; }
         public byte[] AesKey { get; set; } = Array.Empty<byte>();
 
@@ -23,10 +26,10 @@ namespace ApiTypes.Auth
             writer.Write(IsSuccessful);
             if (IsSuccessful)
             {
-                writer.Write(AesKey.Length);
-                writer.Write(AesKey);
+                writer.WriteBytes(AesKey);
 
-                writer.Write(Id);
+                writer.Write(UserId);
+                writer.Write(CryptId);
                 writer.Write(AccessToken);
                 writer.Write(Expiration.ToBinary());
             }
@@ -40,8 +43,9 @@ namespace ApiTypes.Auth
             };
             if (response.IsSuccessful)
             {
-                response.AesKey = reader.ReadBytes(reader.ReadInt32());
-                response.Id = reader.ReadInt32();
+                response.AesKey = reader.ReadByteArray();
+                response.UserId = reader.ReadInt32();
+                response.CryptId = reader.ReadInt32();
                 response.AccessToken = reader.ReadString();
                 response.Expiration = DateTime.FromBinary(reader.ReadInt64());
             }

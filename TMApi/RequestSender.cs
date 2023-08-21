@@ -20,11 +20,11 @@ namespace TMApi
 
         private const int AesPort = 6666;
 
-        private IPAddress Server { get; set; } = new IPAddress(new byte[] { 127, 0, 0, 1 });
+        private IPAddress Server => new IPAddress(new byte[] { 127, 0, 0, 1 });
 
-        public string Token { get; set; } = string.Empty;
+        public string Token { get; internal set; } = string.Empty;
 
-        public int Id { get; set; }
+        public int UserId { get; internal set; }
 
         Requester Requester { get; set; }
 
@@ -32,14 +32,8 @@ namespace TMApi
 
         private TimeSpan Timeout => TimeSpan.FromSeconds(5);
 
-        public RequestSender(bool isRsa, IEncrypter encrypter)
-        {
-            Requester = new Requester(new IPEndPoint(Server, GetPort(isRsa)), new SimpleEncryptProvider(encrypter));
-            IsRsa = isRsa;
-        }
         public RequestSender(bool isRsa, IEncrypter encrypter, IEncrypter decrypter)
         {
-            
             Requester = new Requester(new IPEndPoint(Server, GetPort(isRsa)), new SimpleEncryptProvider(encrypter), new SimpleEncryptProvider(decrypter));
             IsRsa = isRsa;
         }
@@ -49,6 +43,15 @@ namespace TMApi
             Requester = new Requester(new IPEndPoint(Server, GetPort(isRsa)));
             IsRsa = isRsa;
         }
+        public void Dispose()
+        {
+            Requester.Dispose();
+        }
+
+        public bool SetPacketType(Type type)
+        {
+            return Requester.SetPacketType(type);
+        }
 
         private int GetPort(bool isRsa)
         {
@@ -56,6 +59,8 @@ namespace TMApi
                 return RsaPort;
             return AesPort;
         }
+
+
         public async Task<T> PostAsync<T, U>(U data) where T : ISerializable<T> where U : ISerializable<U>
         {
             return await Requester.PostAsync<T, U>(data, Timeout);
@@ -68,24 +73,22 @@ namespace TMApi
 
         public async Task<T> PostRequestAsync<T, U>(U data) where T : ISerializable<T> where U : ISerializable<U>
         {
-            return await Requester.PostAsync<T, ApiRequest<U>>(new ApiRequest<U>(Token,Id, data), Timeout);
+            return await Requester.PostAsync<T, ApiData<U>>(new ApiData<U>(Token, UserId, data), Timeout);
         }
         public async Task<bool> GetRequestAsync<T>(T data) where T : ISerializable<T>
         {
-            return await Requester.GetAsync(new ApiRequest<T>(Token, Id, data));
+            return await Requester.GetAsync(new ApiData<T>(Token, UserId, data));
         }
 
-        public async Task<T> PostRequestAsync<T, U>(string header,U data) where T : ISerializable<T> where U : ISerializable<U>
+        public async Task<T> PostRequestAsync<T, U>(string header, U data) where T : ISerializable<T> where U : ISerializable<U>
         {
-            return await Requester.PostAsync<T, ApiRequest<U>>(new ApiRequest<U>(header, Token, Id, data), Timeout);
+            return await Requester.PostAsync<T, ApiData<U>>(new ApiData<U>(header, Token, UserId, data), Timeout);
         }
         public async Task<bool> GetRequestAsync<T>(string header, T data) where T : ISerializable<T>
         {
-            return await Requester.GetAsync(new ApiRequest<T>(header,Token, Id, data));
+            return await Requester.GetAsync(new ApiData<T>(header, Token, UserId, data));
         }
-        public void Dispose()
-        {
-            Requester.Dispose();
-        }
+
+
     }
 }

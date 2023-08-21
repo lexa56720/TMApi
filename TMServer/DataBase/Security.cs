@@ -23,7 +23,7 @@ namespace TMServer.DataBase
 
         }
 
-        public static void SaveAuth(int id, byte[] aesKey, byte[] aesIV, string token, DateTime expiration)
+        public static int SaveAuth(int id, byte[] aesKey, byte[] aesIV, string token, DateTime expiration)
         {
 
         }

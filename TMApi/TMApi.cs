@@ -1,5 +1,6 @@
 ﻿using ApiTypes;
 using ApiTypes.Auth;
+using ApiTypes.BaseTypes;
 using ApiTypes.Users;
 using CSDTP.Cryptography;
 using CSDTP.Cryptography.Algorithms;
@@ -45,16 +46,25 @@ namespace TMApi
         public UserInfo User { get; private set; }
 
 
-        public TMApi(string token, DateTime tokenTime, int id, byte[] aesKey)
+        public TMApi(string token, DateTime tokenTime, int userId, int cryptId, byte[] aesKey)
         {
-            Requester = new RequestSender(false, new AesEncrypter(aesKey))
-            {
-                Token = token,
-                Id = id,
-            };
-            Id = id;
+            SetupRequester(token, userId, cryptId, aesKey);
+
+            Id = userId;
             AccesToken = token;
             Expiration = tokenTime;
+        }
+
+        private void SetupRequester(string token, int userId, int cryptId, byte[] aesKey)
+        {
+            var crypter = new AesEncrypter(aesKey);
+            Requester = new RequestSender(false, crypter, crypter)
+            {
+                Token = token,
+                UserId = userId,
+            };
+            TMPacket<IntContainer>.IdHolder.Value = cryptId;
+            Requester.SetPacketType(typeof(TMPacket<>));
         }
 
         public async Task Init()

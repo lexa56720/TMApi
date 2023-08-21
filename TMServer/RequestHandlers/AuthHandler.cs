@@ -37,14 +37,15 @@ namespace TMServer.RequestHandlers
                 var aesCrypter = new AesEncrypter();
                 var expiration = DateTime.UtcNow.AddDays(3);
 
-                Security.SaveAuth(id, aesCrypter.Key, aesCrypter.IV, token, expiration);
+                var cryptId = Security.SaveAuth(id, aesCrypter.Key, aesCrypter.IV, token, expiration);
 
                 return new AuthorizationResponse()
                 {
                     AccessToken = token,
                     AesKey = aesCrypter.Key,
                     Expiration = expiration,
-                    Id = id,
+                    UserId = id,
+                    CryptId = cryptId,
                     IsSuccessful = true
                 };
             }

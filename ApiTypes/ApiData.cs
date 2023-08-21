@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace ApiTypes
 {
-    public class ApiRequest<T> : ISerializable<ApiRequest<T>> where T : ISerializable<T>
+    public class ApiData<T> : ISerializable<ApiData<T>> where T : ISerializable<T>
     {
 
         public string Header { get; init; } = string.Empty;
@@ -19,14 +19,14 @@ namespace ApiTypes
         public required T Data { get; init; }
 
         [SetsRequiredMembers]
-        public ApiRequest(string token, int id, T data)
+        public ApiData(string token, int id, T data)
         {
             Token = token;
             Data = data;
             Id = id;
         }
         [SetsRequiredMembers]
-        public ApiRequest(string header ,string token, int id, T data)
+        public ApiData(string header ,string token, int id, T data)
         {
             Header = header;
             Token = token;
@@ -34,14 +34,14 @@ namespace ApiTypes
             Id = id;
         }
 
-        public ApiRequest()
+        public ApiData()
         {
 
         }
 
-        public static ApiRequest<T> Deserialize(BinaryReader reader)
+        public static ApiData<T> Deserialize(BinaryReader reader)
         {
-            return new ApiRequest<T>()
+            return new ApiData<T>()
             {
                 Header = reader.ReadString(),
                 Token = reader.ReadString(),
