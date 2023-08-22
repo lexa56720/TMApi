@@ -5,9 +5,9 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TMServer.Utils
+namespace ApiTypes.Shared
 {
-    internal static class HashGenerator
+    public static class HashGenerator
     {
         static readonly SHA512 Hasher = SHA512.Create();
         public static string GetRandomString()
@@ -17,12 +17,23 @@ namespace TMServer.Utils
 
         public static string GenerateHash(byte[] bytes)
         {
-            return Convert.ToHexString(Hasher.ComputeHash(bytes));
+            return Convert.ToBase64String(Hasher.ComputeHash(bytes));
         }
 
         public static string GenerateHash(string str)
         {
-            return Convert.ToHexString(Hasher.ComputeHash(Encoding.UTF8.GetBytes(str)));
+            return Convert.ToBase64String(Hasher.ComputeHash(Encoding.UTF8.GetBytes(str)));
+        }
+
+
+        public static string BytesToString(byte[] bytes)
+        {
+           return Convert.ToBase64String(bytes);
+        }
+
+        public static byte[] Base64ToBytes(string str)
+        {
+            return Convert.FromBase64String(str);
         }
     }
 }

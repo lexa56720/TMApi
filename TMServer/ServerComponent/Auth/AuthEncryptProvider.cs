@@ -8,6 +8,8 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using TMServer.DataBase;
+using TMServer.DataBase.Tables;
+using TMServer.DataBase.Types;
 
 namespace TMServer.ServerComponent.Auth
 {
@@ -28,7 +30,7 @@ namespace TMServer.ServerComponent.Auth
             var keys = GetKeys(packet);
             if (keys == null)
                 return null;
-            var rsaDecrypter = new RsaEncrypter(keys.ServerPrivateKey);
+            var rsaDecrypter = new RsaEncrypter(keys.PrivateServerKey);
             return rsaDecrypter;
         }
         public IEncrypter? GetEncrypter(IPacketInfo packet)
@@ -36,13 +38,15 @@ namespace TMServer.ServerComponent.Auth
             var keys = GetKeys(packet);
             if (keys == null)
                 return null;
-            var rsaDecrypter = new RsaEncrypter(keys.ClientPublicKey);
+            var rsaDecrypter = new RsaEncrypter(keys.PublicClientKey);
             return rsaDecrypter;
         }
 
-        private KeyPair? GetKeys(IPacketInfo packet)
+        private RsaCrypt GetKeys(IPacketInfo packet)
         {
-            return Security.GetRsaKeysByIp(BitConverter.ToUInt32(packet.Source.GetAddressBytes()));
+            var rsa= Security.GetRsaKeysByIp(BitConverter.ToUInt32(packet.Source.GetAddressBytes()));
+            ArgumentNullException.ThrowIfNull(rsa);
+            return rsa;
         }
 
     }

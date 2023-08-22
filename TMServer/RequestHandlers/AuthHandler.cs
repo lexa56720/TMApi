@@ -1,5 +1,6 @@
 ﻿using ApiTypes;
 using ApiTypes.Auth;
+using ApiTypes.Shared;
 using CSDTP.Cryptography;
 using CSDTP.Cryptography.Algorithms;
 using CSDTP.Packets;
@@ -9,7 +10,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TMServer.DataBase;
-using TMServer.Utils;
+
 
 namespace TMServer.RequestHandlers
 {

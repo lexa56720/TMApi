@@ -1,5 +1,6 @@
 ﻿using ApiTypes;
 using ApiTypes.BaseTypes;
+using ApiTypes.Users;
 using CSDTP;
 using System;
 using System.Collections.Generic;

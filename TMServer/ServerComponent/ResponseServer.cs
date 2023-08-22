@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TMServer.ServerComponent.Basics;
+using CSDTP.Cryptography.Providers;
 
 namespace TMServer.Servers
 {
@@ -17,7 +18,7 @@ namespace TMServer.Servers
 
         private Dictionary<Type, Dictionary<string, object>> GetHandlers = new Dictionary<Type, Dictionary<string, object>>();
 
-        public ResponseServer(int port) : base(port)
+        public ResponseServer(int port,IEncryptProvider encryptProvider) : base(port,encryptProvider)
         {
         }
 
