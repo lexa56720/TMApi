@@ -61,7 +61,7 @@ namespace TMServer.RequestHandlers
 
         public static RegisterResponse Register(AuthorizationRequest request)
         {
-            var isSuccsessful = Security.IsLoginFree(request.Login);
+            var isSuccsessful = Security.IsLoginAvailable(request.Login);
 
             if (isSuccsessful)
                 isSuccsessful = Security.CreateUser(request.Login, request.Password);

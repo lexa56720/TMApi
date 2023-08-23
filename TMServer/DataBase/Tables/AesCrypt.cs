@@ -11,5 +11,5 @@ public partial class AesCrypt
 
     public required string IV { get; set; }
 
-    public virtual ICollection<User> Users { get; set; } = new List<User>();
+    public virtual User User { get; set; } = null!;
 }

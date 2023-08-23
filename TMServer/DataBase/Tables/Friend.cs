@@ -5,11 +5,11 @@ namespace TMServer.DataBase.Tables;
 
 public partial class Friend
 {
-    public required int Userid { get; set; }
+    public int Id { get; set; }
+    public required int UserIdOne { get; set; }
+    public required int UserIdTwo { get; set; }
 
-    public required int FriendId { get; set; }
+    public User UserOne { get; set; } = null!;
 
-    public virtual User FriendNavigation { get; set; } = null!;
-
-    public virtual User User { get; set; } = null!;
+    public User UserTwo { get; set; } = null!;
 }
