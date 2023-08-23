@@ -13,7 +13,7 @@ using System.Reflection;
 
 namespace TMApi
 {
-    internal class ApiProvider
+    public class ApiProvider
     {
         public async Task<TMApi?> Register(string login, string password)
         {

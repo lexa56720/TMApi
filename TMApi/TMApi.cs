@@ -16,7 +16,7 @@ using TMApi.ApiRequests.Users;
 
 namespace TMApi
 {
-    internal class TMApi
+    public class TMApi
     {
         private string AccesToken
         {

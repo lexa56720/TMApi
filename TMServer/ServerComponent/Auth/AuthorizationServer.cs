@@ -1,4 +1,5 @@
 ﻿using CSDTP;
+using CSDTP.Cryptography.Providers;
 using CSDTP.Packets;
 using System;
 using System.Collections.Generic;
@@ -11,7 +12,7 @@ namespace TMServer.ServerComponent.Auth
 {
     internal class AuthorizationServer : Server
     {
-        public AuthorizationServer(int port) : base(port,new AuthEncryptProvider(),new AuthEncryptProvider())
+        public AuthorizationServer(int port,IEncryptProvider encryptProvider) : base(port, encryptProvider)
         {
         }
 

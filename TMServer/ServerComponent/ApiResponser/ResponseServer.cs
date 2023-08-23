@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using TMServer.ServerComponent.Basics;
 using CSDTP.Cryptography.Providers;
 
-namespace TMServer.Servers
+namespace TMServer.ServerComponent.ApiResponser
 {
     internal class ResponseServer : Server
     {
@@ -18,7 +18,7 @@ namespace TMServer.Servers
 
         private Dictionary<Type, Dictionary<string, object>> GetHandlers = new Dictionary<Type, Dictionary<string, object>>();
 
-        public ResponseServer(int port,IEncryptProvider encryptProvider) : base(port,encryptProvider)
+        public ResponseServer(int port,IEncryptProvider encryptProvider) : base(port, encryptProvider)
         {
         }
 

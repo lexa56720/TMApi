@@ -10,9 +10,9 @@ using System.Threading.Tasks;
 
 namespace TMApi.ApiRequests.Users
 {
-    internal class Users:BaseRequest
+    public class Users:BaseRequest
     {
-        public Users(RequestSender requester):base(requester) 
+        internal Users(RequestSender requester):base(requester) 
         {
         }
 
