@@ -14,7 +14,7 @@ namespace ApiTypes
         public string Header { get; init; } = string.Empty;
         public required string Token { get; init; }
 
-        public required int Id { get; init; }
+        public required int UserId { get; init; }
 
         public required T Data { get; init; }
 
@@ -23,7 +23,7 @@ namespace ApiTypes
         {
             Token = token;
             Data = data;
-            Id = id;
+            UserId = id;
         }
         [SetsRequiredMembers]
         public ApiData(string header ,string token, int id, T data)
@@ -31,7 +31,7 @@ namespace ApiTypes
             Header = header;
             Token = token;
             Data = data;
-            Id = id;
+            UserId = id;
         }
 
         public ApiData()
@@ -45,7 +45,7 @@ namespace ApiTypes
             {
                 Header = reader.ReadString(),
                 Token = reader.ReadString(),
-                Id = reader.Read(),
+                UserId = reader.Read(),
                 Data = T.Deserialize(reader)
             };
         }
@@ -54,7 +54,7 @@ namespace ApiTypes
         {
             writer.Write(Header);
             writer.Write(Token); 
-            writer.Write(Id);
+            writer.Write(UserId);
             Data.Serialize(writer);     
         }
     }

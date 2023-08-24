@@ -16,7 +16,7 @@ namespace TMServer.DataBase
         {
             using var db = new TmdbContext();
 
-            var rsa = new RsaCrypt()
+            var rsa = new DBRsa()
             {
                 PrivateServerKey = serverPrivateKey,
                 PublicClientKey = clientPublicKey,
@@ -28,13 +28,13 @@ namespace TMServer.DataBase
             return rsa.Id;
         }
 
-        public static RsaCrypt? GetRsaKeysById(int rsaId)
+        public static DBRsa? GetRsaKeysById(int rsaId)
         {
             using var db = new TmdbContext();
             return db.RsaCrypts.Find(rsaId);
         }
 
-        public static AesCrypt? GetAesKeysByCryptId(int cryptId)
+        public static DBAes? GetAesKeysByCryptId(int cryptId)
         {
             using var db = new TmdbContext();
             return db.AesCrypts.Find(cryptId);
@@ -60,15 +60,15 @@ namespace TMServer.DataBase
             {
                 var aes = new AesEncrypter();
 
-                var dbCrypt = new AesCrypt()
+                var dbCrypt = new DBAes()
                 {
-                    AesKey = HashGenerator.BytesToString(aes.Key),
-                    IV = HashGenerator.BytesToString(aes.IV),
+                    AesKey = aes.Key,
+                    IV = aes.IV,
                 };
                 db.AesCrypts.Add(dbCrypt);
                 db.SaveChanges();
 
-                db.Users.Add(new User()
+                db.Users.Add(new DBUser()
                 {
                     Login = login,
                     LastRequest = DateTime.UtcNow,
@@ -96,17 +96,18 @@ namespace TMServer.DataBase
             var exist = db.AesCrypts.SingleOrDefault(a => a.User.Id == userId);
             if (exist == null)
             {
-                var aes = new AesCrypt()
+                var aes = new DBAes()
                 {
-                    AesKey = HashGenerator.BytesToString(aesKey),
-                    IV = HashGenerator.BytesToString(aesIV),
+                    AesKey = aesKey,
+                    IV = aesIV,
                 };
                 db.AesCrypts.Add(aes);
                 db.SaveChanges();
                 return aes.CryptId;
             }
-            exist.AesKey = HashGenerator.BytesToString(aesKey);
-            exist.IV = HashGenerator.BytesToString(aesIV);
+            exist.AesKey = aesKey;
+            exist.IV = aesIV;
+            db.SaveChanges();
             return exist.CryptId;
         }
 
@@ -122,7 +123,7 @@ namespace TMServer.DataBase
             }
             else
             {
-                db.Tokens.Add(new Token()
+                db.Tokens.Add(new DBToken()
                 {
                     AccessToken = token,
                     UserId = userId,
@@ -136,9 +137,10 @@ namespace TMServer.DataBase
         public static bool IsTokenCorrect(string token, int userId)
         {
             using var db = new TmdbContext();
-            var dbToken = db.Tokens.First(t => t.UserId == userId);
-            ArgumentNullException.ThrowIfNull(dbToken);
-            return dbToken.AccessToken == token;
+            var dbToken = db.Tokens.SingleOrDefault(t => t.UserId == userId);
+            if (dbToken != null)
+                return dbToken.AccessToken.Equals(token) && DateTime.UtcNow< dbToken.Expiration;
+            return false;
         }
         public static void UpdateAuth(int cryptId, byte[] aesIV)
         {
@@ -146,21 +148,19 @@ namespace TMServer.DataBase
 
             var aes = db.AesCrypts.Find(cryptId);
 
-            aes.IV = HashGenerator.BytesToString(aesIV);
+            aes.IV = aesIV;
 
             db.SaveChanges();
         }
 
-        public static AesEncrypter GetAuth(int cryptId)
+        public static AesEncrypter GetAesEncrypter(int cryptId)
         {
             using var db = new TmdbContext();
 
-            var dbAes = db.AesCrypts.Find(cryptId);
+            var dbAes = db.AesCrypts.SingleOrDefault(a => a.CryptId == cryptId);
             ArgumentNullException.ThrowIfNull(dbAes);
 
-            return new AesEncrypter(
-                HashGenerator.Base64ToBytes(dbAes.AesKey),
-                HashGenerator.Base64ToBytes(dbAes.IV));
+            return new AesEncrypter(dbAes.AesKey,dbAes.IV);
         }
     }
 }

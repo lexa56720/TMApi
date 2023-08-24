@@ -1,5 +1,7 @@
 ﻿using ApiTypes;
 using ApiTypes.Auth;
+using ApiTypes.BaseTypes;
+using ApiTypes.Users;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,6 +25,7 @@ namespace TMServer.Servers
             AuthServer = new AuthorizationServer(authPort, new AuthEncryptProvider());
             ResponseServer = new ResponseServer(responsePort, new ApiEncryptProvider());
             RegisterAuthMethods();
+            RegisterResponseMethods();
         }
 
         public void RegisterAuthMethods()
@@ -34,18 +37,20 @@ namespace TMServer.Servers
 
         public void RegisterResponseMethods()
         {
-            //AuthServer.Register<RsaPublicKey, RsaPublicKey>(AuthHandler.RsaKeyTrade);
+            ResponseServer.RegisterPostHandler<IntContainer, UserInfo>(UsersHandler.GetUserInfo, "userinfo");
         }
         public override void Start()
         {
             base.Start();
             AuthServer.Start();
+            ResponseServer.Start();
         }
 
         public override void Stop()
         {
             base.Stop();
             AuthServer.Stop();
+            ResponseServer.Stop();
         }
         public void Dispose()
         {

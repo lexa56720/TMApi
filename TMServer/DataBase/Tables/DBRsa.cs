@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿namespace TMServer.DataBase.Tables;
 
-namespace TMServer.DataBase.Tables;
-
-public partial class RsaCrypt
+public partial class DBRsa
 {
     public int Id { get; set; }
 

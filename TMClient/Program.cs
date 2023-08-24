@@ -1,4 +1,5 @@
-﻿using TMApi;
+﻿using ApiTypes.Shared;
+using TMApi;
 
 namespace TMClient
 {
@@ -7,7 +8,8 @@ namespace TMClient
         static async Task Main(string[] args)
         {
             ApiProvider apiProvider = new ApiProvider();
-            var api = await apiProvider.Register("FFF666", "SSSS");
+            //var api = await apiProvider.Register("FFF666", "SSSS");
+             var api = await apiProvider.GetApi("FFF666", "SSSS");
             Console.WriteLine(api.Id + " " + api.User.MainInfo.Name);
             Console.Read();
         }

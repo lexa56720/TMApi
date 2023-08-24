@@ -57,7 +57,7 @@ namespace TMApi
 
         private void SetupRequester(string token, int userId, int cryptId, byte[] aesKey)
         {
-            var crypter = new AesEncrypter(aesKey);
+            var crypter = new AesEncrypter(aesKey); 
             Requester = new RequestSender(false, crypter, crypter)
             {
                 Token = token,

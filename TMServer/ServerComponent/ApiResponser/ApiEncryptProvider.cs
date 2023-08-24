@@ -1,4 +1,5 @@
-﻿using CSDTP.Cryptography.Algorithms;
+﻿using ApiTypes.Packets;
+using CSDTP.Cryptography.Algorithms;
 using CSDTP.Cryptography.Providers;
 using CSDTP.Packets;
 using System;
@@ -6,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TMServer.DataBase;
 
 namespace TMServer.ServerComponent.ApiResponser
 {
@@ -13,22 +15,24 @@ namespace TMServer.ServerComponent.ApiResponser
     {
         public void Dispose()
         {
-            throw new NotImplementedException();
+            return;
         }
 
         public void DisposeEncryptor(IEncrypter encryptor)
         {
-            throw new NotImplementedException();
+            encryptor.Dispose();
         }
 
         public IEncrypter? GetDecrypter(IPacketInfo packet)
         {
-            throw new NotImplementedException();
+            var cryptId = ((ITMPacket)packet).Id.InstanceValue;
+            return Security.GetAesEncrypter(cryptId);
         }
 
         public IEncrypter? GetEncrypter(IPacketInfo packet)
         {
-            throw new NotImplementedException();
+            var cryptId = ((ITMPacket)packet.InfoObj).Id.InstanceValue;
+            return Security.GetAesEncrypter(cryptId);
         }
     }
 }

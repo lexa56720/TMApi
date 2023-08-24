@@ -17,26 +17,26 @@ public partial class TmdbContext : DbContext
     {
     }
 
-    public virtual DbSet<AesCrypt> AesCrypts { get; set; }
+    public virtual DbSet<DBAes> AesCrypts { get; set; }
 
-    public virtual DbSet<Chat> Chats { get; set; }
+    public virtual DbSet<DBChat> Chats { get; set; }
 
-    public virtual DbSet<Friend> Friends { get; set; }
+    public virtual DbSet<DBFriend> Friends { get; set; }
 
-    public virtual DbSet<Message> Messages { get; set; }
+    public virtual DbSet<DBMessage> Messages { get; set; }
 
-    public virtual DbSet<RsaCrypt> RsaCrypts { get; set; }
+    public virtual DbSet<DBRsa> RsaCrypts { get; set; }
 
-    public virtual DbSet<Token> Tokens { get; set; }
+    public virtual DbSet<DBToken> Tokens { get; set; }
 
-    public virtual DbSet<User> Users { get; set; }
+    public virtual DbSet<DBUser> Users { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         => optionsBuilder.UseNpgsql("Host=localhost;Port=5432;Database=tmdb;Username=tmadmin;Password=1234;Include Error Detail=True;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<AesCrypt>(entity =>
+        modelBuilder.Entity<DBAes>(entity =>
         {
             entity.HasKey(e => e.CryptId).HasName("aes_pkey");
 
@@ -52,10 +52,10 @@ public partial class TmdbContext : DbContext
 
             entity.HasOne(e => e.User)
             .WithOne(u => u.Crypt)
-            .HasForeignKey<User>(u => u.CryptId);
+            .HasForeignKey<DBUser>(u => u.CryptId);
         });
 
-        modelBuilder.Entity<Chat>(entity =>
+        modelBuilder.Entity<DBChat>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("chats_pkey");
 
@@ -66,7 +66,7 @@ public partial class TmdbContext : DbContext
             entity.Property(e => e.AdminId).HasColumnName("admin_id");
 
             entity.HasOne(e => e.Admin).WithOne()
-            .HasForeignKey<Chat>(c => c.AdminId);
+            .HasForeignKey<DBChat>(c => c.AdminId);
 
             entity.HasMany(d => d.Members).WithMany(p => p.Chats);
 
@@ -74,7 +74,7 @@ public partial class TmdbContext : DbContext
             .HasForeignKey(m => m.DestinationId);
         });
 
-        modelBuilder.Entity<Friend>(entity =>
+        modelBuilder.Entity<DBFriend>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("friends_pkey");
 
@@ -99,7 +99,7 @@ public partial class TmdbContext : DbContext
             .HasPrincipalKey(u => u.Id);
         });
 
-        modelBuilder.Entity<Message>(entity =>
+        modelBuilder.Entity<DBMessage>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("messages_pkey");
 
@@ -122,7 +122,7 @@ public partial class TmdbContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull);
         });
 
-        modelBuilder.Entity<RsaCrypt>(entity =>
+        modelBuilder.Entity<DBRsa>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("rsa_pkey");
 
@@ -139,7 +139,7 @@ public partial class TmdbContext : DbContext
             entity.Property(e => e.CreateDate).HasColumnName("create_date");
         });
 
-        modelBuilder.Entity<Token>(entity =>
+        modelBuilder.Entity<DBToken>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("tokens_pkey");
 
@@ -156,12 +156,12 @@ public partial class TmdbContext : DbContext
 
 
             entity.HasOne(d => d.User).WithOne(p => p.Token)
-                .HasForeignKey<Token>(d => d.UserId)
+                .HasForeignKey<DBToken>(d => d.UserId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("tokens_userid_fkey");
         });
 
-        modelBuilder.Entity<User>(entity =>
+        modelBuilder.Entity<DBUser>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("users_pkey");
 
@@ -184,7 +184,7 @@ public partial class TmdbContext : DbContext
                 .HasColumnName("password");
 
             entity.HasOne(d => d.Crypt).WithOne(p => p.User)
-                .HasForeignKey<User>(e => e.CryptId);
+                .HasForeignKey<DBUser>(e => e.CryptId);
         });
 
         OnModelCreatingPartial(modelBuilder);

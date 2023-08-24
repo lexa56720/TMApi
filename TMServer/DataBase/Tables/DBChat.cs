@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace TMServer.DataBase.Tables;
 
-public partial class Chat
+public partial class DBChat
 {
     public int Id { get; set; }
 
@@ -13,7 +13,7 @@ public partial class Chat
 
     public required int AdminId { get; set; }
 
-    public virtual User Admin { get; set; } = null!;
-    public virtual ICollection<User> Members { get; set; } = new List<User>();
-    public virtual ICollection<Message> Messages { get; set; } = new List<Message>();
+    public virtual DBUser Admin { get; set; } = null!;
+    public virtual ICollection<DBUser> Members { get; set; } = new List<DBUser>();
+    public virtual ICollection<DBMessage> Messages { get; set; } = new List<DBMessage>();
 }

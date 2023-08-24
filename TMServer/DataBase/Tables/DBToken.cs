@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace TMServer.DataBase.Tables;
 
-public partial class Token
+public partial class DBToken
 {
     public int Id { get; set; }
     public required int UserId { get; set; }
@@ -12,5 +12,5 @@ public partial class Token
 
     public required DateTime Expiration { get; set; }
 
-    public virtual User User { get; set; } = null!;
+    public virtual DBUser User { get; set; } = null!;
 }

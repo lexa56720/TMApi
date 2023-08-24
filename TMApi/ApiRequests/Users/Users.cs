@@ -18,7 +18,7 @@ namespace TMApi.ApiRequests.Users
 
         public async Task<UserInfo> GetUserInfo(int userId)
         {
-            return await Requester.PostRequestAsync<UserInfo, IntContainer>(new IntContainer(userId));
+            return await Requester.PostRequestAsync<UserInfo, IntContainer>("userinfo",new IntContainer(userId));
         }
         public async Task<User> GetUser(int userId)
         {
