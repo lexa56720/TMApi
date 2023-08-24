@@ -22,13 +22,13 @@ namespace TMServer.RequestHandlers
                     if (f.UserIdOne == user.Id)
                         return f.UserOne;
                     return f.UserTwo;
-                }).Select(c => new User(c.Name, c.Id)).ToArray();
+                }).Select(c => new User(c.Name, c.Id, c.IsOnline)).ToArray();
 
             return new UserInfo()
             {
                 Chats = user.Chats.Select(c => c.Id).ToArray(),
                 Friends = friends,
-                MainInfo = new User(user.Name, user.Id),
+                MainInfo = new User(user.Name, user.Id, true),
             };
         }
     }

@@ -43,7 +43,7 @@ namespace TMServer.DataBase
         public static int GetUserId(string login, string password)
         {
             using var db = new TmdbContext();
-            var user = db.Users.First(u => u.Login == login && u.Password == password);
+            var user = db.Users.SingleOrDefault(u => u.Login == login && u.Password == password);
             return user == null ? -1 : user.Id;
         }
 

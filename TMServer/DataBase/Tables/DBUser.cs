@@ -7,6 +7,7 @@ public partial class DBUser
 {
     public int Id { get; set; }
 
+    public bool IsOnline => (DateTime.UtcNow - LastRequest).TotalSeconds < 180;
     public required string Name { get; set; }
 
     public required DateTime LastRequest { get; set; }

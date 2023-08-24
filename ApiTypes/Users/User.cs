@@ -17,10 +17,11 @@ namespace ApiTypes.Users
         public required bool IsOnline { get; init; } =false;
 
         [SetsRequiredMembers]
-        public User(string name, int id)
+        public User(string name, int id, bool isOnline)
         {
             Name = name;
             Id = id;
+            IsOnline = isOnline;
         }
         public User()
         {

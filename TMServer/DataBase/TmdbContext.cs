@@ -176,7 +176,7 @@ public partial class TmdbContext : DbContext
                 .HasColumnName("login");
 
             entity.Property(e => e.Name)
-                .HasMaxLength(255)
+                .HasMaxLength(128)
                 .HasColumnName("name");
 
             entity.Property(e => e.Password)
