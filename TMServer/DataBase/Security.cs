@@ -12,6 +12,7 @@ namespace TMServer.DataBase
 {
     internal static class Security
     {
+        private static string Salt = "NySzq6hatK";
         public static int SaveRsaKeyPair(string serverPrivateKey, string clientPublicKey)
         {
             using var db = new TmdbContext();
@@ -42,8 +43,9 @@ namespace TMServer.DataBase
 
         public static int GetUserId(string login, string password)
         {
+            var saltedPassword = GetPasswordWithSalt(password, login);
             using var db = new TmdbContext();
-            var user = db.Users.SingleOrDefault(u => u.Login == login && u.Password == password);
+            var user = db.Users.SingleOrDefault(u => u.Login == login && u.Password == saltedPassword);
             return user == null ? -1 : user.Id;
         }
 
@@ -74,7 +76,7 @@ namespace TMServer.DataBase
                     LastRequest = DateTime.UtcNow,
                     Name = login,
                     CryptId = dbCrypt.CryptId,
-                    Password = password,
+                    Password = GetPasswordWithSalt(password,login),
                 });
                 db.SaveChanges();
 
@@ -133,6 +135,10 @@ namespace TMServer.DataBase
             db.SaveChanges();
         }
 
+        private static string GetPasswordWithSalt(string password,string login)
+        {
+            return HashGenerator.GenerateHash(password + login + Salt);
+        }
 
         public static bool IsTokenCorrect(string token, int userId)
         {
@@ -152,7 +158,6 @@ namespace TMServer.DataBase
 
             db.SaveChanges();
         }
-
         public static AesEncrypter GetAesEncrypter(int cryptId)
         {
             using var db = new TmdbContext();

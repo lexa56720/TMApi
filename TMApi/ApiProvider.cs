@@ -11,6 +11,7 @@ using CSDTP.Cryptography.Algorithms;
 using CSDTP.Protocols;
 using System.Reflection;
 using ApiTypes.Packets;
+using ApiTypes.Shared;
 
 namespace TMApi
 {
@@ -25,7 +26,7 @@ namespace TMApi
             RegisterResponse? registerResult = null;
             using var rsaRequester = new RequestSender(true, outputEncoder, inputDecoder);
 
-            registerResult = await rsaRequester.PostAsync<RegisterResponse, RegisterRequest>(new RegisterRequest(login, password));
+            registerResult = await rsaRequester.PostAsync<RegisterResponse, RegisterRequest>(new RegisterRequest(login, GetPasswordHash(password)));
 
 
             if (registerResult.IsSuccessful)
@@ -45,6 +46,7 @@ namespace TMApi
 
         public async Task<TMApi?> Login(string login, string password, RsaEncrypter inputDecoder, RsaEncrypter outputEncoder)
         {
+            password = GetPasswordHash(password);
             AuthorizationResponse? authResult = null;
             using (var rsaRequester = new RequestSender(true, outputEncoder, inputDecoder))
             {
@@ -79,6 +81,11 @@ namespace TMApi
 
             string serverRsaPublicKey = response.Key;
             return (serverRsaPublicKey, response.Id);
+        }
+
+        private string GetPasswordHash(string password)
+        {
+            return HashGenerator.GenerateHash(password);
         }
 
     }
