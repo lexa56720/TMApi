@@ -1,4 +1,5 @@
 ﻿using ApiTypes;
+using ApiTypes.Packets;
 using CSDTP;
 using CSDTP.Cryptography;
 using CSDTP.Cryptography.Algorithms;
@@ -30,27 +31,24 @@ namespace TMApi
 
         public bool IsRsa { get; }
 
-        private TimeSpan Timeout => TimeSpan.FromSeconds(5);
+        private TimeSpan Timeout => TimeSpan.FromSeconds(5000);
 
         public RequestSender(bool isRsa, IEncrypter encrypter, IEncrypter decrypter)
         {
             Requester = new Requester(new IPEndPoint(Server, GetPort(isRsa)), new SimpleEncryptProvider(encrypter), new SimpleEncryptProvider(decrypter));
+            Requester.SetPacketType(typeof(TMPacket<>));
             IsRsa = isRsa;
         }
 
         public RequestSender(bool isRsa)
         {
             Requester = new Requester(new IPEndPoint(Server, GetPort(isRsa)));
+            Requester.SetPacketType(typeof(TMPacket<>));
             IsRsa = isRsa;
         }
         public void Dispose()
         {
             Requester.Dispose();
-        }
-
-        public bool SetPacketType(Type type)
-        {
-            return Requester.SetPacketType(type);
         }
 
         private int GetPort(bool isRsa)
@@ -88,7 +86,5 @@ namespace TMApi
         {
             return await Requester.GetAsync(new ApiData<T>(header, Token, UserId, data));
         }
-
-
     }
 }

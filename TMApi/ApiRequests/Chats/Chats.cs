@@ -9,7 +9,7 @@ using ApiTypes.Chats;
 
 namespace TMApi.ApiRequests.Chats
 {
-    public class Chats : BaseRequest
+    public class Chats : BaseRequester
     {
         internal Chats(RequestSender requester) : base(requester)
         {

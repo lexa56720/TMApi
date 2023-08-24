@@ -20,13 +20,11 @@ namespace TMServer.RequestHandlers
 
         public static RsaPublicKey RsaKeyTrade(RsaPublicKey clientKey, IPacketInfo info)
         {
-            var id = BitConverter.ToUInt32(info.Source.GetAddressBytes());
-
             using RsaEncrypter encrypter = new RsaEncrypter();
             var serverKey = encrypter.PublicKey;
 
-            Security.SaveRsaKeyPair(id, encrypter.PrivateKey, clientKey.Key);
-            return new RsaPublicKey(serverKey);
+            var id = Security.SaveRsaKeyPair(encrypter.PrivateKey, clientKey.Key);
+            return new RsaPublicKey(serverKey, id);
         }
 
 
@@ -58,7 +56,7 @@ namespace TMServer.RequestHandlers
         }
 
 
-        public static RegisterResponse Register(AuthorizationRequest request)
+        public static RegisterResponse Register(RegisterRequest request)
         {
             var isSuccsessful = Security.IsLoginAvailable(request.Login);
 

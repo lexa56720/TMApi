@@ -10,7 +10,7 @@ using TMApi.ApiRequests.Chats;
 
 namespace TMApi.ApiRequests.Messages
 {
-    public class Messages : BaseRequest
+    public class Messages : BaseRequester
     {
         internal Messages(RequestSender requester) : base(requester)
         {

@@ -20,7 +20,7 @@ namespace TMServer.Servers
 
         public TMServer(int authPort, int responsePort)
         {
-            AuthServer = new AuthorizationServer(authPort,new AuthEncryptProvider());
+            AuthServer = new AuthorizationServer(authPort, new AuthEncryptProvider());
             ResponseServer = new ResponseServer(responsePort, new ApiEncryptProvider());
             RegisterAuthMethods();
         }
@@ -28,7 +28,10 @@ namespace TMServer.Servers
         public void RegisterAuthMethods()
         {
             AuthServer.Register<RsaPublicKey, RsaPublicKey>(AuthHandler.RsaKeyTrade);
+            AuthServer.Register<AuthorizationRequest, AuthorizationResponse>(AuthHandler.Auth);
+            AuthServer.Register<RegisterRequest, RegisterResponse>(AuthHandler.Register);
         }
+
         public void RegisterResponseMethods()
         {
             //AuthServer.Register<RsaPublicKey, RsaPublicKey>(AuthHandler.RsaKeyTrade);

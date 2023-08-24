@@ -14,9 +14,9 @@ namespace TMServer
         static void Main(string[] args)
         {
 
-            //var db = new TmdbContext();
+            var db = new TmdbContext();
             ////db.Database.EnsureDeleted();
-            //db.Database.EnsureCreated();
+            db.Database.EnsureCreated();
 
             //db.RsaCrypts.Add(new RsaCrypt() 
             //{ 

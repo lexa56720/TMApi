@@ -1,6 +1,9 @@
-﻿using CSDTP.Cryptography.Algorithms;
+﻿using ApiTypes.Auth;
+using ApiTypes.Packets;
+using CSDTP.Cryptography.Algorithms;
 using CSDTP.Cryptography.Providers;
 using CSDTP.Packets;
+using CSDTP.Requests.RequestHeaders;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,7 +38,10 @@ namespace TMServer.ServerComponent.Auth
         }
         public IEncrypter? GetEncrypter(IPacketInfo packet)
         {
-            var keys = GetKeys(packet);
+            if (IsInitPacket(packet))
+                return new FakeEncrypter();
+
+            var keys = GetKeys((IPacketInfo)packet.InfoObj);
             if (keys == null)
                 return null;
             var rsaDecrypter = new RsaEncrypter(keys.PublicClientKey);
@@ -44,10 +50,15 @@ namespace TMServer.ServerComponent.Auth
 
         private RsaCrypt GetKeys(IPacketInfo packet)
         {
-            var rsa= Security.GetRsaKeysByIp(BitConverter.ToUInt32(packet.Source.GetAddressBytes()));
+            var rsa = Security.GetRsaKeysById(((ITMPacket)packet).Id.InstanceValue);
             ArgumentNullException.ThrowIfNull(rsa);
             return rsa;
         }
-
+        private bool IsInitPacket(IPacketInfo packet)
+        {
+            if (((ITMPacket)(IPacketInfo)packet.InfoObj).Id.InstanceValue <= 0)
+                return true;
+            return false;
+        }
     }
 }

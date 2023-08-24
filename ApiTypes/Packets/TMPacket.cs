@@ -6,20 +6,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ApiTypes
+namespace ApiTypes.Packets
 {
-    public class TMPacket<T> : Packet<T> where T : ISerializable<T>
+    public class TMPacket<T> : Packet<T>, ITMPacket where T : ISerializable<T>
     {
-        public static IdHolder Id { get; set; } = new IdHolder(-1);
-
-        public class IdHolder
-        {
-            public IdHolder(int id)
-            {
-                Value = id;
-            }
-            public static int Value { get; set; }
-        }
+        public IdHolder Id { get; private set; } = new IdHolder(-1);
 
         protected override void DeserializeCustomData(BinaryReader reader)
         {

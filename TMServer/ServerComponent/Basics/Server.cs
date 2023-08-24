@@ -1,4 +1,5 @@
 ﻿using ApiTypes;
+using ApiTypes.Packets;
 using CSDTP;
 using CSDTP.Cryptography.Providers;
 using CSDTP.Requests;
@@ -19,11 +20,13 @@ namespace TMServer.ServerComponent.Basics
         protected Server(int port,IEncryptProvider encryptProvider, IEncryptProvider decryptProvider)
         {
             Responder = new Responder(TimeSpan.FromSeconds(20), port, encryptProvider, decryptProvider);
+            Responder.SetPacketType(typeof(TMPacket<>));
         }
 
         protected Server(int port, IEncryptProvider twoWayProvider)
         {
             Responder = new Responder(TimeSpan.FromSeconds(20), port, twoWayProvider, twoWayProvider);
+            Responder.SetPacketType(typeof(TMPacket<>));
         }
         public void Dispose()
         {

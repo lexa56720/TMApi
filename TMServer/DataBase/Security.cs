@@ -12,23 +12,26 @@ namespace TMServer.DataBase
 {
     internal static class Security
     {
-        public static void SaveRsaKeyPair(uint ip, string serverPrivateKey, string clientPublicKey)
+        public static int SaveRsaKeyPair(string serverPrivateKey, string clientPublicKey)
         {
             using var db = new TmdbContext();
-            db.RsaCrypts.Update(new RsaCrypt
+
+            var rsa = new RsaCrypt()
             {
-                Ip = ip,
                 PrivateServerKey = serverPrivateKey,
                 PublicClientKey = clientPublicKey,
                 CreateDate = DateTime.UtcNow,
-            });
+            };
+            db.RsaCrypts.Add(rsa);
             db.SaveChanges();
+
+            return rsa.Id;
         }
 
-        public static RsaCrypt? GetRsaKeysByIp(uint ip)
+        public static RsaCrypt? GetRsaKeysById(int rsaId)
         {
             using var db = new TmdbContext();
-            return db.RsaCrypts.Find(ip);
+            return db.RsaCrypts.Find(rsaId);
         }
 
         public static AesCrypt? GetAesKeysByCryptId(int cryptId)
@@ -56,18 +59,21 @@ namespace TMServer.DataBase
             if (!db.Users.Any(u => u.Login == login))
             {
                 var aes = new AesEncrypter();
-                var cryptId = db.AesCrypts.Add(new AesCrypt()
+
+                var dbCrypt = new AesCrypt()
                 {
                     AesKey = HashGenerator.BytesToString(aes.Key),
                     IV = HashGenerator.BytesToString(aes.IV),
-                }).Entity.CryptId;
+                };
+                db.AesCrypts.Add(dbCrypt);
+                db.SaveChanges();
 
                 db.Users.Add(new User()
                 {
                     Login = login,
                     LastRequest = DateTime.UtcNow,
                     Name = login,
-                    CryptId = cryptId,
+                    CryptId = dbCrypt.CryptId,
                     Password = password,
                 });
                 db.SaveChanges();
@@ -79,24 +85,53 @@ namespace TMServer.DataBase
 
         public static int SaveAuth(int userId, byte[] aesKey, byte[] aesIV, string token, DateTime expiration)
         {
+            AddOrUpdateToken(userId, token, expiration);
+            return AddOrUpdateAes(userId, aesKey, aesIV);
+        }
+
+        private static int AddOrUpdateAes(int userId, byte[] aesKey, byte[] aesIV)
+        {
             using var db = new TmdbContext();
 
-            var dbToken = db.Tokens.First(t => t.UserId == userId);
-
-            dbToken.AccessToken = token;
-            dbToken.Expiration = expiration;
-
-            db.AesCrypts.Remove(db.AesCrypts.First(a => a.User.Id == userId));
-
-            var cryptId = db.AesCrypts.Add(new AesCrypt()
+            var exist = db.AesCrypts.SingleOrDefault(a => a.User.Id == userId);
+            if (exist == null)
             {
-                AesKey = HashGenerator.BytesToString(aesKey),
-                IV = HashGenerator.BytesToString(aesIV),
-            }).Entity.CryptId;
-
-            db.SaveChanges();
-            return cryptId;
+                var aes = new AesCrypt()
+                {
+                    AesKey = HashGenerator.BytesToString(aesKey),
+                    IV = HashGenerator.BytesToString(aesIV),
+                };
+                db.AesCrypts.Add(aes);
+                db.SaveChanges();
+                return aes.CryptId;
+            }
+            exist.AesKey = HashGenerator.BytesToString(aesKey);
+            exist.IV = HashGenerator.BytesToString(aesIV);
+            return exist.CryptId;
         }
+
+        private static void AddOrUpdateToken(int userId, string token, DateTime expiration)
+        {
+            using var db = new TmdbContext();
+
+            var dbToken = db.Tokens.SingleOrDefault(t => t.UserId == userId);
+            if (dbToken != null)
+            {
+                dbToken.AccessToken = token;
+                dbToken.Expiration = expiration;
+            }
+            else
+            {
+                db.Tokens.Add(new Token()
+                {
+                    AccessToken = token,
+                    UserId = userId,
+                    Expiration = expiration
+                });
+            }
+            db.SaveChanges();
+        }
+
 
         public static bool IsTokenCorrect(string token, int userId)
         {
@@ -124,7 +159,7 @@ namespace TMServer.DataBase
             ArgumentNullException.ThrowIfNull(dbAes);
 
             return new AesEncrypter(
-                HashGenerator.Base64ToBytes(dbAes.AesKey), 
+                HashGenerator.Base64ToBytes(dbAes.AesKey),
                 HashGenerator.Base64ToBytes(dbAes.IV));
         }
     }

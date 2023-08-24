@@ -10,6 +10,7 @@ using CSDTP;
 using CSDTP.Cryptography.Algorithms;
 using CSDTP.Protocols;
 using System.Reflection;
+using ApiTypes.Packets;
 
 namespace TMApi
 {
@@ -22,10 +23,10 @@ namespace TMApi
             using var outputEncoder = coderDecoder.Item2;
 
             RegisterResponse? registerResult = null;
-            using (var rsaRequester = new RequestSender(true, outputEncoder, inputDecoder))
-            {
-                registerResult = await rsaRequester.PostAsync<RegisterResponse, AuthorizationRequest>(new AuthorizationRequest(login, password));
-            }
+            using var rsaRequester = new RequestSender(true, outputEncoder, inputDecoder);
+
+            registerResult = await rsaRequester.PostAsync<RegisterResponse, RegisterRequest>(new RegisterRequest(login, password));
+
 
             if (registerResult.IsSuccessful)
                 return await Login(login, password, inputDecoder, outputEncoder);
@@ -35,13 +36,11 @@ namespace TMApi
 
         public async Task<TMApi?> GetApi(string login, string password)
         {
-
             var coderDecoder = await GetCoderDecoder();
             using var inputDecoder = coderDecoder.Item1;
             using var outputEncoder = coderDecoder.Item2;
 
             return await Login(login, password, inputDecoder, outputEncoder);
-
         }
 
         public async Task<TMApi?> Login(string login, string password, RsaEncrypter inputDecoder, RsaEncrypter outputEncoder)
@@ -66,20 +65,20 @@ namespace TMApi
             var inputDecoder = new RsaEncrypter();
 
             var rsaKey = await GetRsaKey(inputDecoder);
-            var outputEncoder = new RsaEncrypter(rsaKey);
+            var outputEncoder = new RsaEncrypter(rsaKey.Item1);
+
+            IdHolder.Value = rsaKey.Item2;
 
             return (inputDecoder, outputEncoder);
         }
-        private async Task<string> GetRsaKey(RsaEncrypter inputDecoder)
+        private async Task<(string, int)> GetRsaKey(RsaEncrypter inputDecoder)
         {
-            string serverRsaPublicKey;
-
             using var uncryptRequester = new RequestSender(true);
             var request = new RsaPublicKey(inputDecoder.PublicKey);
             var response = await uncryptRequester.PostAsync<RsaPublicKey, RsaPublicKey>(request);
 
-            serverRsaPublicKey = response.Key;
-            return serverRsaPublicKey;
+            string serverRsaPublicKey = response.Key;
+            return (serverRsaPublicKey, response.Id);
         }
 
     }

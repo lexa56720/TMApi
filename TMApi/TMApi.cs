@@ -1,6 +1,6 @@
-﻿using ApiTypes;
-using ApiTypes.Auth;
+﻿using ApiTypes.Auth;
 using ApiTypes.BaseTypes;
+using ApiTypes.Packets;
 using ApiTypes.Users;
 using CSDTP.Cryptography;
 using CSDTP.Cryptography.Algorithms;
@@ -63,8 +63,7 @@ namespace TMApi
                 Token = token,
                 UserId = userId,
             };
-            TMPacket<IntContainer>.IdHolder.Value = cryptId;
-            Requester.SetPacketType(typeof(TMPacket<>));
+            IdHolder.Value = cryptId;
         }
 
         public async Task Init()

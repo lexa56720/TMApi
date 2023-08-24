@@ -124,19 +124,16 @@ public partial class TmdbContext : DbContext
 
         modelBuilder.Entity<RsaCrypt>(entity =>
         {
-            entity.HasKey(e => e.Ip).HasName("rsa_pkey");
+            entity.HasKey(e => e.Id).HasName("rsa_pkey");
 
             entity.ToTable("rsa");
 
-            entity.Property(e => e.Ip)
-                .ValueGeneratedNever();
-
             entity.Property(e => e.PrivateServerKey)
-                .HasMaxLength(2048)
+                .HasMaxLength(4096)
                 .HasColumnName("private_server_key");
 
             entity.Property(e => e.PublicClientKey)
-                .HasMaxLength(512)
+                .HasMaxLength(1024)
                 .HasColumnName("public_client_key");
 
             entity.Property(e => e.CreateDate).HasColumnName("create_date");

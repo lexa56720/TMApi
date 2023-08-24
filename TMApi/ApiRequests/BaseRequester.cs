@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace TMApi.ApiRequests
 {
-    public abstract class BaseRequest
+    public abstract class BaseRequester
     {
         private protected RequestSender Requester { get; }
-        internal BaseRequest(RequestSender requester)
+        internal BaseRequester(RequestSender requester)
         {
             Requester = requester;
         }

@@ -5,7 +5,7 @@ namespace TMServer.DataBase.Tables;
 
 public partial class RsaCrypt
 {
-    public required long Ip { get; set; }
+    public int Id { get; set; }
 
     public required string PublicClientKey { get; set; }
 
