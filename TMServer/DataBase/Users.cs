@@ -19,6 +19,11 @@ namespace TMServer.DataBase
                 .Include(u => u.FriendsOne)
                 .SingleOrDefault(u => u.Id == id);
         }
+        public static DBUser? GetUserMain(int id)
+        {
+            using var db = new TmdbContext();
+            return db.Users.SingleOrDefault(u => u.Id == id);
+        }
 
         public static DBUser[] GetUsers(int[] ids)
         {

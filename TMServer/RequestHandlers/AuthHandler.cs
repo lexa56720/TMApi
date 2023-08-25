@@ -31,27 +31,26 @@ namespace TMServer.RequestHandlers
         public static AuthorizationResponse Auth(AuthorizationRequest request)
         {
             var id = Security.GetUserId(request.Login, request.Password);
-            if (id > 0)
-            {
-                var token = HashGenerator.GetRandomString();
-                var aesCrypter = new AesEncrypter();
-                var expiration = DateTime.UtcNow.Add(TokenLife);
-
-                var cryptId = Security.SaveAuth(id, aesCrypter.Key, aesCrypter.IV, token, expiration);
-
+            if (id < 0)
                 return new AuthorizationResponse()
                 {
-                    AccessToken = token,
-                    AesKey = aesCrypter.Key,
-                    Expiration = expiration,
-                    UserId = id,
-                    CryptId = cryptId,
-                    IsSuccessful = true
+                    IsSuccessful = false
                 };
-            }
+
+            var token = HashGenerator.GetRandomString();
+            var aesCrypter = new AesEncrypter();
+            var expiration = DateTime.UtcNow.Add(TokenLife);
+
+            var cryptId = Security.SaveAuth(id, aesCrypter.Key, aesCrypter.IV, token, expiration);
+
             return new AuthorizationResponse()
             {
-                IsSuccessful = false
+                AccessToken = token,
+                AesKey = aesCrypter.Key,
+                Expiration = expiration,
+                UserId = id,
+                CryptId = cryptId,
+                IsSuccessful = true
             };
         }
 
