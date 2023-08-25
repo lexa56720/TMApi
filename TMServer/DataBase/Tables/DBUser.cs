@@ -12,6 +12,8 @@ public partial class DBUser
 
     public required DateTime LastRequest { get; set; }
 
+    public required DateTime RegisterDate { get; set; }
+
     public required int? CryptId { get; set; }
 
     public required string Login { get; set; }

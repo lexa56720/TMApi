@@ -27,7 +27,6 @@ namespace TMServer.RequestHandlers
             return new RsaPublicKey(serverKey, id);
         }
 
-
         public static AuthorizationResponse Auth(AuthorizationRequest request)
         {
             var id = Security.GetUserId(request.Login, request.Password);
@@ -54,10 +53,9 @@ namespace TMServer.RequestHandlers
             };
         }
 
-
         public static RegisterResponse Register(RegisterRequest request)
         {
-            var isSuccsessful = Security.IsLoginAvailable(request.Login);
+            var isSuccsessful = DataConstraints.IsLoginLegal(request.Login) && Security.IsLoginAvailable(request.Login);
 
             if (isSuccsessful)
                 isSuccsessful = Security.CreateUser(request.Login, request.Password);

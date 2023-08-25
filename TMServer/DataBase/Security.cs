@@ -74,9 +74,10 @@ namespace TMServer.DataBase
                 {
                     Login = login,
                     LastRequest = DateTime.UtcNow,
+                    RegisterDate = DateTime.UtcNow,
                     Name = login,
                     CryptId = dbCrypt.CryptId,
-                    Password = GetPasswordWithSalt(password,login),
+                    Password = GetPasswordWithSalt(password, login),
                 });
                 db.SaveChanges();
 
@@ -135,7 +136,7 @@ namespace TMServer.DataBase
             db.SaveChanges();
         }
 
-        private static string GetPasswordWithSalt(string password,string login)
+        private static string GetPasswordWithSalt(string password, string login)
         {
             return HashGenerator.GenerateHash(password + login + Salt);
         }
@@ -145,7 +146,7 @@ namespace TMServer.DataBase
             using var db = new TmdbContext();
             var dbToken = db.Tokens.SingleOrDefault(t => t.UserId == userId);
             if (dbToken != null)
-                return dbToken.AccessToken.Equals(token) && DateTime.UtcNow< dbToken.Expiration;
+                return dbToken.AccessToken.Equals(token) && DateTime.UtcNow < dbToken.Expiration;
             return false;
         }
         public static void UpdateAuth(int cryptId, byte[] aesIV)
@@ -165,7 +166,7 @@ namespace TMServer.DataBase
             var dbAes = db.AesCrypts.SingleOrDefault(a => a.CryptId == cryptId);
             ArgumentNullException.ThrowIfNull(dbAes);
 
-            return new AesEncrypter(dbAes.AesKey,dbAes.IV);
+            return new AesEncrypter(dbAes.AesKey, dbAes.IV);
         }
     }
 }

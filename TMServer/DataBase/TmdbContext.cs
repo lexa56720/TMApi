@@ -31,6 +31,11 @@ public partial class TmdbContext : DbContext
 
     public virtual DbSet<DBUser> Users { get; set; }
 
+    public virtual DbSet<DBChatInvite> ChatInvites { get; set; }
+
+    public virtual DbSet<DBFriendRequest> FriendRequests { get; set; }
+
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         => optionsBuilder.UseNpgsql("Host=localhost;Port=5432;Database=tmdb;Username=tmadmin;Password=1234;Include Error Detail=True;");
 
@@ -171,6 +176,8 @@ public partial class TmdbContext : DbContext
 
             entity.Property(e => e.LastRequest).HasColumnName("last_request");
 
+            entity.Property(e => e.RegisterDate).HasColumnName("register_date");
+
             entity.Property(e => e.Login)
                 .HasMaxLength(128)
                 .HasColumnName("login");
@@ -185,6 +192,50 @@ public partial class TmdbContext : DbContext
 
             entity.HasOne(d => d.Crypt).WithOne(p => p.User)
                 .HasForeignKey<DBUser>(e => e.CryptId);
+        });
+
+        modelBuilder.Entity<DBChatInvite>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("chat_invites_pkey");
+
+            entity.ToTable("chat_invites");
+
+            entity.Property(e => e.ChatId).HasColumnName("chat_id");
+
+            entity.Property(e => e.InviterId).HasColumnName("inviter_id");
+
+            entity.Property(e => e.UserId).HasColumnName("user_id");
+
+            entity.HasOne(e => e.Chat).WithOne()
+            .HasPrincipalKey<DBChatInvite>(i => i.ChatId);
+
+            entity.HasOne(e => e.Inviter).WithOne()
+            .HasPrincipalKey<DBChatInvite>(i => i.InviterId);
+
+            entity.HasOne(e => e.User).WithOne()
+            .HasPrincipalKey<DBChatInvite>(i => i.UserId);
+        });
+
+        modelBuilder.Entity<DBFriendRequest>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("friend_requests_pkey");
+
+            entity.ToTable("friend_requests");
+
+
+            entity.Property(e => e.UserIdOne)
+                .ValueGeneratedNever()
+                .HasColumnName("user_id_one");
+
+            entity.Property(e => e.UserIdTwo)
+              .ValueGeneratedNever()
+              .HasColumnName("user_id_two");
+
+            entity.HasOne(e => e.UserOne)
+            .WithOne().HasPrincipalKey<DBFriendRequest>(r=>r.UserIdOne);
+
+            entity.HasOne(e => e.UserTwo)
+           .WithOne().HasPrincipalKey<DBFriendRequest>(r => r.UserIdTwo);
         });
 
         OnModelCreatingPartial(modelBuilder);

@@ -7,26 +7,26 @@ using System.Xml.Linq;
 
 namespace ApiTypes.Shared
 {
-    internal class DataConstraints
+    public static class DataConstraints
     {
-        public bool IsLoginLegal(string login)
+        public static bool IsLoginLegal(string login)
         {
-            return login.Length < 128;
+            return login.Length < 128 && login.Length > 3;
         }
 
-        public bool IsPasswordLegal(string password)
+        public static bool IsPasswordLegal(string password)
         {
-            return password.Length < 512;
+            return password.Length < 128 && password.Length > 6;
         }
 
-        public bool IsNameLegal(string name)
+        public static bool IsNameLegal(string name)
         {
-            return name.Length < 128;
+            return name.Length < 128 && name.Length > 3;
         }
 
-        public bool IsMessageLegal(string message)
+        public static bool IsMessageLegal(string message)
         {
-            return message.Length < 512;
+            return message.Length < 512 && message.Length > 0;
         }
     }
 }
