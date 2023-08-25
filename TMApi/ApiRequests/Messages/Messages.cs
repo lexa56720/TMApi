@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TMApi.ApiRequests.Chats;
+using ApiTypes.Shared;
 
 namespace TMApi.ApiRequests.Messages
 {
@@ -16,14 +17,22 @@ namespace TMApi.ApiRequests.Messages
         {
         }
 
-        public async Task<Message[]> GetLastMessages(int chatId,int count)
+        public async Task<Message[]?> GetLastMessages(int chatId, int count, int offset)
         {
-            return (await Requester.PostRequestAsync<SerializableArray<Message>, IntArrayContainer>(new IntArrayContainer(chatId,count))).Items;
+            var messages = await Requester.PostRequestAsync<MessageHistoryResponse, MessageHistoryRequest>
+                (new MessageHistoryRequest(chatId, offset, count));
+
+            if (messages == null)
+                return Array.Empty<Message>();
+
+            return messages.Messages;
         }
 
-        public async Task SendMessage(string text,int destinationId)
+        public async Task<bool> SendMessage(string text, int destinationId)
         {
-            await Requester.GetRequestAsync(new Message(text, destinationId));
+            if (!DataConstraints.IsMessageLegal(text))
+                return false;
+            return await Requester.GetRequestAsync(new MessageSendRequest(text, destinationId));
         }
 
     }

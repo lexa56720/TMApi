@@ -12,7 +12,7 @@ namespace ApiTypes.Chats
     {
         public int ChatId { get; init; }
 
-        public int UserId { get; init; }
+        public int ToUserId { get; init; }
 
 
         public ChatInvite()
@@ -25,13 +25,13 @@ namespace ApiTypes.Chats
         public ChatInvite(int chatId,int userId)
         {
             ChatId = chatId;
-            UserId = userId;
+            ToUserId = userId;
         }
 
         public void Serialize(BinaryWriter writer)
         {
             writer.Write(ChatId);
-            writer.Write(UserId);
+            writer.Write(ToUserId);
         }
 
         public static ChatInvite Deserialize(BinaryReader reader)
@@ -39,7 +39,7 @@ namespace ApiTypes.Chats
             return new ChatInvite()
             {
                 ChatId = reader.ReadInt32(),
-                UserId = reader.ReadInt32(),
+                ToUserId = reader.ReadInt32(),
             };
         }
     }

@@ -59,7 +59,7 @@ namespace TMApi
         }
 
 
-        public async Task<T> PostAsync<T, U>(U data) where T : ISerializable<T> where U : ISerializable<U>
+        public async Task<T?> PostAsync<T, U>(U data) where T : ISerializable<T> where U : ISerializable<U>
         {
             return await Requester.PostAsync<T, U>(data, Timeout);
         }
@@ -69,7 +69,7 @@ namespace TMApi
         }
 
 
-        public async Task<T> PostRequestAsync<T, U>(U data) where T : ISerializable<T> where U : ISerializable<U>
+        public async Task<T?> PostRequestAsync<T, U>(U data) where T : ISerializable<T> where U : ISerializable<U>
         {
             return await Requester.PostAsync<T, ApiData<U>>(new ApiData<U>(Token, UserId, data), Timeout);
         }
@@ -78,7 +78,7 @@ namespace TMApi
             return await Requester.GetAsync(new ApiData<T>(Token, UserId, data));
         }
 
-        public async Task<T> PostRequestAsync<T, U>(string header, U data) where T : ISerializable<T> where U : ISerializable<U>
+        public async Task<T?> PostRequestAsync<T, U>(string header, U data) where T : ISerializable<T> where U : ISerializable<U>
         {
             return await Requester.PostAsync<T, ApiData<U>>(new ApiData<U>(header, Token, UserId, data), Timeout);
         }
