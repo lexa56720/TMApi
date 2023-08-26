@@ -14,20 +14,20 @@ namespace TMServer.ServerComponent.ApiResponser
 {
     internal class ResponseServer : Server
     {
-        private Dictionary<Type, Dictionary<string, object>> PostHandlers = new();
+        private Dictionary<Type, Dictionary<RequestHeaders, object>> PostHandlers = new();
 
 
-        private Dictionary<Type, Dictionary<string, object>> GetHandlers = new();
+        private Dictionary<Type, Dictionary<RequestHeaders, object>> GetHandlers = new();
 
         public ResponseServer(int port, IEncryptProvider encryptProvider) : base(port, encryptProvider)
         {
         }
 
-        public void RegisterGetHandler<T, U>(Func<ApiData<T>, U> func, string header) where T : ISerializable<T> where U : ISerializable<U>
+        public void RegisterGetHandler<T, U>(Func<ApiData<T>, U> func, RequestHeaders header) where T : ISerializable<T> where U : ISerializable<U>
         {
             var type = typeof(ApiData<T>);
             if (!GetHandlers.ContainsKey(type))
-                GetHandlers.Add(type, new Dictionary<string, object>());
+                GetHandlers.Add(type, new Dictionary<RequestHeaders, object>());
 
             if (GetHandlers[type].ContainsKey(header))
                 return;
@@ -35,11 +35,11 @@ namespace TMServer.ServerComponent.ApiResponser
             GetHandlers[type].Add(header, func);
             Responder.RegisterGetHandler(new Action<ApiData<T>>(InvokeHandler<T>));
         }
-        public void RegisterPostHandler<T, U>(Func<ApiData<T>, U> func, string header) where T : ISerializable<T> where U : ISerializable<U>
+        public void RegisterPostHandler<T, U>(Func<ApiData<T>, U> func, RequestHeaders header) where T : ISerializable<T> where U : ISerializable<U>
         {
             var type = typeof(ApiData<T>);
             if (!PostHandlers.ContainsKey(type))
-                PostHandlers.Add(type, new Dictionary<string, object>());
+                PostHandlers.Add(type, new Dictionary<RequestHeaders, object>());
 
             if (PostHandlers[type].ContainsKey(header))
                 return;

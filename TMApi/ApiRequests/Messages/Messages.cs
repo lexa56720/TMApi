@@ -20,7 +20,7 @@ namespace TMApi.ApiRequests.Messages
         public async Task<Message[]?> GetLastMessages(int chatId, int count, int offset)
         {
             var messages = await Requester.PostRequestAsync<MessageHistoryResponse, MessageHistoryRequest>
-                (new MessageHistoryRequest(chatId, offset, count));
+                (RequestHeaders.GetLastMessages,new MessageHistoryRequest(chatId, offset, count));
 
             if (messages == null)
                 return Array.Empty<Message>();
@@ -32,7 +32,9 @@ namespace TMApi.ApiRequests.Messages
         {
             if (!DataConstraints.IsMessageLegal(text))
                 return false;
-            return await Requester.GetRequestAsync(new MessageSendRequest(text, destinationId));
+
+            return await Requester.GetRequestAsync
+                (RequestHeaders.SendMessage, new MessageSendRequest(text, destinationId));
         }
 
     }

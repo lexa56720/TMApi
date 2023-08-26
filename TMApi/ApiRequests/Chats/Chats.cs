@@ -18,16 +18,19 @@ namespace TMApi.ApiRequests.Chats
 
         public async Task<bool> CreateChat(string name, int[] membersId)
         {
-            return DataConstraints.IsNameLegal(name) && await Requester.GetRequestAsync(new ChatCreationRequest(name, membersId));
+            return DataConstraints.IsNameLegal(name) && await Requester.GetRequestAsync
+                (RequestHeaders.CreateChat, new ChatCreationRequest(name, membersId));
         }
 
         public async Task<Chat?> GetChat(int chatId)
         {
-            return await Requester.PostRequestAsync<Chat, IntContainer>(new IntContainer(chatId));
+            return await Requester.PostRequestAsync<Chat, IntContainer>
+                (RequestHeaders.GetChat, new IntContainer(chatId));
         }
         public async Task<Chat[]> GetChat(int[] chatIds)
         {
-            var chats = await Requester.PostRequestAsync<SerializableArray<Chat>, IntArrayContainer>(new IntArrayContainer(chatIds));
+            var chats = await Requester.PostRequestAsync<SerializableArray<Chat>, IntArrayContainer>
+                (RequestHeaders.GetChatMany, new IntArrayContainer(chatIds));
             if (chats == null)
                 return Array.Empty<Chat>();
             return chats.Items;
@@ -35,17 +38,20 @@ namespace TMApi.ApiRequests.Chats
 
         public async Task<bool> SendChatInvite(int chatId, int toUserId)
         {
-            return await Requester.GetRequestAsync(new ChatInvite(chatId, toUserId));
+            return await Requester.GetRequestAsync
+                (RequestHeaders.SendChatInvite, new ChatInvite(chatId, toUserId));
         }
 
         public async Task<ChatInvite?> GetChatInvite(int inviteId)
         {
-            return await Requester.PostRequestAsync<ChatInvite, IntContainer>(new IntContainer(inviteId));
+            return await Requester.PostRequestAsync<ChatInvite, IntContainer>
+                (RequestHeaders.GetChatInvite,new IntContainer(inviteId));
         }
         public async Task<ChatInvite[]> GetChatInvite(int[] inviteId)
         {
             var invites = await Requester
-                .PostRequestAsync<SerializableArray<ChatInvite>, IntArrayContainer>(new IntArrayContainer(inviteId));
+                .PostRequestAsync<SerializableArray<ChatInvite>, IntArrayContainer>
+                (RequestHeaders.GetChatInviteMany, new IntArrayContainer(inviteId));
 
             if (invites == null)
                 return Array.Empty<ChatInvite>();

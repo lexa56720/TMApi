@@ -78,11 +78,11 @@ namespace TMApi
             return await Requester.GetAsync(new ApiData<T>(Token, UserId, data));
         }
 
-        public async Task<T?> PostRequestAsync<T, U>(string header, U data) where T : ISerializable<T> where U : ISerializable<U>
+        public async Task<T?> PostRequestAsync<T, U>(RequestHeaders header, U data) where T : ISerializable<T> where U : ISerializable<U>
         {
             return await Requester.PostAsync<T, ApiData<U>>(new ApiData<U>(header, Token, UserId, data), Timeout);
         }
-        public async Task<bool> GetRequestAsync<T>(string header, T data) where T : ISerializable<T>
+        public async Task<bool> GetRequestAsync<T>(RequestHeaders header, T data) where T : ISerializable<T>
         {
             return await Requester.GetAsync(new ApiData<T>(header, Token, UserId, data));
         }

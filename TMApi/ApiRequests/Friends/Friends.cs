@@ -1,4 +1,5 @@
-﻿using ApiTypes.BaseTypes;
+﻿using ApiTypes;
+using ApiTypes.BaseTypes;
 using ApiTypes.Friends;
 using System;
 using System.Collections.Generic;
@@ -15,24 +16,28 @@ namespace TMApi.ApiRequests.Friends
         }
         public async Task<FriendRequest?> GetFriendRequest(int requestId)
         {
-            return await Requester.PostRequestAsync<FriendRequest, IntContainer>(new IntContainer(requestId));
+            return await Requester.PostRequestAsync<FriendRequest, IntContainer>
+                (RequestHeaders.GetFriendRequest, new IntContainer(requestId));
         }
         public async Task<FriendRequest[]> GetFriendRequest(int[] requestIds)
         {
             var requests = await Requester
-                .PostRequestAsync<SerializableArray<FriendRequest>, IntArrayContainer>(new IntArrayContainer(requestIds));
+                .PostRequestAsync<SerializableArray<FriendRequest>, IntArrayContainer>
+                (RequestHeaders.GetFriendRequestMany, new IntArrayContainer(requestIds));
 
             if (requests == null)
                 return Array.Empty<FriendRequest>();
             return requests.Items;
         }
-        public async Task<bool> AnswerFriendRequest(FriendRequest request, bool isAccepted)
+        public async Task<bool> ResponseFriendRequest(FriendRequest request, bool isAccepted)
         {
-            return await Requester.GetRequestAsync(new FriendResponse(request, isAccepted));
+            return await Requester.GetRequestAsync
+                (RequestHeaders.ResponseFriendRequest, new FriendResponse(request, isAccepted));
         }
         public async Task<bool> SendFriendRequest(int toId)
         {
-            return await Requester.GetAsync(new FriendRequest(Api.Id, toId));
+            return await Requester.GetRequestAsync
+                (RequestHeaders.SendFriendRequest, new FriendRequest(Api.Id, toId));
         }
     }
 }

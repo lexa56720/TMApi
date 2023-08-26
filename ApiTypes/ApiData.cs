@@ -8,10 +8,32 @@ using System.Threading.Tasks;
 
 namespace ApiTypes
 {
+    public enum RequestHeaders
+    {
+        None,
+
+        GetUserInfo,
+        GetUser,
+        GetUserMany,
+
+        GetLastMessages,
+        SendMessage,
+
+        GetFriendRequest,
+        GetFriendRequestMany,
+        ResponseFriendRequest,
+        SendFriendRequest,
+
+        CreateChat,
+        GetChat,
+        GetChatMany,
+        SendChatInvite,
+        GetChatInvite,
+        GetChatInviteMany,
+    }
     public class ApiData<T> : ISerializable<ApiData<T>> where T : ISerializable<T>
     {
-
-        public string Header { get; init; } = string.Empty;
+        public RequestHeaders Header { get; init; } = RequestHeaders.None;
         public required string Token { get; init; }
 
         public required int UserId { get; init; }
@@ -26,7 +48,7 @@ namespace ApiTypes
             UserId = id;
         }
         [SetsRequiredMembers]
-        public ApiData(string header ,string token, int id, T data)
+        public ApiData(RequestHeaders header, string token, int id, T data)
         {
             Header = header;
             Token = token;
@@ -43,7 +65,7 @@ namespace ApiTypes
         {
             return new ApiData<T>()
             {
-                Header = reader.ReadString(),
+                Header = (RequestHeaders)reader.ReadByte(),
                 Token = reader.ReadString(),
                 UserId = reader.Read(),
                 Data = T.Deserialize(reader)
@@ -52,10 +74,10 @@ namespace ApiTypes
 
         public void Serialize(BinaryWriter writer)
         {
-            writer.Write(Header);
-            writer.Write(Token); 
+            writer.Write((byte)Header);
+            writer.Write(Token);
             writer.Write(UserId);
-            Data.Serialize(writer);     
+            Data.Serialize(writer);
         }
     }
 }

@@ -37,7 +37,7 @@ namespace TMServer.Servers
 
         public void RegisterResponseMethods()
         {
-            ResponseServer.RegisterPostHandler<IntContainer, UserInfo>(UsersHandler.GetUserInfo, "userinfo");
+            ResponseServer.RegisterPostHandler<IntContainer, UserInfo>(UsersHandler.GetUserInfo, RequestHeaders.GetUserInfo);
         }
         public override void Start()
         {
