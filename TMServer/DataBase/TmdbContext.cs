@@ -118,6 +118,8 @@ public partial class TmdbContext : DbContext
 
             entity.Property(e => e.DestinationId).HasColumnName("destination_id");
 
+            entity.Property(e => e.SendTime).HasColumnName("send_time");
+
             entity.HasOne(d => d.Author).WithMany()
                 .HasForeignKey(d => d.AuthorId)
                 .OnDelete(DeleteBehavior.ClientSetNull);
@@ -212,7 +214,7 @@ public partial class TmdbContext : DbContext
             entity.HasOne(e => e.Inviter).WithOne()
             .HasPrincipalKey<DBChatInvite>(i => i.InviterId);
 
-            entity.HasOne(e => e.User).WithOne()
+            entity.HasOne(e => e.DestinationUser).WithOne()
             .HasPrincipalKey<DBChatInvite>(i => i.UserId);
         });
 

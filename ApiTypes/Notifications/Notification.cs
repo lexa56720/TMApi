@@ -20,6 +20,7 @@ namespace ApiTypes.Notifications
 
         public int[] NewChats { get; init; } = Array.Empty<int>();
 
+        public int[] FriendsStatusChanged { get; init; } = Array.Empty<int>();
 
         public void Serialize(BinaryWriter writer)
         {
@@ -28,6 +29,7 @@ namespace ApiTypes.Notifications
             writer.Write(ChatInviteIds);
             writer.Write(NewFriends);
             writer.Write(NewChats);
+            writer.Write(FriendsStatusChanged);
         }
 
         public static Notification Deserialize(BinaryReader reader)
@@ -39,6 +41,7 @@ namespace ApiTypes.Notifications
                 ChatInviteIds = reader.ReadInt32Array(),
                 NewFriends=reader.ReadInt32Array(),
                 NewChats=reader.ReadInt32Array(),
+                FriendsStatusChanged=reader.ReadInt32Array()
             };
         }
     }

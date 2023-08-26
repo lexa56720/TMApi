@@ -13,6 +13,8 @@ public partial class DBMessage
 
     public required int DestinationId { get; set; }
 
+    public required DateTime SendTime { get; set; }
+
     public virtual DBUser Author { get; set; } = null!;
 
     public virtual DBChat Destination { get; set; } = null!;

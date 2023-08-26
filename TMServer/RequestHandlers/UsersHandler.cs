@@ -12,9 +12,12 @@ namespace TMServer.RequestHandlers
 {
     internal static class UsersHandler
     {
-        public static UserInfo GetUserInfo(ApiData<IntContainer> id)
+        public static UserInfo? GetUserInfo(ApiData<IntContainer> id)
         {
             var user = Users.GetUserFull(id.UserId);
+            if (user == null)
+                return null;
+
             var friends = user.FriendsOne
                 .Concat(user.FriendsTwo)
                 .Select(f =>
@@ -30,6 +33,22 @@ namespace TMServer.RequestHandlers
                 Friends = friends,
                 MainInfo = new User(user.Name, user.Id, true),
             };
+        }
+
+        public static User? GetUser(ApiData<IntContainer> id)
+        {
+            var user = Users.GetUserMain(id.Data.Value);
+            if (user == null)
+                return null;
+
+            return new User(user.Name, user.Id, user.IsOnline);
+        }
+
+        public static SerializableArray<User> GetUser(ApiData<IntArrayContainer> ids)
+        {
+            var users = Users.GetUserMain(ids.Data.Values);
+
+            return new SerializableArray<User>(users.Select(u => new User(u.Name, u.Id, u.IsOnline)).ToArray());
         }
     }
 }

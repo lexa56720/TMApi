@@ -140,7 +140,6 @@ namespace TMServer.DataBase
         {
             return HashGenerator.GenerateHash(password + login + Salt);
         }
-
         public static bool IsTokenCorrect(string token, int userId)
         {
             using var db = new TmdbContext();

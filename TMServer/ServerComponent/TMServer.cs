@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TMServer.Logger;
 using TMServer.RequestHandlers;
 using TMServer.ServerComponent.ApiResponser;
 using TMServer.ServerComponent.Auth;
@@ -19,13 +20,15 @@ namespace TMServer.Servers
         private AuthorizationServer AuthServer { get; set; }
 
         private ResponseServer ResponseServer { get; set; }
+        private ILogger Logger { get; }
 
-        public TMServer(int authPort, int responsePort)
+        public TMServer(int authPort, int responsePort, ILogger logger)
         {
             AuthServer = new AuthorizationServer(authPort, new AuthEncryptProvider());
             ResponseServer = new ResponseServer(responsePort, new ApiEncryptProvider());
             RegisterAuthMethods();
             RegisterResponseMethods();
+            Logger = logger;
         }
 
         public void RegisterAuthMethods()
@@ -38,6 +41,10 @@ namespace TMServer.Servers
         public void RegisterResponseMethods()
         {
             ResponseServer.RegisterPostHandler<IntContainer, UserInfo>(UsersHandler.GetUserInfo, RequestHeaders.GetUserInfo);
+            ResponseServer.RegisterPostHandler<IntContainer, User>(UsersHandler.GetUser, RequestHeaders.GetUser);
+            ResponseServer.RegisterPostHandler<IntArrayContainer, SerializableArray<User>>(UsersHandler.GetUser, RequestHeaders.GetUserMany);
+
+
         }
         public override void Start()
         {

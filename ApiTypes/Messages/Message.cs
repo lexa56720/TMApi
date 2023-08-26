@@ -1,6 +1,7 @@
 ﻿using CSDTP;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,6 +18,20 @@ namespace ApiTypes.Messages
 
         public required DateTime SendTime { get; init; }
 
+
+        public Message()
+        {
+
+        }
+
+        [SetsRequiredMembers]
+        public Message(int id,int authorId,string text,DateTime sendTime)
+        {
+            Id = id;
+            AuthorId = authorId;
+            Text = text;
+            SendTime = sendTime;
+        }
         public void Serialize(BinaryWriter writer)
         {
             writer.Write(Id);

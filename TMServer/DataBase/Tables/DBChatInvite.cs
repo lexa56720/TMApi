@@ -22,8 +22,7 @@ namespace TMServer.DataBase.Tables
 
         public DBUser Inviter { get; set; } = null!;
 
-
-        public DBUser User { get; set; } = null!;
+        public DBUser DestinationUser { get; set; } = null!;
 
     }
 }

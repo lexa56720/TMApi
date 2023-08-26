@@ -25,7 +25,7 @@ namespace TMServer.DataBase
             return db.Users.SingleOrDefault(u => u.Id == id);
         }
 
-        public static DBUser[] GetUsers(int[] ids)
+        public static DBUser[] GetUserMain(int[] ids)
         {
             using var db = new TmdbContext();
 
