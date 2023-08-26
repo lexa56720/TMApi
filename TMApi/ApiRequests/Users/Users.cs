@@ -1,5 +1,6 @@
 ﻿using ApiTypes;
 using ApiTypes.BaseTypes;
+using ApiTypes.Friends;
 using ApiTypes.Messages;
 using ApiTypes.Users;
 using CSDTP;
@@ -12,21 +13,23 @@ using TMApi.ApiRequests.Messages;
 
 namespace TMApi.ApiRequests.Users
 {
-    public class Users:BaseRequester
+    public class Users : BaseRequester
     {
-        internal Users(RequestSender requester):base(requester) 
+        internal Users(RequestSender requester, TMApi api) : base(requester, api)
         {
         }
 
+
         public async Task<UserInfo?> GetUserInfo(int userId)
         {
-            return await Requester.PostRequestAsync<UserInfo, IntContainer>("userinfo",new IntContainer(userId));
+            return await Requester
+                .PostRequestAsync<UserInfo, IntContainer>("userinfo", new IntContainer(userId));
         }
+
         public async Task<User?> GetUser(int userId)
         {
             return await Requester.PostRequestAsync<User, IntContainer>(new IntContainer(userId));
         }
-
         public async Task<User[]> GetUser(int[] userId)
         {
             var users = await Requester.PostRequestAsync<SerializableArray<User>, IntArrayContainer>(new IntArrayContainer(userId));

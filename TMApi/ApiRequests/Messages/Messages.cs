@@ -13,7 +13,7 @@ namespace TMApi.ApiRequests.Messages
 {
     public class Messages : BaseRequester
     {
-        internal Messages(RequestSender requester) : base(requester)
+        internal Messages(RequestSender requester, TMApi api) : base(requester,api)
         {
         }
 

@@ -12,7 +12,7 @@ namespace TMApi.ApiRequests.Chats
 {
     public class Chats : BaseRequester
     {
-        internal Chats(RequestSender requester) : base(requester)
+        internal Chats(RequestSender requester, TMApi api) : base(requester, api)
         {
         }
 
@@ -25,9 +25,7 @@ namespace TMApi.ApiRequests.Chats
         {
             return await Requester.PostRequestAsync<Chat, IntContainer>(new IntContainer(chatId));
         }
-
-
-        public async Task<Chat[]> GetChats(int[] chatIds)
+        public async Task<Chat[]> GetChat(int[] chatIds)
         {
             var chats = await Requester.PostRequestAsync<SerializableArray<Chat>, IntArrayContainer>(new IntArrayContainer(chatIds));
             if (chats == null)
@@ -38,6 +36,20 @@ namespace TMApi.ApiRequests.Chats
         public async Task<bool> SendChatInvite(int chatId, int toUserId)
         {
             return await Requester.GetRequestAsync(new ChatInvite(chatId, toUserId));
+        }
+
+        public async Task<ChatInvite?> GetChatInvite(int inviteId)
+        {
+            return await Requester.PostRequestAsync<ChatInvite, IntContainer>(new IntContainer(inviteId));
+        }
+        public async Task<ChatInvite[]> GetChatInvite(int[] inviteId)
+        {
+            var invites = await Requester
+                .PostRequestAsync<SerializableArray<ChatInvite>, IntArrayContainer>(new IntArrayContainer(inviteId));
+
+            if (invites == null)
+                return Array.Empty<ChatInvite>();
+            return invites.Items;
         }
     }
 }

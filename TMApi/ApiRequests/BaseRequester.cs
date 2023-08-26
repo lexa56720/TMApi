@@ -9,9 +9,12 @@ namespace TMApi.ApiRequests
     public abstract class BaseRequester
     {
         private protected RequestSender Requester { get; }
-        internal BaseRequester(RequestSender requester)
+        protected TMApi Api { get; }
+
+        internal BaseRequester(RequestSender requester,TMApi api)
         {
             Requester = requester;
+            Api = api;
         }
     }
 }

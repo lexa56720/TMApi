@@ -31,7 +31,7 @@ namespace TMApi
 
         public bool IsRsa { get; }
 
-        private TimeSpan Timeout => TimeSpan.FromSeconds(5000);
+        private TimeSpan Timeout => TimeSpan.FromSeconds(50);
 
         public RequestSender(bool isRsa, IEncrypter encrypter, IEncrypter decrypter)
         {

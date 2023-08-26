@@ -11,6 +11,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TMApi.ApiRequests.Chats;
+using TMApi.ApiRequests.Friends;
 using TMApi.ApiRequests.Messages;
 using TMApi.ApiRequests.Users;
 
@@ -35,16 +36,17 @@ namespace TMApi
 
         public bool IsLoginIn { get; private set; }
 
+        public UserInfo User { get; private set; }
+
         public Users Users { get; private set; }
 
         public Messages Messages { get; private set; }
 
         public Chats Chats { get; private set; }
 
+        public Friends Friends { get; private set; }
+
         private RequestSender Requester { get; set; }
-
-        public UserInfo User { get; private set; }
-
 
         public TMApi(string token, DateTime tokenTime, int userId, int cryptId, byte[] aesKey)
         {
@@ -57,7 +59,7 @@ namespace TMApi
 
         private void SetupRequester(string token, int userId, int cryptId, byte[] aesKey)
         {
-            var crypter = new AesEncrypter(aesKey); 
+            var crypter = new AesEncrypter(aesKey);
             Requester = new RequestSender(false, crypter, crypter)
             {
                 Token = token,
@@ -68,11 +70,12 @@ namespace TMApi
 
         public async Task Init()
         {
-            Users = new Users(Requester);
-            Messages = new Messages(Requester);
-            Chats = new Chats(Requester);
+            Users = new Users(Requester, this);
+            Messages = new Messages(Requester, this);
+            Chats = new Chats(Requester, this);
+            Friends = new Friends(Requester, this);
+
             User = await Users.GetUserInfo(Id);
         }
-
     }
 }

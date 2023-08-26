@@ -11,7 +11,6 @@ namespace ApiTypes.Friends
     public class FriendRequest : ISerializable<FriendRequest>
     {
         public required int FromId { get; init; }
-
         public required int ToId { get; init; }
 
         [SetsRequiredMembers]
