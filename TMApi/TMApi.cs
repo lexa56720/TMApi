@@ -28,13 +28,14 @@ namespace TMApi
                 Requester.Token = value;
             }
         }
-        private string accesToken;
+        private string accesToken=string.Empty;
 
         private DateTime Expiration { get; set; }
 
         public int Id { get; private set; }
+        private int CryptId { get; }
 
-        public bool IsLoginIn { get; private set; }
+        private AesEncrypter Encrypter { get; set; }
 
         public UserInfo User { get; private set; }
 
@@ -49,18 +50,19 @@ namespace TMApi
         private RequestSender Requester { get; set; }
 
         public TMApi(string token, DateTime tokenTime, int userId, int cryptId, byte[] aesKey)
-        {
-            SetupRequester(token, userId, cryptId, aesKey);
-
+        {    
             Id = userId;
+            CryptId = cryptId;
             AccesToken = token;
             Expiration = tokenTime;
+            Encrypter = new AesEncrypter(aesKey);
+
+            SetupRequester(token, userId, cryptId);
         }
 
-        private void SetupRequester(string token, int userId, int cryptId, byte[] aesKey)
-        {
-            var crypter = new AesEncrypter(aesKey);
-            Requester = new RequestSender(false, crypter, crypter)
+        private void SetupRequester(string token, int userId, int cryptId)
+        {          
+            Requester = new RequestSender(false, Encrypter, Encrypter)
             {
                 Token = token,
                 UserId = userId,
@@ -68,6 +70,24 @@ namespace TMApi
             IdHolder.Value = cryptId;
         }
 
+        public async Task UpdateAuth()
+        {
+
+        }
+        public byte[] GetAuthData()
+        {
+            using var ms = new MemoryStream();
+            using var bw = new BinaryWriter(ms);
+
+            bw.Write(AccesToken);
+            bw.Write(Expiration.ToBinary());
+            bw.Write(Encrypter.Key);
+            bw.Write(CryptId);
+            bw.Write(Id);
+            bw.Flush();
+
+            return ms.ToArray();
+        }
         public async Task Init()
         {
             Users = new Users(Requester, this);

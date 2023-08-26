@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ApiTypes.Notifications
+namespace ApiTypes.LongPolling
 {
     public class Notification : ISerializable<Notification>
     {
@@ -16,7 +16,7 @@ namespace ApiTypes.Notifications
 
         public int[] ChatInviteIds { get; init; } = Array.Empty<int>();
 
-        public int[] NewFriends { get; init;} = Array.Empty<int>();
+        public int[] NewFriends { get; init; } = Array.Empty<int>();
 
         public int[] NewChats { get; init; } = Array.Empty<int>();
 
@@ -39,9 +39,9 @@ namespace ApiTypes.Notifications
                 MessagesIds = reader.ReadInt32Array(),
                 FriendRequestIds = reader.ReadInt32Array(),
                 ChatInviteIds = reader.ReadInt32Array(),
-                NewFriends=reader.ReadInt32Array(),
-                NewChats=reader.ReadInt32Array(),
-                FriendsStatusChanged=reader.ReadInt32Array()
+                NewFriends = reader.ReadInt32Array(),
+                NewChats = reader.ReadInt32Array(),
+                FriendsStatusChanged = reader.ReadInt32Array()
             };
         }
     }

@@ -12,6 +12,8 @@ namespace ApiTypes
     {
         None,
 
+        LongPoll,
+
         GetUserInfo,
         GetUser,
         GetUserMany,

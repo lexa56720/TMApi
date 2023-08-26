@@ -17,7 +17,7 @@ namespace TMApi
 {
     public class ApiProvider
     {
-        public async Task<TMApi?> Register(string login, string password)
+        public async Task<TMApi?> GetApiRegister(string login, string password)
         {
             var coderDecoder = await GetCoderDecoder();
             using var inputDecoder = coderDecoder.Item1;
@@ -35,7 +35,7 @@ namespace TMApi
             return null;
         }
 
-        public async Task<TMApi?> GetApi(string login, string password)
+        public async Task<TMApi?> GetApiLogin(string login, string password)
         {
             var coderDecoder = await GetCoderDecoder();
             using var inputDecoder = coderDecoder.Item1;
@@ -44,7 +44,7 @@ namespace TMApi
             return await Login(login, password, inputDecoder, outputEncoder);
         }
 
-        public async Task<TMApi?> Login(string login, string password, RsaEncrypter inputDecoder, RsaEncrypter outputEncoder)
+        private async Task<TMApi?> Login(string login, string password, RsaEncrypter inputDecoder, RsaEncrypter outputEncoder)
         {
             password = GetPasswordHash(password);
             AuthorizationResponse? authResult = null;
@@ -54,14 +54,36 @@ namespace TMApi
             }
 
             if (authResult != null && authResult.IsSuccessful)
-            {
-                var api = new TMApi(authResult.AccessToken, authResult.Expiration, authResult.UserId, authResult.CryptId, authResult.AesKey);
-                await api.Init();
-                return api;
-            }
+                return await GetApi(authResult.AccessToken, authResult.Expiration,
+                                    authResult.UserId, authResult.CryptId, authResult.AesKey);
             return null;
         }
 
+        public async Task<TMApi?> Load(byte[] authData)
+        {
+            using var ms = new MemoryStream(authData);
+            using var br = new BinaryReader(ms);
+
+            var token = br.ReadString();
+            var expiration = DateTime.FromBinary(br.ReadInt64());
+            var key = br.ReadBytes(32);
+            var cryptId = br.ReadInt32();
+            var id = br.ReadInt32();
+
+            if (expiration > DateTime.UtcNow.AddHours(1))
+            {
+               await GetApi(token, expiration, id, cryptId, key);
+            }
+             
+            return null;
+        }
+
+        private async Task<TMApi?> GetApi(string token, DateTime expiration, int userId, int cryptId, byte[] aesKey)
+        {
+            var api = new TMApi(token, expiration, userId, cryptId, aesKey);
+            await api.Init();
+            return api;
+        }
         private async Task<(RsaEncrypter, RsaEncrypter)> GetCoderDecoder()
         {
             var inputDecoder = new RsaEncrypter();

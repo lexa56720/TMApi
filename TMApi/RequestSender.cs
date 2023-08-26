@@ -86,5 +86,10 @@ namespace TMApi
         {
             return await Requester.GetAsync(new ApiData<T>(header, Token, UserId, data));
         }
+
+        public async Task<T?> PostRequestAsync<T, U>(RequestHeaders header, U data,TimeSpan timeout) where T : ISerializable<T> where U : ISerializable<U>
+        {
+            return await Requester.PostAsync<T, ApiData<U>>(new ApiData<U>(header, Token, UserId, data), timeout);
+        }
     }
 }
