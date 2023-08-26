@@ -70,12 +70,16 @@ namespace TMApi
             var cryptId = br.ReadInt32();
             var id = br.ReadInt32();
 
-            if (expiration > DateTime.UtcNow.AddHours(1))
-            {
-               await GetApi(token, expiration, id, cryptId, key);
-            }
-             
-            return null;
+            if (expiration < DateTime.UtcNow.AddHours(1))
+                return null;
+
+
+            var api = await GetApi(token, expiration, id, cryptId, key);
+            var newData = await api.Auth.UpdateAuth();
+
+            if (newData != null && newData.IsSuccessful)
+                api.UpdateData(newData);
+            return api;
         }
 
         private async Task<TMApi?> GetApi(string token, DateTime expiration, int userId, int cryptId, byte[] aesKey)

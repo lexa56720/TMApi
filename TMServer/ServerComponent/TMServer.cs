@@ -43,7 +43,7 @@ namespace TMServer.Servers
             ResponseServer.RegisterPostHandler<IntContainer, UserInfo>(UsersHandler.GetUserInfo, RequestHeaders.GetUserInfo);
             ResponseServer.RegisterPostHandler<IntContainer, User>(UsersHandler.GetUser, RequestHeaders.GetUser);
             ResponseServer.RegisterPostHandler<IntArrayContainer, SerializableArray<User>>(UsersHandler.GetUser, RequestHeaders.GetUserMany);
-
+            ResponseServer.RegisterPostHandler<AuthUpdateRequest, AuthorizationResponse>(AuthHandler.UpdateAuth,RequestHeaders.UpdateAuth);
 
         }
         public override void Start()

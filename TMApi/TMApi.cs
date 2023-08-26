@@ -13,11 +13,12 @@ using System.Threading.Tasks;
 using TMApi.ApiRequests.Chats;
 using TMApi.ApiRequests.Friends;
 using TMApi.ApiRequests.Messages;
+using TMApi.ApiRequests.Security;
 using TMApi.ApiRequests.Users;
 
 namespace TMApi
 {
-    public class TMApi
+    public class TMApi : IDisposable
     {
         private string AccesToken
         {
@@ -28,7 +29,7 @@ namespace TMApi
                 Requester.Token = value;
             }
         }
-        private string accesToken=string.Empty;
+        private string accesToken = string.Empty;
 
         private DateTime Expiration { get; set; }
 
@@ -37,11 +38,13 @@ namespace TMApi
 
         private AesEncrypter Encrypter { get; set; }
 
-        public UserInfo User { get; private set; }
+        public UserInfo UserInfo { get; private set; }
 
         public Users Users { get; private set; }
 
         public Messages Messages { get; private set; }
+
+        public Auth Auth { get; set; }
 
         public Chats Chats { get; private set; }
 
@@ -50,7 +53,7 @@ namespace TMApi
         private RequestSender Requester { get; set; }
 
         public TMApi(string token, DateTime tokenTime, int userId, int cryptId, byte[] aesKey)
-        {    
+        {
             Id = userId;
             CryptId = cryptId;
             AccesToken = token;
@@ -59,9 +62,18 @@ namespace TMApi
 
             SetupRequester(token, userId, cryptId);
         }
+        public async Task Init()
+        {
+            Users = new Users(Requester, this);
+            Messages = new Messages(Requester, this);
+            Chats = new Chats(Requester, this);
+            Friends = new Friends(Requester, this);
+            Auth = new Auth(Requester, this);
 
+            UserInfo = await Users.GetUserInfo(Id);
+        }
         private void SetupRequester(string token, int userId, int cryptId)
-        {          
+        {
             Requester = new RequestSender(false, Encrypter, Encrypter)
             {
                 Token = token,
@@ -70,10 +82,6 @@ namespace TMApi
             IdHolder.Value = cryptId;
         }
 
-        public async Task UpdateAuth()
-        {
-
-        }
         public byte[] GetAuthData()
         {
             using var ms = new MemoryStream();
@@ -88,14 +96,17 @@ namespace TMApi
 
             return ms.ToArray();
         }
-        public async Task Init()
-        {
-            Users = new Users(Requester, this);
-            Messages = new Messages(Requester, this);
-            Chats = new Chats(Requester, this);
-            Friends = new Friends(Requester, this);
 
-            User = await Users.GetUserInfo(Id);
+        public void UpdateData(AuthorizationResponse response)
+        {
+            Encrypter.Key = response.AesKey;
+            Requester.Token = response.AccessToken;
+            Id = Requester.UserId = response.UserId;
+            Expiration = response.Expiration;
+        }
+        public void Dispose()
+        {
+            throw new NotImplementedException();
         }
     }
 }

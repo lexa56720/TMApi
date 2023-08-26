@@ -36,18 +36,25 @@ namespace TMServer.RequestHandlers
                     IsSuccessful = false
                 };
 
+            return GetAuthData(id);
+        }
+
+        //Надо удалять старые записи аунтефикаций и рса ключи
+        //При обнове обновлять аес ключ и айди в бд после отвравки нового ключа
+        private static AuthorizationResponse GetAuthData(int userId)
+        {
             var token = HashGenerator.GetRandomString();
             var aesCrypter = new AesEncrypter();
             var expiration = DateTime.UtcNow.Add(TokenLife);
 
-            var cryptId = Security.SaveAuth(id, aesCrypter.Key, aesCrypter.IV, token, expiration);
+            var cryptId = Security.SaveAuth(userId, aesCrypter.Key, aesCrypter.IV, token, expiration);
 
             return new AuthorizationResponse()
             {
                 AccessToken = token,
                 AesKey = aesCrypter.Key,
                 Expiration = expiration,
-                UserId = id,
+                UserId = userId,
                 CryptId = cryptId,
                 IsSuccessful = true
             };
@@ -64,6 +71,11 @@ namespace TMServer.RequestHandlers
             {
                 IsSuccessful = isSuccsessful
             };
+        }
+
+        public static AuthorizationResponse UpdateAuth(ApiData<AuthUpdateRequest> request)
+        {
+            return GetAuthData(request.UserId);
         }
     }
 }

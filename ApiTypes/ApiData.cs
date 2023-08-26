@@ -14,6 +14,8 @@ namespace ApiTypes
 
         LongPoll,
 
+        UpdateAuth,
+
         GetUserInfo,
         GetUser,
         GetUserMany,

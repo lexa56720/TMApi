@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TMApi.ApiRequests
 {
-    public abstract class BaseRequester
+    public abstract class BaseRequester:IDisposable
     {
         private protected RequestSender Requester { get; }
         protected TMApi Api { get; }
@@ -15,6 +15,11 @@ namespace TMApi.ApiRequests
         {
             Requester = requester;
             Api = api;
+        }
+
+        public void Dispose()
+        {
+            Requester.Dispose();
         }
     }
 }

@@ -5,13 +5,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ApiTypes.LongPolling
+namespace ApiTypes.Auth
 {
-    public class LongPollingRequest : ISerializable<LongPollingRequest>
+    public  class AuthUpdateRequest : ISerializable<AuthUpdateRequest>
     {
-        public static LongPollingRequest Deserialize(BinaryReader reader)
+        public static AuthUpdateRequest Deserialize(BinaryReader reader)
         {
-            return new LongPollingRequest();
+            return new AuthUpdateRequest();
         }
 
         public void Serialize(BinaryWriter writer)
