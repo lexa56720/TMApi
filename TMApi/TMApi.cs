@@ -44,7 +44,7 @@ namespace TMApi
 
         private RequestSender Requester { get; set; }
 
-        public TMApi(string token, DateTime tokenTime, int userId, int cryptId, byte[] aesKey)
+        internal TMApi(string token, DateTime tokenTime, int userId, int cryptId, byte[] aesKey)
         {
             Id = userId;
             CryptId = cryptId;
@@ -54,7 +54,7 @@ namespace TMApi
 
             SetupRequester(token, userId, cryptId);
         }
-        public async Task Init()
+        internal async Task Init()
         {
             Users = new Users(Requester, this);
             Messages = new Messages(Requester, this);
@@ -109,6 +109,5 @@ namespace TMApi
             Id = Requester.UserId = response.UserId;
             Expiration = response.Expiration;
         }
-
     }
 }

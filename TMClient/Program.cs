@@ -1,4 +1,6 @@
-﻿using TMApi;
+﻿using ApiTypes.Shared;
+using System.Net;
+using TMApi;
 
 namespace TMClient
 {
@@ -6,9 +8,15 @@ namespace TMClient
     {
         private static async Task Main(string[] args)
         {
-            ApiProvider apiProvider = new ApiProvider();
-            //var api = await apiProvider.Register("FFF666", "SSSS");
-            var api = await apiProvider.GetApiLogin("peter", "SSSS");
+            var config = new Configurator("config.cfg", true);
+
+            var ip = IPAddress.Parse(config.ConfigData["server-ip"]);
+            var authPort = config.GetValue<int>("auth-port");
+            var apiPort = config.GetValue<int>("api-port");
+
+            ApiProvider apiProvider = new ApiProvider(ip, authPort, apiPort);
+            var api = await apiProvider.GetApiRegister("FFF666", "SSSS");
+            // var api = await apiProvider.GetApiLogin("peter", "SSSS");
             Console.WriteLine(api.Id + " " + api.UserInfo.MainInfo.Name);
             var i = await api.Users.GetUserInfo(api.Id);
             Console.WriteLine(i.MainInfo.Name);

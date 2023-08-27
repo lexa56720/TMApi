@@ -35,7 +35,7 @@ public partial class TmdbContext : DbContext
 
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        => optionsBuilder.UseNpgsql("Host=localhost;Port=5432;Database=tmdb;Username=tmadmin;Password=1234;Include Error Detail=True;");
+        => optionsBuilder.UseNpgsql(GlobalSettings.ConnectionString);
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

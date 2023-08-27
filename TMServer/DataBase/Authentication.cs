@@ -5,7 +5,7 @@ namespace TMServer.DataBase
 {
     public static class Authentication
     {
-        private static string Salt = "NySzq6hatK";
+        private static string Salt = GlobalSettings.PasswordSalt;
 
         public static int GetUserId(string login, string password)
         {

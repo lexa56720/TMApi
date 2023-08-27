@@ -10,12 +10,11 @@ namespace TMApi
 {
     internal class RequestSender : IDisposable
     {
+        internal static int RsaPort { get; set; } = 6665;
 
-        private const int RsaPort = 6665;
+        internal static int AesPort { get; set; } = 6666;
 
-        private const int AesPort = 6666;
-
-        private IPAddress Server => new IPAddress(new byte[] { 127, 0, 0, 1 });
+        internal static IPAddress Server { get; set; } = new IPAddress(new byte[] { 127, 0, 0, 1 });
 
         public string Token { get; internal set; } = string.Empty;
 
@@ -42,6 +41,7 @@ namespace TMApi
             Requester.SetPacketType(typeof(TMPacket<>));
             IsRsa = isRsa;
         }
+
         public void Dispose()
         {
             Requester.Dispose();
@@ -53,7 +53,6 @@ namespace TMApi
                 return RsaPort;
             return AesPort;
         }
-
 
         public async Task<T?> PostAsync<T, U>(U data) where T : ISerializable<T> where U : ISerializable<U>
         {

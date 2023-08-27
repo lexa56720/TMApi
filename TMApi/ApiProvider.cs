@@ -2,6 +2,7 @@
 using ApiTypes.Communication.Packets;
 using ApiTypes.Shared;
 using CSDTP.Cryptography.Algorithms;
+using System.Net;
 
 namespace TMApi
 {
@@ -98,10 +99,17 @@ namespace TMApi
             string serverRsaPublicKey = response.Key;
             return (serverRsaPublicKey, response.Id);
         }
-
         private string GetPasswordHash(string password)
         {
             return HashGenerator.GenerateHash(password);
+        }
+
+
+        public ApiProvider(IPAddress server, int authPort, int apiPort)
+        {
+            RequestSender.Server = server;
+            RequestSender.RsaPort = authPort;
+            RequestSender.AesPort = apiPort;
         }
 
     }
