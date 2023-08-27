@@ -23,8 +23,24 @@ namespace TMServer.DataBase
         {
             var db = new TmdbContext();
 
-            return db.Messages.Where(m => m.DestinationId == chatId).Skip(offset).Take(count).ToArray();
+            return db.Messages
+                .Where(m => m.DestinationId == chatId)
+                .Skip(offset)
+                .Take(count)
+                .ToArray();
         }
+        public static DBMessage[] GetMessages(int chatId, int offset, int count, int lastMessageId, DateTime lastMessageDate)
+        {
+            var db = new TmdbContext();
 
+            return db.Messages
+                .Where(m => m.DestinationId == chatId)
+                .OrderBy(m => m.SendTime)
+                .ThenBy(m => m.Id)
+                .Where(m => m.SendTime < lastMessageDate || (m.SendTime == lastMessageDate && m.Id < lastMessageId))
+                .Skip(offset)
+                .Take(count)
+                .ToArray();
+        }
     }
 }

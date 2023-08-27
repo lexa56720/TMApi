@@ -2,6 +2,7 @@
 using ApiTypes.Communication.Messages;
 using ApiTypes.Shared;
 using TMServer.DataBase;
+using TMServer.DataBase.Tables;
 
 namespace TMServer.RequestHandlers
 {
@@ -16,12 +17,17 @@ namespace TMServer.RequestHandlers
 
         public static MessageHistoryResponse? GetMessages(ApiData<MessageHistoryRequest> request)
         {
-            if (!Chats.IsHaveAccess(request.UserId, request.Data.FromId))
+            if (!Chats.IsHaveAccess(request.UserId, request.Data.ChatId))
                 return null;
 
-            var dbMessages = Messages.GetMessages(request.Data.FromId, request.Data.Offset, request.Data.MaxCount);
+            DBMessage[] dbMessages = Array.Empty<DBMessage>();
+            if (request.Data.LastMessageId >= 0)
+                dbMessages = Messages.GetMessages(request.Data.ChatId, request.Data.Offset,
+                    request.Data.MaxCount, request.Data.LastMessageId, request.Data.LastMessageDate);
+            else
+                dbMessages = Messages.GetMessages(request.Data.ChatId, request.Data.Offset, request.Data.MaxCount);
             var messages = dbMessages.Select(m => new Message(m.Id, m.AuthorId, m.Content, m.SendTime));
-            return new MessageHistoryResponse(request.Data.FromId, messages.ToArray());
+            return new MessageHistoryResponse(request.Data.ChatId, messages.ToArray());
         }
 
     }
