@@ -1,10 +1,5 @@
 ﻿using ApiTypes;
-using ApiTypes.Auth;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using ApiTypes.Communication.Auth;
 
 namespace TMApi.ApiRequests.Security
 {
@@ -16,7 +11,7 @@ namespace TMApi.ApiRequests.Security
 
         public async Task<AuthorizationResponse?> UpdateAuth()
         {
-           return await Requester.PostRequestAsync<AuthorizationResponse, AuthUpdateRequest>(RequestHeaders.UpdateAuth,new AuthUpdateRequest());
+            return await Requester.PostRequestAsync<AuthorizationResponse, AuthUpdateRequest>(RequestHeaders.UpdateAuth, new AuthUpdateRequest());
         }
     }
 }

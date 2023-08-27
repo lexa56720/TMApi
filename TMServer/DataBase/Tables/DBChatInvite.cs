@@ -1,11 +1,4 @@
-﻿using ApiTypes.Chats;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace TMServer.DataBase.Tables
+﻿namespace TMServer.DataBase.Tables
 {
     public class DBChatInvite
     {

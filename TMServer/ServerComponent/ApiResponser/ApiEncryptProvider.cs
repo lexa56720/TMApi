@@ -1,12 +1,7 @@
-﻿using ApiTypes.Packets;
+﻿using ApiTypes.Communication.Packets;
 using CSDTP.Cryptography.Algorithms;
 using CSDTP.Cryptography.Providers;
 using CSDTP.Packets;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TMServer.DataBase;
 
 namespace TMServer.ServerComponent.ApiResponser
@@ -26,7 +21,7 @@ namespace TMServer.ServerComponent.ApiResponser
         public IEncrypter? GetDecrypter(IPacketInfo packet)
         {
             var cryptId = ((ITMPacket)packet).Id.InstanceValue;
-            var key= Security.GetAesKey(cryptId);
+            var key = Security.GetAesKey(cryptId);
             return new AesEncrypter(key);
         }
 

@@ -1,17 +1,7 @@
-﻿using ApiTypes.Auth;
-using ApiTypes;
-using CSDTP.Cryptography;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using CSDTP;
-using CSDTP.Cryptography.Algorithms;
-using CSDTP.Protocols;
-using System.Reflection;
-using ApiTypes.Packets;
+﻿using ApiTypes.Communication.Auth;
+using ApiTypes.Communication.Packets;
 using ApiTypes.Shared;
+using CSDTP.Cryptography.Algorithms;
 
 namespace TMApi
 {

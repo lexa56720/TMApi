@@ -1,15 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace ApiTypes.Shared
 {
     public static class HashGenerator
     {
-        static readonly SHA512 Hasher = SHA512.Create();
+        private static readonly SHA512 Hasher = SHA512.Create();
         public static string GetRandomString()
         {
             return Convert.ToBase64String(RandomNumberGenerator.GetBytes(128));
@@ -28,7 +24,7 @@ namespace ApiTypes.Shared
 
         public static string BytesToString(byte[] bytes)
         {
-           return Convert.ToBase64String(bytes);
+            return Convert.ToBase64String(bytes);
         }
 
         public static byte[] Base64ToBytes(string str)

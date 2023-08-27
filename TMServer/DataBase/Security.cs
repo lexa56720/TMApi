@@ -1,12 +1,4 @@
-﻿using ApiTypes.Shared;
-using CSDTP.Cryptography.Algorithms;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TMServer.DataBase.Tables;
-using TMServer.DataBase.Types;
+﻿using TMServer.DataBase.Tables;
 
 namespace TMServer.DataBase
 {

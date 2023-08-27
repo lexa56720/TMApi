@@ -1,11 +1,6 @@
-﻿using ApiTypes.BaseTypes;
-using ApiTypes;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ApiTypes.Chats;
+﻿using ApiTypes;
+using ApiTypes.Communication.BaseTypes;
+using ApiTypes.Communication.Chats;
 using ApiTypes.Shared;
 
 namespace TMApi.ApiRequests.Chats
@@ -45,7 +40,7 @@ namespace TMApi.ApiRequests.Chats
         public async Task<ChatInvite?> GetChatInvite(int inviteId)
         {
             return await Requester.PostRequestAsync<ChatInvite, IntContainer>
-                (RequestHeaders.GetChatInvite,new IntContainer(inviteId));
+                (RequestHeaders.GetChatInvite, new IntContainer(inviteId));
         }
         public async Task<ChatInvite[]> GetChatInvite(int[] inviteId)
         {

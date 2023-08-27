@@ -1,16 +1,10 @@
 ﻿using ApiTypes;
-using ApiTypes.Packets;
+using ApiTypes.Communication.Packets;
 using CSDTP;
-using CSDTP.Cryptography;
 using CSDTP.Cryptography.Algorithms;
 using CSDTP.Cryptography.Providers;
 using CSDTP.Requests;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace TMApi
 {
@@ -29,7 +23,7 @@ namespace TMApi
 
         public int CryptId => IdHolder.Value;
 
-        Requester Requester { get; set; }
+        private Requester Requester { get; set; }
 
         public bool IsRsa { get; }
 
@@ -89,7 +83,7 @@ namespace TMApi
             return await Requester.GetAsync(new ApiData<T>(header, Token, UserId, data, CryptId));
         }
 
-        public async Task<T?> PostRequestAsync<T, U>(RequestHeaders header, U data,TimeSpan timeout) where T : ISerializable<T> where U : ISerializable<U>
+        public async Task<T?> PostRequestAsync<T, U>(RequestHeaders header, U data, TimeSpan timeout) where T : ISerializable<T> where U : ISerializable<U>
         {
             return await Requester.PostAsync<T, ApiData<U>>(new ApiData<U>(header, Token, UserId, data, CryptId), timeout);
         }

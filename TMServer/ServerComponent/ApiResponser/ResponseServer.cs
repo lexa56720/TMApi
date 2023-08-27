@@ -1,14 +1,9 @@
 ﻿using ApiTypes;
-using CSDTP.Requests;
 using CSDTP;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TMServer.ServerComponent.Basics;
 using CSDTP.Cryptography.Providers;
+using CSDTP.Requests;
 using TMServer.DataBase;
+using TMServer.ServerComponent.Basics;
 
 namespace TMServer.ServerComponent.ApiResponser
 {
@@ -32,7 +27,7 @@ namespace TMServer.ServerComponent.ApiResponser
                 Responder.RegisterGetHandler(new Action<ApiData<T>>(InvokeHandler<T>));
             }
 
-            if (GetHandlers.TryGetValue(type,out var handler) && handler.ContainsKey(header))
+            if (GetHandlers.TryGetValue(type, out var handler) && handler.ContainsKey(header))
                 return;
 
             GetHandlers[type].Add(header, func);
@@ -57,14 +52,14 @@ namespace TMServer.ServerComponent.ApiResponser
             if (IsRequestLegal(request) && PostHandlers.TryGetValue(typeof(ApiData<T>),
                 out var typeHandler) && typeHandler.TryGetValue(request.Header, out var handler))
 
-                    ((Delegate)handler).Method.Invoke(handler, new object[] { request });
+                ((Delegate)handler).Method.Invoke(handler, new object[] { request });
         }
         private U? InvokeHandler<T, U>(ApiData<T> request) where T : ISerializable<T> where U : ISerializable<U>
         {
             if (IsRequestLegal(request) && PostHandlers.TryGetValue(typeof(ApiData<T>),
                 out var typeHandler) && typeHandler.TryGetValue(request.Header, out var handler))
 
-                    return (U?)((Delegate)handler).Method.Invoke(handler, new object[] { request });
+                return (U?)((Delegate)handler).Method.Invoke(handler, new object[] { request });
 
             return default;
         }

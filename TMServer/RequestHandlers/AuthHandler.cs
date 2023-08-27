@@ -1,14 +1,8 @@
 ﻿using ApiTypes;
-using ApiTypes.Auth;
+using ApiTypes.Communication.Auth;
 using ApiTypes.Shared;
-using CSDTP.Cryptography;
 using CSDTP.Cryptography.Algorithms;
 using CSDTP.Packets;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TMServer.DataBase;
 
 
@@ -64,7 +58,7 @@ namespace TMServer.RequestHandlers
             if (isSuccsessful)
             {
                 using var aes = new AesEncrypter();
-                isSuccsessful =Authentication.CreateUser(request.Login, request.Password, aes.Key);
+                isSuccsessful = Authentication.CreateUser(request.Login, request.Password, aes.Key);
             }
 
             return new RegisterResponse()
@@ -74,10 +68,10 @@ namespace TMServer.RequestHandlers
         }
 
         public static AuthorizationResponse UpdateAuth(ApiData<AuthUpdateRequest> request)
-        {        
+        {
             Security.SetDeprecated(request.CryptId);
             var newAuth = GetAuthData(request.UserId);
-            return newAuth; 
+            return newAuth;
         }
     }
 }

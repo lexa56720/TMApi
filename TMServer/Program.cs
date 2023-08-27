@@ -1,17 +1,13 @@
-﻿
-using Microsoft.EntityFrameworkCore;
-using TMServer.DataBase;
-using TMServer.DataBase.Tables;
+﻿using TMServer.DataBase;
 
 namespace TMServer
 {
     internal class Program
     {
-        static int AuthPort = 6665;
-        static int ResponsePort = 6666;
+        private static int AuthPort = 6665;
+        private static int ResponsePort = 6666;
 
-
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
 
             var db = new TmdbContext();

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TMServer.DataBase.Tables;
+﻿using TMServer.DataBase.Tables;
 
 namespace TMServer.DataBase
 {
@@ -18,7 +13,7 @@ namespace TMServer.DataBase
                 AuthorId = authorId,
                 DestinationId = destinationId,
                 Content = content,
-                SendTime=DateTime.UtcNow,
+                SendTime = DateTime.UtcNow,
             });
 
             db.SaveChanges();

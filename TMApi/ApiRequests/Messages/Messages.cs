@@ -1,26 +1,19 @@
-﻿using ApiTypes.BaseTypes;
-using ApiTypes;
-using ApiTypes.Messages;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TMApi.ApiRequests.Chats;
+﻿using ApiTypes;
+using ApiTypes.Communication.Messages;
 using ApiTypes.Shared;
 
 namespace TMApi.ApiRequests.Messages
 {
     public class Messages : BaseRequester
     {
-        internal Messages(RequestSender requester, TMApi api) : base(requester,api)
+        internal Messages(RequestSender requester, TMApi api) : base(requester, api)
         {
         }
 
         public async Task<Message[]?> GetLastMessages(int chatId, int count, int offset)
         {
             var messages = await Requester.PostRequestAsync<MessageHistoryResponse, MessageHistoryRequest>
-                (RequestHeaders.GetLastMessages,new MessageHistoryRequest(chatId, offset, count));
+                (RequestHeaders.GetLastMessages, new MessageHistoryRequest(chatId, offset, count));
 
             if (messages == null)
                 return Array.Empty<Message>();

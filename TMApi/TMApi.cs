@@ -1,15 +1,7 @@
-﻿using ApiTypes.Auth;
-using ApiTypes.BaseTypes;
-using ApiTypes.Packets;
-using ApiTypes.Users;
-using CSDTP.Cryptography;
+﻿using ApiTypes.Communication.Auth;
+using ApiTypes.Communication.Packets;
+using ApiTypes.Communication.Users;
 using CSDTP.Cryptography.Algorithms;
-using CSDTP.Requests;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TMApi.ApiRequests.Chats;
 using TMApi.ApiRequests.Friends;
 using TMApi.ApiRequests.Messages;
@@ -82,6 +74,17 @@ namespace TMApi
             IdHolder.Value = cryptId;
         }
 
+        public void Dispose()
+        {
+            Encrypter.Dispose();
+
+            Users.Dispose();
+            Messages.Dispose();
+            Chats.Dispose();
+            Friends.Dispose();
+            Auth.Dispose();
+        }
+
         public byte[] GetAuthData()
         {
             using var ms = new MemoryStream();
@@ -106,15 +109,6 @@ namespace TMApi
             Id = Requester.UserId = response.UserId;
             Expiration = response.Expiration;
         }
-        public void Dispose()
-        {
-            Encrypter.Dispose();
 
-            Users.Dispose();
-            Messages.Dispose();
-            Chats.Dispose();
-            Friends.Dispose();
-            Auth.Dispose();
-        }
     }
 }

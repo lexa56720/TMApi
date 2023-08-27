@@ -1,13 +1,6 @@
-﻿using ApiTypes;
-using ApiTypes.Packets;
-using CSDTP;
+﻿using ApiTypes.Communication.Packets;
 using CSDTP.Cryptography.Providers;
 using CSDTP.Requests;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace TMServer.ServerComponent.Basics
 {
@@ -17,7 +10,7 @@ namespace TMServer.ServerComponent.Basics
         protected Responder Responder { get; set; }
 
 
-        protected Server(int port,IEncryptProvider encryptProvider, IEncryptProvider decryptProvider)
+        protected Server(int port, IEncryptProvider encryptProvider, IEncryptProvider decryptProvider)
         {
             Responder = new Responder(TimeSpan.FromSeconds(20), port, encryptProvider, decryptProvider);
             Responder.SetPacketType(typeof(TMPacket<>));

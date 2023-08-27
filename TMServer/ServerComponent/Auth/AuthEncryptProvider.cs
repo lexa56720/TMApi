@@ -1,18 +1,9 @@
-﻿using ApiTypes.Auth;
-using ApiTypes.Packets;
+﻿using ApiTypes.Communication.Packets;
 using CSDTP.Cryptography.Algorithms;
 using CSDTP.Cryptography.Providers;
 using CSDTP.Packets;
-using CSDTP.Requests.RequestHeaders;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Sockets;
-using System.Text;
-using System.Threading.Tasks;
 using TMServer.DataBase;
 using TMServer.DataBase.Tables;
-using TMServer.DataBase.Types;
 
 namespace TMServer.ServerComponent.Auth
 {

@@ -1,11 +1,6 @@
 ﻿using ApiTypes;
-using ApiTypes.Messages;
+using ApiTypes.Communication.Messages;
 using ApiTypes.Shared;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TMServer.DataBase;
 
 namespace TMServer.RequestHandlers

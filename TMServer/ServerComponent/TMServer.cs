@@ -1,13 +1,7 @@
 ﻿using ApiTypes;
-using ApiTypes.Auth;
-using ApiTypes.BaseTypes;
-using ApiTypes.Users;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TMServer.Logger;
+using ApiTypes.Communication.Auth;
+using ApiTypes.Communication.BaseTypes;
+using ApiTypes.Communication.Users;
 using TMServer.RequestHandlers;
 using TMServer.ServerComponent.ApiResponser;
 using TMServer.ServerComponent.Auth;
@@ -26,7 +20,7 @@ namespace TMServer.Servers
             AuthServer = new AuthorizationServer(authPort, new AuthEncryptProvider());
             ResponseServer = new ResponseServer(responsePort, new ApiEncryptProvider());
             RegisterAuthMethods();
-            RegisterResponseMethods();
+            RegisterApiMethods();
         }
 
         public void RegisterAuthMethods()
@@ -36,12 +30,12 @@ namespace TMServer.Servers
             AuthServer.Register<RegisterRequest, RegisterResponse>(AuthHandler.Register);
         }
 
-        public void RegisterResponseMethods()
+        public void RegisterApiMethods()
         {
             ResponseServer.RegisterPostHandler<IntContainer, UserInfo>(UsersHandler.GetUserInfo, RequestHeaders.GetUserInfo);
             ResponseServer.RegisterPostHandler<IntContainer, User>(UsersHandler.GetUser, RequestHeaders.GetUser);
             ResponseServer.RegisterPostHandler<IntArrayContainer, SerializableArray<User>>(UsersHandler.GetUser, RequestHeaders.GetUserMany);
-            ResponseServer.RegisterPostHandler<AuthUpdateRequest, AuthorizationResponse>(AuthHandler.UpdateAuth,RequestHeaders.UpdateAuth);
+            ResponseServer.RegisterPostHandler<AuthUpdateRequest, AuthorizationResponse>(AuthHandler.UpdateAuth, RequestHeaders.UpdateAuth);
 
         }
         public override void Start()

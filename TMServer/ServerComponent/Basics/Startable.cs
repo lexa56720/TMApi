@@ -1,11 +1,4 @@
-﻿using CSDTP.Requests;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace TMServer.ServerComponent.Basics
+﻿namespace TMServer.ServerComponent.Basics
 {
     internal abstract class Startable
     {
