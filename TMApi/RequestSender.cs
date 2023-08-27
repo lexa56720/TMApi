@@ -27,6 +27,8 @@ namespace TMApi
 
         public int UserId { get; internal set; }
 
+        public int CryptId => IdHolder.Value;
+
         Requester Requester { get; set; }
 
         public bool IsRsa { get; }
@@ -80,16 +82,16 @@ namespace TMApi
 
         public async Task<T?> PostRequestAsync<T, U>(RequestHeaders header, U data) where T : ISerializable<T> where U : ISerializable<U>
         {
-            return await Requester.PostAsync<T, ApiData<U>>(new ApiData<U>(header, Token, UserId, data), Timeout);
+            return await Requester.PostAsync<T, ApiData<U>>(new ApiData<U>(header, Token, UserId, data, CryptId), Timeout);
         }
         public async Task<bool> GetRequestAsync<T>(RequestHeaders header, T data) where T : ISerializable<T>
         {
-            return await Requester.GetAsync(new ApiData<T>(header, Token, UserId, data));
+            return await Requester.GetAsync(new ApiData<T>(header, Token, UserId, data, CryptId));
         }
 
         public async Task<T?> PostRequestAsync<T, U>(RequestHeaders header, U data,TimeSpan timeout) where T : ISerializable<T> where U : ISerializable<U>
         {
-            return await Requester.PostAsync<T, ApiData<U>>(new ApiData<U>(header, Token, UserId, data), timeout);
+            return await Requester.PostAsync<T, ApiData<U>>(new ApiData<U>(header, Token, UserId, data, CryptId), timeout);
         }
     }
 }

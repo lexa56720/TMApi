@@ -99,6 +99,8 @@ namespace TMApi
 
         public void UpdateData(AuthorizationResponse response)
         {
+            IdHolder.Value = response.CryptId;
+
             Encrypter.Key = response.AesKey;
             Requester.Token = response.AccessToken;
             Id = Requester.UserId = response.UserId;
@@ -106,7 +108,13 @@ namespace TMApi
         }
         public void Dispose()
         {
-            throw new NotImplementedException();
+            Encrypter.Dispose();
+
+            Users.Dispose();
+            Messages.Dispose();
+            Chats.Dispose();
+            Friends.Dispose();
+            Auth.Dispose();
         }
     }
 }

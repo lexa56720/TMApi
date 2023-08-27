@@ -26,13 +26,15 @@ namespace TMServer.ServerComponent.ApiResponser
         public IEncrypter? GetDecrypter(IPacketInfo packet)
         {
             var cryptId = ((ITMPacket)packet).Id.InstanceValue;
-            return Security.GetAesEncrypter(cryptId);
+            var key= Security.GetAesKey(cryptId);
+            return new AesEncrypter(key);
         }
 
         public IEncrypter? GetEncrypter(IPacketInfo packet)
         {
             var cryptId = ((ITMPacket)packet.InfoObj).Id.InstanceValue;
-            return Security.GetAesEncrypter(cryptId);
+            var key = Security.GetAesKey(cryptId);
+            return new AesEncrypter(key);
         }
     }
 }

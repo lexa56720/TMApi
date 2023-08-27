@@ -8,39 +8,14 @@ using System.Threading.Tasks;
 
 namespace ApiTypes
 {
-    public enum RequestHeaders
-    {
-        None,
-
-        LongPoll,
-
-        UpdateAuth,
-
-        GetUserInfo,
-        GetUser,
-        GetUserMany,
-
-        GetLastMessages,
-        SendMessage,
-
-        GetFriendRequest,
-        GetFriendRequestMany,
-        ResponseFriendRequest,
-        SendFriendRequest,
-
-        CreateChat,
-        GetChat,
-        GetChatMany,
-        SendChatInvite,
-        GetChatInvite,
-        GetChatInviteMany,
-    }
     public class ApiData<T> : ISerializable<ApiData<T>> where T : ISerializable<T>
     {
         public RequestHeaders Header { get; init; } = RequestHeaders.None;
         public required string Token { get; init; }
 
         public required int UserId { get; init; }
+
+        public required int CryptId { get; init; }
 
         public required T Data { get; init; }
 
@@ -52,12 +27,13 @@ namespace ApiTypes
             UserId = id;
         }
         [SetsRequiredMembers]
-        public ApiData(RequestHeaders header, string token, int id, T data)
+        public ApiData(RequestHeaders header, string token, int id, T data, int cryptId)
         {
             Header = header;
             Token = token;
             Data = data;
             UserId = id;
+            CryptId = cryptId;
         }
 
         public ApiData()
@@ -65,6 +41,14 @@ namespace ApiTypes
 
         }
 
+        public void Serialize(BinaryWriter writer)
+        {
+            writer.Write((byte)Header);
+            writer.Write(Token);
+            writer.Write(UserId);
+            writer.Write(CryptId);
+            Data.Serialize(writer);
+        }
         public static ApiData<T> Deserialize(BinaryReader reader)
         {
             return new ApiData<T>()
@@ -72,16 +56,10 @@ namespace ApiTypes
                 Header = (RequestHeaders)reader.ReadByte(),
                 Token = reader.ReadString(),
                 UserId = reader.Read(),
+                CryptId = reader.Read(),
                 Data = T.Deserialize(reader)
             };
         }
 
-        public void Serialize(BinaryWriter writer)
-        {
-            writer.Write((byte)Header);
-            writer.Write(Token);
-            writer.Write(UserId);
-            Data.Serialize(writer);
-        }
     }
 }

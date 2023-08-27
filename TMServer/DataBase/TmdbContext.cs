@@ -48,16 +48,14 @@ public partial class TmdbContext : DbContext
             entity.ToTable("aes");
 
             entity.Property(e => e.AesKey)
-                .HasMaxLength(64)
+                .HasMaxLength(32)
                 .HasColumnName("aes_key");
 
-            entity.Property(e => e.IV)
-                .HasMaxLength(32)
-                .HasColumnName("iv");
+            entity.Property(e => e.IsDeprecated).HasColumnName("is_depricated");
+            entity.Property(e => e.DeprecatedDate).HasColumnName("depricated_date");
 
-            entity.HasOne(e => e.User)
-            .WithOne(u => u.Crypt)
-            .HasForeignKey<DBUser>(u => u.CryptId);
+            entity.HasOne(e => e.User).WithMany(u => u.Crypts)
+            .HasForeignKey(u => u.UserId);
         });
 
         modelBuilder.Entity<DBChat>(entity =>
@@ -162,8 +160,8 @@ public partial class TmdbContext : DbContext
             entity.Property(e => e.Expiration).HasColumnName("expiration");
 
 
-            entity.HasOne(d => d.User).WithOne(p => p.Token)
-                .HasForeignKey<DBToken>(d => d.UserId)
+            entity.HasOne(d => d.User).WithMany(p => p.Tokens)
+                .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("tokens_userid_fkey");
         });
@@ -173,8 +171,6 @@ public partial class TmdbContext : DbContext
             entity.HasKey(e => e.Id).HasName("users_pkey");
 
             entity.ToTable("users");
-
-            entity.Property(e => e.CryptId).HasColumnName("crypt_id");
 
             entity.Property(e => e.LastRequest).HasColumnName("last_request");
 
@@ -191,9 +187,6 @@ public partial class TmdbContext : DbContext
             entity.Property(e => e.Password)
                 .HasMaxLength(512)
                 .HasColumnName("password");
-
-            entity.HasOne(d => d.Crypt).WithOne(p => p.User)
-                .HasForeignKey<DBUser>(e => e.CryptId);
         });
 
         modelBuilder.Entity<DBChatInvite>(entity =>
@@ -234,7 +227,7 @@ public partial class TmdbContext : DbContext
               .HasColumnName("user_id_two");
 
             entity.HasOne(e => e.UserOne)
-            .WithOne().HasPrincipalKey<DBFriendRequest>(r=>r.UserIdOne);
+            .WithOne().HasPrincipalKey<DBFriendRequest>(r => r.UserIdOne);
 
             entity.HasOne(e => e.UserTwo)
            .WithOne().HasPrincipalKey<DBFriendRequest>(r => r.UserIdTwo);

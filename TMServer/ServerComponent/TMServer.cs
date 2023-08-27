@@ -20,15 +20,13 @@ namespace TMServer.Servers
         private AuthorizationServer AuthServer { get; set; }
 
         private ResponseServer ResponseServer { get; set; }
-        private ILogger Logger { get; }
 
-        public TMServer(int authPort, int responsePort, ILogger logger)
+        public TMServer(int authPort, int responsePort)
         {
             AuthServer = new AuthorizationServer(authPort, new AuthEncryptProvider());
             ResponseServer = new ResponseServer(responsePort, new ApiEncryptProvider());
             RegisterAuthMethods();
             RegisterResponseMethods();
-            Logger = logger;
         }
 
         public void RegisterAuthMethods()

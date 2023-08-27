@@ -12,7 +12,7 @@ namespace TMApi.ApiRequests
     {
         public bool IsPolling { get; private set; }
 
-        public event EventHandler<Notification>? NewEvents;
+        public event EventHandler<Notification>? StateUpdated;
 
         private Notification? LastState;
 
@@ -25,7 +25,8 @@ namespace TMApi.ApiRequests
             if (IsPolling)
                 return;
 
-            Requester.PostRequestAsync<Notification,LongPollingRequest>(RequestHeaders.LongPoll, new LongPollingRequest(), TimeSpan.MaxValue);
+            IsPolling = true;
+            RequestingLoop();
         }
 
 
@@ -33,6 +34,21 @@ namespace TMApi.ApiRequests
         {
             if (!IsPolling)
                 return;
+            IsPolling = false;
+        }
+
+
+        private void RequestingLoop()
+        {
+            Task.Run(async () =>
+            {
+                while (IsPolling)
+                {
+                    LastState = await Requester.PostRequestAsync<Notification, LongPollingRequest>(RequestHeaders.LongPoll, new LongPollingRequest(), TimeSpan.MaxValue);
+                    if (LastState != null)
+                        StateUpdated?.Invoke(this, LastState);
+                }
+            });
         }
 
     }

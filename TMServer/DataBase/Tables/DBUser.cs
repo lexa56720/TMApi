@@ -14,15 +14,13 @@ public partial class DBUser
 
     public required DateTime RegisterDate { get; set; }
 
-    public required int? CryptId { get; set; }
-
     public required string Login { get; set; }
 
     public required string Password { get; set; }
 
-    public virtual DBToken? Token { get; set; }
+    public virtual ICollection<DBToken> Tokens { get; set; } = new List<DBToken>();
 
-    public virtual DBAes? Crypt { get; set; }
+    public virtual ICollection<DBAes> Crypts { get; set; } = new List<DBAes>();
 
     public virtual ICollection<DBChat> Chats { get; set; } = new List<DBChat>();
 
