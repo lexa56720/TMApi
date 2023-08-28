@@ -27,5 +27,18 @@ namespace TMServer.DataBase
             var users = db.Users.Where(u => ids.Contains(u.Id));
             return users.ToArray();
         }
+
+
+        public static void ChangeName(int userId, string newName)
+        {
+            var db = new TmdbContext();
+
+            var user = db.Users.SingleOrDefault(u => u.Id == userId);
+            if (user == null)
+                return;
+
+            user.Name = newName;
+            db.SaveChanges();
+        }
     }
 }

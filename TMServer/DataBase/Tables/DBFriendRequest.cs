@@ -6,8 +6,8 @@
         public required int UserIdOne { get; set; }
         public required int UserIdTwo { get; set; }
 
-        public DBUser UserOne { get; set; } = null!;
+        public virtual DBUser UserOne { get; set; } = null!;
 
-        public DBUser UserTwo { get; set; } = null!;
+        public virtual DBUser UserTwo { get; set; } = null!;
     }
 }

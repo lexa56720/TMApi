@@ -63,7 +63,7 @@ namespace TMServer.DataBase
             };
             db.AesCrypts.Add(aes);
             db.SaveChanges();
-            return aes.CryptId;
+            return aes.Id;
         }
         private static void AddToken(int userId, string token, DateTime expiration)
         {

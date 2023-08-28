@@ -11,11 +11,11 @@
         public required int UserId { get; set; }
 
 
-        public DBChat Chat { get; set; } = null!;
+        public virtual DBChat Chat { get; set; } = null!;
 
-        public DBUser Inviter { get; set; } = null!;
+        public virtual DBUser Inviter { get; set; } = null!;
 
-        public DBUser DestinationUser { get; set; } = null!;
+        public virtual DBUser DestinationUser { get; set; } = null!;
 
     }
 }

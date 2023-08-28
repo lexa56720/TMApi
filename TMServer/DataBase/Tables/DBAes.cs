@@ -2,7 +2,7 @@
 
 public partial class DBAes
 {
-    public int CryptId { get; set; }
+    public int Id { get; set; }
 
     public required byte[] AesKey { get; set; }
 

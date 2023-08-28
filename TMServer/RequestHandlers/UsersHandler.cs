@@ -45,5 +45,11 @@ namespace TMServer.RequestHandlers
 
             return new SerializableArray<User>(users.Select(u => new User(u.Name, u.Id, u.IsOnline)).ToArray());
         }
+
+        public static void ChangeUserName(ApiData<ChangeNameRequest> request)
+        {
+            Users.ChangeName(request.UserId, request.Data.NewName);
+        }
     }
+
 }

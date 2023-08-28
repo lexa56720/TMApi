@@ -33,6 +33,7 @@ public partial class TmdbContext : DbContext
 
     public virtual DbSet<DBFriendRequest> FriendRequests { get; set; }
 
+    public virtual DbSet<DBMessageMedia> MessageMedias { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         => optionsBuilder.UseNpgsql(GlobalSettings.ConnectionString);
@@ -41,9 +42,9 @@ public partial class TmdbContext : DbContext
     {
         modelBuilder.Entity<DBAes>(entity =>
         {
-            entity.HasKey(e => e.CryptId).HasName("aes_pkey");
-
+            entity.HasKey(e => e.Id).HasName("aes_pkey");
             entity.ToTable("aes");
+            entity.Property(e => e.Id).HasColumnName("id");
 
             entity.Property(e => e.AesKey)
                 .HasMaxLength(32)
@@ -59,8 +60,8 @@ public partial class TmdbContext : DbContext
         modelBuilder.Entity<DBChat>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("chats_pkey");
-
             entity.ToTable("chats");
+            entity.Property(e => e.Id).HasColumnName("id");
 
             entity.Property(e => e.ChatId).HasColumnName("chat_id");
             entity.Property(e => e.MemberId).HasColumnName("member_id");
@@ -78,8 +79,8 @@ public partial class TmdbContext : DbContext
         modelBuilder.Entity<DBFriend>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("friends_pkey");
-
             entity.ToTable("friends");
+            entity.Property(e => e.Id).HasColumnName("id");
 
             entity.Property(e => e.UserIdOne)
                 .ValueGeneratedNever()
@@ -102,19 +103,27 @@ public partial class TmdbContext : DbContext
 
         modelBuilder.Entity<DBMessage>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("messages_pkey");
-
+            entity.HasKey(e => e.Id)
+            .HasName("messages_pkey");
             entity.ToTable("messages");
+            entity.Property(e => e.Id).HasColumnName("id");
 
-            entity.Property(e => e.AuthorId).HasColumnName("author_id");
+            entity.Property(e => e.AuthorId)
+            .HasColumnName("author_id");
 
             entity.Property(e => e.Content)
                 .HasMaxLength(512)
                 .HasColumnName("content");
 
-            entity.Property(e => e.DestinationId).HasColumnName("destination_id");
+            entity.Property(e => e.DestinationId)
+            .HasColumnName("destination_id");
 
-            entity.Property(e => e.SendTime).HasColumnName("send_time");
+            entity.Property(e => e.SendTime)
+            .HasColumnName("send_time");
+
+            entity.HasMany(e => e.Medias)
+            .WithOne(m => m.Message)
+            .HasForeignKey(m => m.MessageId);
 
             entity.HasOne(d => d.Author).WithMany()
                 .HasForeignKey(d => d.AuthorId)
@@ -128,8 +137,8 @@ public partial class TmdbContext : DbContext
         modelBuilder.Entity<DBRsa>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("rsa_pkey");
-
             entity.ToTable("rsa");
+            entity.Property(e => e.Id).HasColumnName("id");
 
             entity.Property(e => e.PrivateServerKey)
                 .HasMaxLength(4096)
@@ -145,8 +154,8 @@ public partial class TmdbContext : DbContext
         modelBuilder.Entity<DBToken>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("tokens_pkey");
-
             entity.ToTable("tokens");
+            entity.Property(e => e.Id).HasColumnName("id");
 
             entity.Property(e => e.UserId)
                 .HasColumnName("user_id");
@@ -167,8 +176,8 @@ public partial class TmdbContext : DbContext
         modelBuilder.Entity<DBUser>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("users_pkey");
-
             entity.ToTable("users");
+            entity.Property(e => e.Id).HasColumnName("id");
 
             entity.Property(e => e.LastRequest).HasColumnName("last_request");
 
@@ -190,8 +199,8 @@ public partial class TmdbContext : DbContext
         modelBuilder.Entity<DBChatInvite>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("chat_invites_pkey");
-
             entity.ToTable("chat_invites");
+            entity.Property(e => e.Id).HasColumnName("id");
 
             entity.Property(e => e.ChatId).HasColumnName("chat_id");
 
@@ -212,9 +221,8 @@ public partial class TmdbContext : DbContext
         modelBuilder.Entity<DBFriendRequest>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("friend_requests_pkey");
-
             entity.ToTable("friend_requests");
-
+            entity.Property(e => e.Id).HasColumnName("id");
 
             entity.Property(e => e.UserIdOne)
                 .ValueGeneratedNever()
@@ -229,6 +237,18 @@ public partial class TmdbContext : DbContext
 
             entity.HasOne(e => e.UserTwo)
            .WithOne().HasPrincipalKey<DBFriendRequest>(r => r.UserIdTwo);
+        });
+
+        modelBuilder.Entity<DBMessageMedia>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("message_medias_pkey");
+            entity.ToTable("message_medias");
+            entity.Property(e => e.Id).HasColumnName("id");
+
+            entity.Property(e=>e.MediaType).HasColumnName("type");
+
+            entity.Property(e=>e.Data).HasColumnName("data");
+
         });
 
         OnModelCreatingPartial(modelBuilder);

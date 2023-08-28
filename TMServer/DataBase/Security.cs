@@ -46,7 +46,7 @@ namespace TMServer.DataBase
         {
             using var db = new TmdbContext();
 
-            var dbAes = db.AesCrypts.SingleOrDefault(a => a.CryptId == cryptId);
+            var dbAes = db.AesCrypts.SingleOrDefault(a => a.Id == cryptId);
             ArgumentNullException.ThrowIfNull(dbAes);
 
             return dbAes.AesKey;

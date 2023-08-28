@@ -1,6 +1,7 @@
 ﻿using ApiTypes;
 using ApiTypes.Communication.BaseTypes;
 using ApiTypes.Communication.Users;
+using ApiTypes.Shared;
 
 namespace TMApi.ApiRequests.Users
 {
@@ -10,6 +11,13 @@ namespace TMApi.ApiRequests.Users
         {
         }
 
+        public async Task<bool> ChangeName(string name)
+        {
+            if (DataConstraints.IsNameLegal(name))
+                return await Requester.GetRequestAsync
+                    (RequestHeaders.ChangeName,new ChangeNameRequest(name));
+            return false;
+        }
 
         public async Task<UserInfo?> GetUserInfo(int userId)
         {

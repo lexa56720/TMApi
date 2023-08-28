@@ -18,7 +18,7 @@ namespace TMServer.ServerComponent.ApiResponser
         {
         }
 
-        public void RegisterGetHandler<T, U>(Func<ApiData<T>, U?> func, RequestHeaders header) where T : ISerializable<T> where U : ISerializable<U>
+        public void RegisterGetHandler<T>(Action<ApiData<T>> func, RequestHeaders header) where T : ISerializable<T> 
         {
             var type = typeof(ApiData<T>);
             if (!GetHandlers.ContainsKey(type))

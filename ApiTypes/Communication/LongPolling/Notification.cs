@@ -15,7 +15,7 @@ namespace ApiTypes.Communication.LongPolling
 
         public int[] NewChats { get; init; } = Array.Empty<int>();
 
-        public int[] FriendsStatusChanged { get; init; } = Array.Empty<int>();
+        public int[] FriendsProfileChanged { get; init; } = Array.Empty<int>();
 
         public void Serialize(BinaryWriter writer)
         {
@@ -24,7 +24,7 @@ namespace ApiTypes.Communication.LongPolling
             writer.Write(ChatInviteIds);
             writer.Write(NewFriends);
             writer.Write(NewChats);
-            writer.Write(FriendsStatusChanged);
+            writer.Write(FriendsProfileChanged);
         }
 
         public static Notification Deserialize(BinaryReader reader)
@@ -36,7 +36,7 @@ namespace ApiTypes.Communication.LongPolling
                 ChatInviteIds = reader.ReadInt32Array(),
                 NewFriends = reader.ReadInt32Array(),
                 NewChats = reader.ReadInt32Array(),
-                FriendsStatusChanged = reader.ReadInt32Array()
+                FriendsProfileChanged = reader.ReadInt32Array()
             };
         }
     }

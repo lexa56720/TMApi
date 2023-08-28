@@ -36,6 +36,7 @@ namespace TMServer.Servers
             ResponseServer.RegisterPostHandler<IntContainer, User>(UsersHandler.GetUser, RequestHeaders.GetUser);
             ResponseServer.RegisterPostHandler<IntArrayContainer, SerializableArray<User>>(UsersHandler.GetUser, RequestHeaders.GetUserMany);
             ResponseServer.RegisterPostHandler<AuthUpdateRequest, AuthorizationResponse>(AuthHandler.UpdateAuth, RequestHeaders.UpdateAuth);
+            ResponseServer.RegisterGetHandler<ChangeNameRequest>(UsersHandler.ChangeUserName, RequestHeaders.ChangeName);
 
         }
         public override void Start()
