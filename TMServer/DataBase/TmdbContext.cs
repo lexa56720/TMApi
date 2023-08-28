@@ -224,19 +224,19 @@ public partial class TmdbContext : DbContext
             entity.ToTable("friend_requests");
             entity.Property(e => e.Id).HasColumnName("id");
 
-            entity.Property(e => e.UserIdOne)
+            entity.Property(e => e.UserOneId)
                 .ValueGeneratedNever()
                 .HasColumnName("user_id_one");
 
-            entity.Property(e => e.UserIdTwo)
+            entity.Property(e => e.UserTwoId)
               .ValueGeneratedNever()
               .HasColumnName("user_id_two");
 
             entity.HasOne(e => e.UserOne)
-            .WithOne().HasPrincipalKey<DBFriendRequest>(r => r.UserIdOne);
+            .WithOne().HasPrincipalKey<DBFriendRequest>(r => r.UserOneId);
 
             entity.HasOne(e => e.UserTwo)
-           .WithOne().HasPrincipalKey<DBFriendRequest>(r => r.UserIdTwo);
+           .WithOne().HasPrincipalKey<DBFriendRequest>(r => r.UserTwoId);
         });
 
         modelBuilder.Entity<DBMessageMedia>(entity =>

@@ -1,6 +1,7 @@
 ﻿using ApiTypes;
 using ApiTypes.Communication.Auth;
 using ApiTypes.Communication.BaseTypes;
+using ApiTypes.Communication.Friends;
 using ApiTypes.Communication.Users;
 using TMServer.RequestHandlers;
 using TMServer.ServerComponent.ApiResponser;
@@ -23,21 +24,50 @@ namespace TMServer.Servers
             RegisterApiMethods();
         }
 
-        public void RegisterAuthMethods()
+        private void RegisterAuthMethods()
         {
             AuthServer.Register<RsaPublicKey, RsaPublicKey>(AuthHandler.RsaKeyTrade);
             AuthServer.Register<AuthorizationRequest, AuthorizationResponse>(AuthHandler.Auth);
             AuthServer.Register<RegisterRequest, RegisterResponse>(AuthHandler.Register);
         }
 
-        public void RegisterApiMethods()
+        private void RegisterApiMethods()
         {
-            ResponseServer.RegisterPostHandler<IntContainer, UserInfo>(UsersHandler.GetUserInfo, RequestHeaders.GetUserInfo);
-            ResponseServer.RegisterPostHandler<IntContainer, User>(UsersHandler.GetUser, RequestHeaders.GetUser);
-            ResponseServer.RegisterPostHandler<IntArrayContainer, SerializableArray<User>>(UsersHandler.GetUser, RequestHeaders.GetUserMany);
-            ResponseServer.RegisterPostHandler<AuthUpdateRequest, AuthorizationResponse>(AuthHandler.UpdateAuth, RequestHeaders.UpdateAuth);
-            ResponseServer.RegisterGetHandler<ChangeNameRequest>(UsersHandler.ChangeUserName, RequestHeaders.ChangeName);
+            ResponseServer.RegisterPostHandler<AuthUpdateRequest, AuthorizationResponse>
+                (AuthHandler.UpdateAuth, RequestHeaders.UpdateAuth);
 
+
+            RegisterUsersMethods();
+            RegisterFriendsMethods();
+        }
+        private void RegisterUsersMethods()
+        {
+            ResponseServer.RegisterPostHandler<IntContainer, UserInfo>
+                (UsersHandler.GetUserInfo, RequestHeaders.GetUserInfo);
+
+            ResponseServer.RegisterPostHandler<IntContainer, User>
+                (UsersHandler.GetUser, RequestHeaders.GetUser);
+
+            ResponseServer.RegisterPostHandler<IntArrayContainer, SerializableArray<User>>
+                (UsersHandler.GetUsers, RequestHeaders.GetUserMany);
+
+            ResponseServer.RegisterGetHandler<ChangeNameRequest>
+                (UsersHandler.ChangeUserName, RequestHeaders.ChangeName);
+        }
+
+        private void RegisterFriendsMethods()
+        {
+            ResponseServer.RegisterPostHandler<IntContainer, FriendRequest>
+                (FriendsHandler.GetFriendRequest, RequestHeaders.GetFriendRequest);
+
+            ResponseServer.RegisterPostHandler<IntArrayContainer, SerializableArray<FriendRequest>>
+                (FriendsHandler.GetFriendRequests, RequestHeaders.GetFriendRequestMany);
+
+            ResponseServer.RegisterGetHandler<FriendRequest>
+                (FriendsHandler.AddFriendRequest, RequestHeaders.SendFriendRequest);
+
+            ResponseServer.RegisterGetHandler<FriendResponse>
+                (FriendsHandler.FriendRequestResponse, RequestHeaders.ResponseFriendRequest);
         }
         public override void Start()
         {

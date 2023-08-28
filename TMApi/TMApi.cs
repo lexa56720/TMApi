@@ -26,7 +26,6 @@ namespace TMApi
         private DateTime Expiration { get; set; }
 
         public int Id { get; private set; }
-        private int CryptId { get; }
 
         private AesEncrypter Encrypter { get; set; }
 
@@ -47,12 +46,12 @@ namespace TMApi
         internal TMApi(string token, DateTime tokenTime, int userId, int cryptId, byte[] aesKey)
         {
             Id = userId;
-            CryptId = cryptId;
             AccesToken = token;
             Expiration = tokenTime;
             Encrypter = new AesEncrypter(aesKey);
+            Preferences.CtyptId = cryptId;
 
-            SetupRequester(token, userId, cryptId);
+            SetupRequester(token, userId);
         }
         internal async Task Init()
         {
@@ -64,14 +63,13 @@ namespace TMApi
 
             UserInfo = await Users.GetUserInfo(Id);
         }
-        private void SetupRequester(string token, int userId, int cryptId)
+        private void SetupRequester(string token, int userId)
         {
             Requester = new RequestSender(false, Encrypter, Encrypter)
             {
                 Token = token,
                 UserId = userId,
             };
-            IdHolder.Value = cryptId;
         }
 
         public void Dispose()
@@ -93,7 +91,7 @@ namespace TMApi
             bw.Write(AccesToken);
             bw.Write(Expiration.ToBinary());
             bw.Write(Encrypter.Key);
-            bw.Write(CryptId);
+            bw.Write(Preferences.CtyptId);
             bw.Write(Id);
             bw.Flush();
 
@@ -102,7 +100,7 @@ namespace TMApi
 
         public void UpdateData(AuthorizationResponse response)
         {
-            IdHolder.Value = response.CryptId;
+            Preferences.CtyptId = response.CryptId;
 
             Encrypter.Key = response.AesKey;
             Requester.Token = response.AccessToken;

@@ -10,17 +10,17 @@ namespace TMApi
 {
     internal class RequestSender : IDisposable
     {
-        internal static int RsaPort { get; set; } = 6665;
+        internal static int RsaPort { get; set; }
 
-        internal static int AesPort { get; set; } = 6666;
+        internal static int AesPort { get; set; }
 
-        internal static IPAddress Server { get; set; } = new IPAddress(new byte[] { 127, 0, 0, 1 });
+        internal static IPAddress Server { get; set; } = IPAddress.Loopback;
 
         public string Token { get; internal set; } = string.Empty;
 
         public int UserId { get; internal set; }
 
-        public int CryptId => IdHolder.Value;
+        public int CryptId => Preferences.CtyptId;
 
         private Requester Requester { get; set; }
 

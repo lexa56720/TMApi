@@ -3,8 +3,8 @@
     public class DBFriendRequest
     {
         public int Id { get; set; }
-        public required int UserIdOne { get; set; }
-        public required int UserIdTwo { get; set; }
+        public required int UserOneId { get; set; }
+        public required int UserTwoId { get; set; }
 
         public virtual DBUser UserOne { get; set; } = null!;
 

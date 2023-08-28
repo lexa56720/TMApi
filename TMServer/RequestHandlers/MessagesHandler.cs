@@ -26,6 +26,7 @@ namespace TMServer.RequestHandlers
                     request.Data.MaxCount, request.Data.LastMessageId, request.Data.LastMessageDate);
             else
                 dbMessages = Messages.GetMessages(request.Data.ChatId, request.Data.Offset, request.Data.MaxCount);
+
             var messages = dbMessages.Select(m => new Message(m.Id, m.AuthorId, m.Content, m.SendTime));
             return new MessageHistoryResponse(request.Data.ChatId, messages.ToArray());
         }

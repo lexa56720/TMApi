@@ -39,7 +39,7 @@ namespace TMServer.RequestHandlers
             return new User(user.Name, user.Id, user.IsOnline);
         }
 
-        public static SerializableArray<User> GetUser(ApiData<IntArrayContainer> ids)
+        public static SerializableArray<User> GetUsers(ApiData<IntArrayContainer> ids)
         {
             var users = Users.GetUserMain(ids.Data.Values);
 
