@@ -66,6 +66,7 @@ public partial class TmdbContext : DbContext
             entity.Property(e => e.ChatId).HasColumnName("chat_id");
             entity.Property(e => e.MemberId).HasColumnName("member_id");
             entity.Property(e => e.AdminId).HasColumnName("admin_id");
+            entity.Property(e => e.Name).HasColumnName("name");
 
             entity.HasOne(e => e.Admin).WithOne()
             .HasForeignKey<DBChat>(c => c.AdminId);

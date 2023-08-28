@@ -6,7 +6,7 @@ namespace TMServer.DataBase
     {
         public static void AddMessage(int authorId, string content, int destinationId)
         {
-            var db = new TmdbContext();
+            using var db = new TmdbContext();
 
             db.Messages.Add(new DBMessage()
             {
@@ -21,7 +21,7 @@ namespace TMServer.DataBase
 
         public static DBMessage[] GetMessages(int chatId, int offset, int count)
         {
-            var db = new TmdbContext();
+            using var db = new TmdbContext();
 
             return db.Messages
                 .Where(m => m.DestinationId == chatId)
@@ -31,7 +31,7 @@ namespace TMServer.DataBase
         }
         public static DBMessage[] GetMessages(int chatId, int offset, int count, int lastMessageId, DateTime lastMessageDate)
         {
-            var db = new TmdbContext();
+           using var db = new TmdbContext();
 
             return db.Messages
                 .Where(m => m.DestinationId == chatId)

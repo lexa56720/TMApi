@@ -7,20 +7,20 @@ namespace ApiTypes.Communication.Chats
 {
     public class Chat : ISerializable<Chat>
     {
-        public required User[] Users { get; init; } = Array.Empty<User>();
+        public required int[] MemberIds { get; init; } = Array.Empty<int>();
 
-        public required User Admin { get; init; }
+        public required int AdminId { get; init; }
 
         public required int Id { get; init; }
 
         public required int TotalMessages { get; init; }
 
         [SetsRequiredMembers]
-        public Chat(int id, User admin, params User[] users)
+        public Chat(int id, int adminId, params int[] userIds)
         {
             Id = id;
-            Admin = admin;
-            Users = users;
+            AdminId = adminId;
+            MemberIds = userIds;
         }
 
         public Chat()
@@ -31,9 +31,8 @@ namespace ApiTypes.Communication.Chats
         {
             writer.Write(Id);
             writer.Write(TotalMessages);
-            Admin.Serialize(writer);
-
-            writer.Write(Users);
+            writer.Write(AdminId);
+            writer.Write(MemberIds);    
         }
 
         public static Chat Deserialize(BinaryReader reader)
@@ -42,8 +41,8 @@ namespace ApiTypes.Communication.Chats
             {
                 Id = reader.ReadInt32(),
                 TotalMessages = reader.ReadInt32(),
-                Admin = User.Deserialize(reader),
-                Users = reader.Read<User>(),
+                AdminId = reader.ReadInt32(),
+                MemberIds = reader.ReadInt32Array()
             };
             return chat;
         }

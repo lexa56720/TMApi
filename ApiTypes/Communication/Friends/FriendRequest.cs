@@ -5,6 +5,7 @@ namespace ApiTypes.Communication.Friends
 {
     public class FriendRequest : ISerializable<FriendRequest>
     {
+        public int Id { get; set; } = -1;
         public required int FromId { get; init; }
         public required int ToId { get; init; }
 
@@ -14,7 +15,13 @@ namespace ApiTypes.Communication.Friends
             FromId = fromId;
             ToId = toId;
         }
-
+        [SetsRequiredMembers]
+        public FriendRequest(int fromId, int toId,int id)
+        {
+            FromId = fromId;
+            ToId = toId;
+            Id = id;
+        }
         public FriendRequest()
         {
 
@@ -24,6 +31,7 @@ namespace ApiTypes.Communication.Friends
         {
             writer.Write(FromId);
             writer.Write(ToId);
+            writer.Write(Id);
         }
 
         public static FriendRequest Deserialize(BinaryReader reader)
@@ -31,7 +39,8 @@ namespace ApiTypes.Communication.Friends
             return new FriendRequest()
             {
                 FromId = reader.ReadInt32(),
-                ToId = reader.ReadInt32()
+                ToId = reader.ReadInt32(),
+                Id= reader.ReadInt32(),
             };
         }
     }

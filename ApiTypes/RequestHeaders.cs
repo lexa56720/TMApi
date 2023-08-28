@@ -27,5 +27,6 @@
         SendChatInvite,
         GetChatInvite,
         GetChatInviteMany,
+        ChatInviteRespose
     }
 }

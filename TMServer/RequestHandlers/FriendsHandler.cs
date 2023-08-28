@@ -14,7 +14,7 @@ namespace TMServer.RequestHandlers
         {
             var request = Friends.GetFriendRequest(data.Data.Value);
             if (request != null && IsHaveAccess(request, data.UserId))
-                return new FriendRequest(request.UserOneId, request.UserTwoId);
+                return new FriendRequest(request.UserOneId, request.UserTwoId, request.Id);
             return null;
         }
         public static SerializableArray<FriendRequest> GetFriendRequests(ApiData<IntArrayContainer> data)
@@ -22,18 +22,19 @@ namespace TMServer.RequestHandlers
             var requests = Friends.GetFriendRequest(data.Data.Values);
 
             var filteredRequests = requests.Where(r => IsHaveAccess(r, data.UserId))
-                                           .Select(r => new FriendRequest(r.UserOneId, r.UserTwoId))
+                                           .Select(r => new FriendRequest(r.UserOneId, r.UserTwoId, r.Id))
                                            .ToArray();
 
             return new SerializableArray<FriendRequest>(filteredRequests);
         }
+
         public static void AddFriendRequest(ApiData<FriendRequest> data)
         {
             Friends.RegisterFriendRequest(data.Data.FromId, data.Data.ToId);
         }
-        public static void FriendRequestResponse(ApiData<FriendResponse> data)
+        public static void FriendRequestResponse(ApiData<RequestResponse> data)
         {
-            Friends.FriendRequestResponse(data.Data.Request.FromId, data.Data.Request.ToId, data.Data.IsAccepted);
+            Friends.FriendRequestResponse(data.Data.RequestId, data.Data.IsAccepted);
         }
 
         private static bool IsHaveAccess(DBFriendRequest request, int userId)

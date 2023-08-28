@@ -31,7 +31,7 @@ namespace TMServer.DataBase
 
         public static void ChangeName(int userId, string newName)
         {
-            var db = new TmdbContext();
+            using var db = new TmdbContext();
 
             var user = db.Users.SingleOrDefault(u => u.Id == userId);
             if (user == null)

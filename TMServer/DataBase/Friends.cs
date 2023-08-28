@@ -15,22 +15,22 @@ namespace TMServer.DataBase
     {
         public static DBFriendRequest? GetFriendRequest(int id)
         {
-            var db = new TmdbContext();
+            using var db = new TmdbContext();
             return db.FriendRequests.Find(id);
         }
         public static DBFriendRequest[] GetFriendRequest(int[] ids)
         {
-            var db = new TmdbContext();
+            using var db = new TmdbContext();
             var requests = db.FriendRequests.Where(r => ids.Contains(r.Id));
 
             return requests.ToArray();
         }
 
-        public static void FriendRequestResponse(int fromId, int toId, bool isAccepted)
+        public static void FriendRequestResponse(int responseId, bool isAccepted)
         {
-            var db = new TmdbContext();
+            using var db = new TmdbContext();
             var request = db.FriendRequests.SingleOrDefault
-                (r => r.UserOneId == toId && fromId == r.UserOneId);
+                (r => r.Id== responseId);
 
             if (request != null)
             {
@@ -44,7 +44,7 @@ namespace TMServer.DataBase
         }
         public static void RegisterFriendRequest(int fromId, int toId)
         {
-            var db = new TmdbContext();
+            using var db = new TmdbContext();
             if (IsFriendshipPossible(fromId, toId))
             {
                 db.FriendRequests.Add(new DBFriendRequest()
@@ -59,7 +59,7 @@ namespace TMServer.DataBase
 
         private static bool IsFriendshipPossible(int idOne, int idTwo)
         {
-            var db = new TmdbContext();
+            using var db = new TmdbContext();
             if (db.FriendRequests.Any(r => (r.UserOneId == idOne && r.UserTwoId == idTwo)
                                         || (r.UserTwoId == idTwo && r.UserOneId == idOne)))
                 return false;
@@ -72,7 +72,7 @@ namespace TMServer.DataBase
         }
         private static void RegisterFriends(int idOne, int idTwo)
         {
-            var db = new TmdbContext();
+            using var db = new TmdbContext();
             if (IsFriendshipPossible(idOne, idTwo))
                 db.Friends.Add(new DBFriend()
                 {
@@ -80,7 +80,7 @@ namespace TMServer.DataBase
                     UserIdTwo = idTwo
                 });
             db.SaveChanges();
-            Chats.CreateChat(idOne, idTwo);
+            Chats.CreateChat(string.Empty,idOne, idTwo);
         }
     }
 }

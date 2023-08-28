@@ -11,10 +11,12 @@ namespace TMApi.ApiRequests.Chats
         {
         }
 
-        public async Task<bool> CreateChat(string name, int[] membersId)
+        public async Task<Chat?> CreateChat(string name, int[] membersId)
         {
-            return DataConstraints.IsNameLegal(name) && await Requester.GetRequestAsync
-                (RequestHeaders.CreateChat, new ChatCreationRequest(name, membersId));
+            if (DataConstraints.IsNameLegal(name))
+                return await Requester.PostRequestAsync<Chat, ChatCreationRequest>
+                                (RequestHeaders.CreateChat, new ChatCreationRequest(name, membersId));
+            return null;
         }
 
         public async Task<Chat?> GetChat(int chatId)
@@ -51,6 +53,13 @@ namespace TMApi.ApiRequests.Chats
             if (invites == null)
                 return Array.Empty<ChatInvite>();
             return invites.Items;
+        }
+
+        public async Task<bool> SendChatInviteResponse(ChatInvite invite, bool isAccepted)
+        {
+            var response = new RequestResponse(invite.Id, isAccepted);
+
+            return await Requester.GetRequestAsync(RequestHeaders.ChatInviteRespose, response);
         }
     }
 }
