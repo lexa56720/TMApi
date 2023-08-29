@@ -4,7 +4,6 @@ namespace TMServer.DataBase.Interaction
 {
     internal static class Security
     {
-
         public static int SaveRsaKeyPair(string serverPrivateKey, string clientPublicKey)
         {
             using var db = new TmdbContext();

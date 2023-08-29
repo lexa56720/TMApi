@@ -4,7 +4,7 @@ using TMServer.DataBase.Tables;
 
 namespace TMServer.DataBase.Interaction
 {
-    internal class Chats
+    internal static class Chats
     {
         public static DBChat CreateChat(string name, params int[] usersId)
         {

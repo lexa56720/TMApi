@@ -1,7 +1,9 @@
 ﻿using ApiTypes.Communication.Auth;
+using ApiTypes.Communication.LongPolling;
 using ApiTypes.Communication.Packets;
 using ApiTypes.Communication.Users;
 using CSDTP.Cryptography.Algorithms;
+using TMApi.ApiRequests;
 using TMApi.ApiRequests.Chats;
 using TMApi.ApiRequests.Friends;
 using TMApi.ApiRequests.Messages;
@@ -12,6 +14,8 @@ namespace TMApi
 {
     public class TMApi : IDisposable
     {
+        public int Id { get; private set; }
+
         private string AccesToken
         {
             get => accesToken;
@@ -22,26 +26,20 @@ namespace TMApi
             }
         }
         private string accesToken = string.Empty;
-
         private DateTime Expiration { get; set; }
+  
 
-        public int Id { get; private set; }
-
+        public event EventHandler<Notification> UpdateArrived;
         private AesEncrypter Encrypter { get; set; }
 
         public UserInfo UserInfo { get; private set; }
-
         public Users Users { get; private set; }
-
         public Messages Messages { get; private set; }
-
         public Auth Auth { get; set; }
-
         public Chats Chats { get; private set; }
-
         public Friends Friends { get; private set; }
-
         private RequestSender Requester { get; set; }
+        private LongPolling LongPolling { get; set; }
 
         internal TMApi(string token, DateTime tokenTime, int userId, int cryptId, byte[] aesKey)
         {
@@ -60,6 +58,8 @@ namespace TMApi
             Chats = new Chats(Requester, this);
             Friends = new Friends(Requester, this);
             Auth = new Auth(Requester, this);
+            LongPolling = new LongPolling(Requester, this);
+            LongPolling.StateUpdated += OnUpdateArrived;
 
             UserInfo = await Users.GetUserInfo(Id);
         }
@@ -72,6 +72,15 @@ namespace TMApi
             };
         }
 
+        public void StartLongPolling()
+        {
+            LongPolling.Start();
+        }
+
+        public void StopLongPolling()
+        {
+            LongPolling.Stop();
+        }
         public void Dispose()
         {
             Encrypter.Dispose();
@@ -81,8 +90,14 @@ namespace TMApi
             Chats.Dispose();
             Friends.Dispose();
             Auth.Dispose();
+            LongPolling.StateUpdated -= OnUpdateArrived;
+            LongPolling.Dispose();
         }
 
+        private void OnUpdateArrived(object? o, Notification e)
+        {
+            UpdateArrived(this, e);
+        }
         public byte[] GetAuthData()
         {
             using var ms = new MemoryStream();
@@ -98,7 +113,7 @@ namespace TMApi
             return ms.ToArray();
         }
 
-        public void UpdateData(AuthorizationResponse response)
+        public void UpdateApiData(AuthorizationResponse response)
         {
             Preferences.CtyptId = response.CryptId;
 

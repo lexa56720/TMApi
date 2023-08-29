@@ -2,7 +2,7 @@
 
 namespace TMServer.DataBase.Interaction
 {
-    internal class Messages
+    internal static class Messages
     {
         public static void AddMessage(int authorId, string content, int destinationId)
         {

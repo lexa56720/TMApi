@@ -69,7 +69,7 @@ namespace TMApi
             var newData = await api.Auth.UpdateAuth();
 
             if (newData != null && newData.IsSuccessful)
-                api.UpdateData(newData);
+                api.UpdateApiData(newData);
             return api;
         }
 

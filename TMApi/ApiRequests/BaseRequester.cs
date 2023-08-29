@@ -11,7 +11,7 @@
             Api = api;
         }
 
-        public void Dispose()
+        public virtual void Dispose()
         {
             Requester.Dispose();
         }

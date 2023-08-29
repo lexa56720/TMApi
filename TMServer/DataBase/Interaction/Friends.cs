@@ -10,7 +10,7 @@ using TMServer.DataBase.Tables;
 
 namespace TMServer.DataBase.Interaction
 {
-    internal class Friends
+    internal static class Friends
     {
         public static DBFriendRequest? GetFriendRequest(int id)
         {

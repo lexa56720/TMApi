@@ -15,6 +15,11 @@ namespace TMApi.ApiRequests
         {
         }
 
+        public override void Dispose()
+        {
+            Stop();
+            base.Dispose();
+        }
         public void Start()
         {
             if (IsPolling)
