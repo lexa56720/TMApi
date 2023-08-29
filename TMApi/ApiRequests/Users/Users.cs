@@ -1,5 +1,6 @@
 ﻿using ApiTypes;
 using ApiTypes.Communication.BaseTypes;
+using ApiTypes.Communication.Search;
 using ApiTypes.Communication.Users;
 using ApiTypes.Shared;
 
@@ -15,7 +16,7 @@ namespace TMApi.ApiRequests.Users
         {
             if (DataConstraints.IsNameLegal(name))
                 return await Requester.GetRequestAsync
-                    (RequestHeaders.ChangeName,new ChangeNameRequest(name));
+                    (RequestHeaders.ChangeName, new ChangeNameRequest(name));
             return false;
         }
 
@@ -37,6 +38,16 @@ namespace TMApi.ApiRequests.Users
 
             if (users == null)
                 return Array.Empty<User>();
+            return users.Items;
+        }
+
+        public async Task<User[]> GetByName(string name)
+        {
+            if (!DataConstraints.IsSearchQueryValid(name))
+                return Array.Empty<User>();
+
+            var users = await Requester.PostRequestAsync<SerializableArray<User>, SearchRequest>
+                (RequestHeaders.SearchByName, new SearchRequest(name));
             return users.Items;
         }
     }

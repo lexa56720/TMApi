@@ -3,6 +3,7 @@ using ApiTypes.Communication.Auth;
 using ApiTypes.Communication.BaseTypes;
 using ApiTypes.Communication.Chats;
 using ApiTypes.Communication.Friends;
+using ApiTypes.Communication.Search;
 using ApiTypes.Communication.Users;
 using TMServer.DataBase;
 using TMServer.RequestHandlers;
@@ -41,6 +42,7 @@ namespace TMServer.Servers
 
             RegisterUserMethods();
             RegisterFriendMethods();
+            RegisterChatMethods();
         }
         private void RegisterUserMethods()
         {
@@ -55,6 +57,9 @@ namespace TMServer.Servers
 
             ApiServer.RegisterGetHandler<ChangeNameRequest>
                 (UsersHandler.ChangeUserName, RequestHeaders.ChangeName);
+
+            ApiServer.RegisterPostHandler<SearchRequest, SerializableArray<User>>
+                (SearchHandler.GetUserByName, RequestHeaders.SearchByName);
         }
         private void RegisterFriendMethods()
         {

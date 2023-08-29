@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace ApiTypes.Communication.Search
 {
-    internal class SearchRequest : ISerializable<SearchRequest>
+    public class SearchRequest : ISerializable<SearchRequest>
     {
         public required string SearchQuery { get; init; }
 

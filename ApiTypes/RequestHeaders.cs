@@ -12,6 +12,7 @@
         GetUser,
         GetUserMany,
         ChangeName,
+        SearchByName,
 
         GetLastMessages,
         SendMessage,

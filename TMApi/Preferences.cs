@@ -17,6 +17,5 @@ namespace TMApi
                 IdHolder.Value = value;
             }
         }
-        private static int ctyptId;
     }
 }

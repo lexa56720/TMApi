@@ -19,7 +19,6 @@ namespace TMServer.DataBase.Interaction
             using var db = new TmdbContext();
             return db.Users.SingleOrDefault(u => u.Id == id);
         }
-
         public static DBUser[] GetUserMain(int[] ids)
         {
             using var db = new TmdbContext();
@@ -28,6 +27,14 @@ namespace TMServer.DataBase.Interaction
             return users.ToArray();
         }
 
+        public static DBUser[] GetUserByName(string name)
+        {
+            using var db = new TmdbContext();
+
+            return db.Users
+                .Where(u => u.Name.ToUpperInvariant().Contains(name.ToUpperInvariant()))
+                .Take(20).ToArray();
+        }
 
         public static void ChangeName(int userId, string newName)
         {

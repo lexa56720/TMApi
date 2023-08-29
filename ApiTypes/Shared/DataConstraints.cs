@@ -2,6 +2,12 @@
 {
     public static class DataConstraints
     {
+        public static bool IsSearchQueryValid(string request)
+        {
+            if (string.IsNullOrEmpty(request) || request.Length < 3)
+                return false;
+            return true;
+        }
         public static bool IsLoginLegal(string login)
         {
             return login.Length < 128 && login.Length > 3;
