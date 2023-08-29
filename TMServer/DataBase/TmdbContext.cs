@@ -63,8 +63,6 @@ public partial class TmdbContext : DbContext
             entity.ToTable("chats");
             entity.Property(e => e.Id).HasColumnName("id");
 
-            entity.Property(e => e.ChatId).HasColumnName("chat_id");
-            entity.Property(e => e.MemberId).HasColumnName("member_id");
             entity.Property(e => e.AdminId).HasColumnName("admin_id");
             entity.Property(e => e.Name).HasColumnName("name");
 
@@ -207,7 +205,7 @@ public partial class TmdbContext : DbContext
 
             entity.Property(e => e.InviterId).HasColumnName("inviter_id");
 
-            entity.Property(e => e.UserId).HasColumnName("user_id");
+            entity.Property(e => e.ToUserId).HasColumnName("user_id");
 
             entity.HasOne(e => e.Chat).WithOne()
             .HasPrincipalKey<DBChatInvite>(i => i.ChatId);
@@ -216,7 +214,7 @@ public partial class TmdbContext : DbContext
             .HasPrincipalKey<DBChatInvite>(i => i.InviterId);
 
             entity.HasOne(e => e.DestinationUser).WithOne()
-            .HasPrincipalKey<DBChatInvite>(i => i.UserId);
+            .HasPrincipalKey<DBChatInvite>(i => i.ToUserId);
         });
 
         modelBuilder.Entity<DBFriendRequest>(entity =>

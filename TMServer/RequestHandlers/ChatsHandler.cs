@@ -21,35 +21,67 @@ namespace TMServer.RequestHandlers
                 return null;
 
             var chat = Chats.CreateChat(request.Data.ChatName, chatMembers);
-            return new Chat(chat.ChatId, chat.Admin.Id, chat.Members.Select(m => m.Id).ToArray());
+            return new Chat(chat.Id, chat.Admin.Id, chat.Members.Select(m => m.Id).ToArray());
         }
 
-        public static Chat GetChat(ApiData<IntContainer> request)
+        public static Chat? GetChat(ApiData<IntContainer> request)
         {
-
+            var chat = Chats.GetChat(request.Data.Value);
+            if (chat == null)
+                return null;
+            return new Chat(chat.Id, chat.Admin.Id, chat.Members.Select(m => m.Id).ToArray());
         }
         public static SerializableArray<Chat> GetChats(ApiData<IntArrayContainer> request)
         {
+            var chats = Chats.GetChat(request.Data.Values);
+            if (!chats.Any())
+                return new SerializableArray<Chat>(Array.Empty<Chat>());
 
+            return new SerializableArray<Chat>(
+                chats.Select(c =>
+                    new Chat(
+                        c.Id,
+                        c.Admin.Id,
+                        c.Members.Select(m => m.Id).ToArray()))
+                .ToArray());
         }
         public static void SendChatInvite(ApiData<ChatInvite> request)
         {
+            if (!Chats.IsCanInvite(request.UserId, request.Data.ToUserId, request.Data.ChatId))
+                return;
 
+            Chats.InviteToChat(request.UserId, request.Data.ToUserId, request.Data.ChatId);
         }
 
 
-        public static ChatInvite GetChatInvite(ApiData<IntContainer> request)
+        public static ChatInvite? GetChatInvite(ApiData<IntContainer> request)
         {
+            var invite = Chats.GetInvite(request.Data.Value, request.UserId);
+            if (invite == null)
+                return null;
+            return new ChatInvite(invite.ChatId, invite.ToUserId, invite.InviterId, invite.Id);
 
         }
         public static SerializableArray<ChatInvite> GetChatInvites(ApiData<IntArrayContainer> request)
         {
+            var invites = Chats.GetInvite(request.Data.Values, request.UserId);
+            if (!invites.Any())
+                return new SerializableArray<ChatInvite>(Array.Empty<ChatInvite>());
 
+            return new SerializableArray<ChatInvite>(
+                invites.Select(i =>
+                    new ChatInvite(
+                        i.ChatId,
+                        i.ToUserId,
+                        i.InviterId)
+                ).ToArray()
+            );
         }
 
         public static void ChatInviteResponse(ApiData<RequestResponse> request)
         {
-
+            if (Chats.GetInvite(request.Data.RequestId, request.UserId) != null)
+                Chats.InviteResponse(request.Data.RequestId, request.UserId, request.Data.IsAccepted);
         }
     }
 }

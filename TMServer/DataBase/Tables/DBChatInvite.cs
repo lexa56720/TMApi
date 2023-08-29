@@ -8,7 +8,7 @@
 
         public required int InviterId { get; set; }
 
-        public required int UserId { get; set; }
+        public required int ToUserId { get; set; }
 
 
         public virtual DBChat Chat { get; set; } = null!;

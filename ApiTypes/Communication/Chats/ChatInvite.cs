@@ -9,6 +9,7 @@ namespace ApiTypes.Communication.Chats
 
         public int ToUserId { get; init; }
 
+        public int FromUserId { get; init; }
         public int Id { get; set; } = -1;
         public ChatInvite()
         {
@@ -17,23 +18,26 @@ namespace ApiTypes.Communication.Chats
 
 
         [SetsRequiredMembers]
-        public ChatInvite(int chatId, int userId)
+        public ChatInvite(int chatId, int userId, int fromUserId)
         {
             ChatId = chatId;
             ToUserId = userId;
+            FromUserId = fromUserId;
         }
 
         [SetsRequiredMembers]
-        public ChatInvite(int chatId, int userId,int id)
+        public ChatInvite(int chatId, int userId, int fromUserId,int id)
         {
             ChatId = chatId;
-            ToUserId = userId;
+            ToUserId = userId;     
+            FromUserId = fromUserId;
             Id = id;
         }
         public void Serialize(BinaryWriter writer)
         {
             writer.Write(ChatId);
             writer.Write(ToUserId);
+            writer.Write(FromUserId);
             writer.Write(Id);
         }
 
@@ -43,7 +47,8 @@ namespace ApiTypes.Communication.Chats
             {
                 ChatId = reader.ReadInt32(),
                 ToUserId = reader.ReadInt32(),
-                Id=reader.ReadInt32(),
+                FromUserId=reader.ReadInt32(),
+                Id =reader.ReadInt32(),
             };
         }
     }

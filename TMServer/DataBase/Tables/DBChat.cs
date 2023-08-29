@@ -4,10 +4,6 @@ public partial class DBChat
 {
     public int Id { get; set; }
 
-    public int ChatId { get; set; }
-
-    public required int MemberId { get; set; }
-
     public required int AdminId { get; set; }
 
     public string Name { get; set; }=string.Empty;
