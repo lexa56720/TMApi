@@ -2,7 +2,7 @@
 using CSDTP.Cryptography.Algorithms;
 using CSDTP.Cryptography.Providers;
 using CSDTP.Packets;
-using TMServer.DataBase;
+using TMServer.DataBase.Interaction;
 
 namespace TMServer.ServerComponent.ApiResponser
 {

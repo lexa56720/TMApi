@@ -2,7 +2,7 @@
 using ApiTypes.Communication.BaseTypes;
 using ApiTypes.Communication.Chats;
 using ApiTypes.Shared;
-using TMServer.DataBase;
+using TMServer.DataBase.Interaction;
 
 namespace TMServer.RequestHandlers
 {

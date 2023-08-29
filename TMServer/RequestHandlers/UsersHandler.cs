@@ -1,7 +1,7 @@
 ﻿using ApiTypes;
 using ApiTypes.Communication.BaseTypes;
 using ApiTypes.Communication.Users;
-using TMServer.DataBase;
+using TMServer.DataBase.Interaction;
 
 namespace TMServer.RequestHandlers
 {

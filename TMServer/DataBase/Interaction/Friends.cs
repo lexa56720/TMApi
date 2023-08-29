@@ -7,9 +7,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TMServer.DataBase.Tables;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
-namespace TMServer.DataBase
+namespace TMServer.DataBase.Interaction
 {
     internal class Friends
     {

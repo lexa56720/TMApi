@@ -2,6 +2,7 @@
 using ApiTypes.Communication.Messages;
 using ApiTypes.Shared;
 using TMServer.DataBase;
+using TMServer.DataBase.Interaction;
 using TMServer.DataBase.Tables;
 
 namespace TMServer.RequestHandlers

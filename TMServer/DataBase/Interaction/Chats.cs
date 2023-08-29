@@ -2,7 +2,7 @@
 using System.Linq;
 using TMServer.DataBase.Tables;
 
-namespace TMServer.DataBase
+namespace TMServer.DataBase.Interaction
 {
     internal class Chats
     {
@@ -105,8 +105,8 @@ namespace TMServer.DataBase
             using var db = new TmdbContext();
 
             bool isFriends = db.Friends
-                .SingleOrDefault(f => (f.UserIdOne == inviterId && f.UserIdTwo == userId)
-                                   || (f.UserIdOne == userId && f.UserIdTwo == inviterId)) != null;
+                .SingleOrDefault(f => f.UserIdOne == inviterId && f.UserIdTwo == userId
+                                   || f.UserIdOne == userId && f.UserIdTwo == inviterId) != null;
 
             bool isInviterInChat = db.Chats.Include(c => c.Members).Any(c => c.Id == chatId && c.Members.Any(m => m.Id == inviterId));
             bool isAlreadyInvited = db.ChatInvites.Any(i => i.ToUserId == userId && i.ChatId == chatId);

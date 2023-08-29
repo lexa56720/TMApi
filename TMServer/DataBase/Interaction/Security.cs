@@ -1,6 +1,6 @@
 ﻿using TMServer.DataBase.Tables;
 
-namespace TMServer.DataBase
+namespace TMServer.DataBase.Interaction
 {
     internal static class Security
     {

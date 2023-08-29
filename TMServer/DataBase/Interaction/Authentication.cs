@@ -1,7 +1,7 @@
 ﻿using ApiTypes.Shared;
 using TMServer.DataBase.Tables;
 
-namespace TMServer.DataBase
+namespace TMServer.DataBase.Interaction
 {
     public static class Authentication
     {
