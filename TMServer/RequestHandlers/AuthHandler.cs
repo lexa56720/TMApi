@@ -1,5 +1,6 @@
 ﻿using ApiTypes;
 using ApiTypes.Communication.Auth;
+using ApiTypes.Communication.BaseTypes;
 using ApiTypes.Shared;
 using CSDTP.Cryptography.Algorithms;
 using CSDTP.Packets;
@@ -65,6 +66,11 @@ namespace TMServer.RequestHandlers
             {
                 IsSuccessful = isSuccsessful
             };
+        }
+
+        public static IntContainer GetVersion()
+        {
+            return new IntContainer(GlobalSettings.Version);
         }
 
         public static AuthorizationResponse UpdateAuth(ApiData<AuthUpdateRequest> request)

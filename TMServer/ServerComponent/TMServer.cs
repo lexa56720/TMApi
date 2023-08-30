@@ -3,6 +3,7 @@ using ApiTypes.Communication.Auth;
 using ApiTypes.Communication.BaseTypes;
 using ApiTypes.Communication.Chats;
 using ApiTypes.Communication.Friends;
+using ApiTypes.Communication.Info;
 using ApiTypes.Communication.Search;
 using ApiTypes.Communication.Users;
 using TMServer.DataBase;
@@ -32,6 +33,7 @@ namespace TMServer.Servers
             AuthServer.Register<RsaPublicKey, RsaPublicKey>(AuthHandler.RsaKeyTrade);
             AuthServer.Register<AuthorizationRequest, AuthorizationResponse>(AuthHandler.Auth);
             AuthServer.Register<RegisterRequest, RegisterResponse>(AuthHandler.Register);
+            AuthServer.Register<VersionRequest, IntContainer>(e => AuthHandler.GetVersion());
         }
 
         private void RegisterApiMethods()
@@ -78,7 +80,7 @@ namespace TMServer.Servers
 
         private void RegisterChatMethods()
         {
-            ApiServer.RegisterPostHandler<ChatCreationRequest,Chat>
+            ApiServer.RegisterPostHandler<ChatCreationRequest, Chat>
                 (ChatsHandler.CreateChat, RequestHeaders.CreateChat);
 
             ApiServer.RegisterPostHandler<IntContainer, Chat>
@@ -90,7 +92,7 @@ namespace TMServer.Servers
             ApiServer.RegisterGetHandler<ChatInvite>
                 (ChatsHandler.SendChatInvite, RequestHeaders.SendChatInvite);
 
-            ApiServer.RegisterPostHandler<IntContainer,ChatInvite>
+            ApiServer.RegisterPostHandler<IntContainer, ChatInvite>
                 (ChatsHandler.GetChatInvite, RequestHeaders.GetChatInvite);
 
             ApiServer.RegisterPostHandler<IntArrayContainer, SerializableArray<ChatInvite>>

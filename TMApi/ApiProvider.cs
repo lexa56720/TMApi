@@ -1,4 +1,6 @@
 ﻿using ApiTypes.Communication.Auth;
+using ApiTypes.Communication.BaseTypes;
+using ApiTypes.Communication.Info;
 using ApiTypes.Communication.Packets;
 using ApiTypes.Shared;
 using CSDTP.Cryptography.Algorithms;
@@ -8,6 +10,23 @@ namespace TMApi
 {
     public class ApiProvider
     {
+        public ApiProvider(IPAddress server, int authPort, int apiPort)
+        {
+            RequestSender.Server = server;
+            RequestSender.RsaPort = authPort;
+            RequestSender.AesPort = apiPort;
+        }
+
+        public async Task<int> GetVersion()
+        {
+            using var uncryptRequester = new RequestSender(true);
+            var version = await uncryptRequester.PostAsync<IntContainer, VersionRequest>
+                (new VersionRequest());
+
+            if (version == null)
+                return -1;
+            return version.Value;
+        }
         public async Task<TMApi?> GetApiRegister(string login, string password)
         {
             var coderDecoder = await GetCoderDecoder();
@@ -99,18 +118,10 @@ namespace TMApi
             string serverRsaPublicKey = response.Key;
             return (serverRsaPublicKey, response.Id);
         }
+
         private string GetPasswordHash(string password)
         {
             return HashGenerator.GenerateHash(password);
         }
-
-
-        public ApiProvider(IPAddress server, int authPort, int apiPort)
-        {
-            RequestSender.Server = server;
-            RequestSender.RsaPort = authPort;
-            RequestSender.AesPort = apiPort;
-        }
-
     }
 }
