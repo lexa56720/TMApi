@@ -26,6 +26,9 @@ namespace TMServer.RequestHandlers
                                            .Select(r => new FriendRequest(r.UserOneId, r.UserTwoId, r.Id))
                                            .ToArray();
 
+            if (!filteredRequests.Any())
+                return new SerializableArray<FriendRequest>(Array.Empty<FriendRequest>());
+
             return new SerializableArray<FriendRequest>(filteredRequests);
         }
 

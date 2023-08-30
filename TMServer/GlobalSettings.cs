@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace TMServer
@@ -16,6 +17,8 @@ namespace TMServer
         public static string ConnectionString;
 
         public static string PasswordSalt;
+
+        public static int Version;
         static GlobalSettings()
         {
             Configurator configurator = new Configurator("config.cfg", false);
@@ -23,6 +26,16 @@ namespace TMServer
             ApiPort = configurator.GetValue<int>("api-port");
             ConnectionString = configurator["connection-string"];
             PasswordSalt = configurator["password-salt"];
+            Version = GetVersion( configurator["version"]);
+        }
+
+        private static int GetVersion(string ver)
+        {
+            var versionComponents = Regex.Replace(ver, "[^0-9.]", "").Split('.', StringSplitOptions.TrimEntries);
+            var version = 0;
+            for (int i = 0; i < versionComponents.Length; i++)
+                version += int.Parse(versionComponents[i]) * (int)Math.Pow(10, versionComponents.Length - i - 1);
+            return version;
         }
     }
 }

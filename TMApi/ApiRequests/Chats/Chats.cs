@@ -36,7 +36,7 @@ namespace TMApi.ApiRequests.Chats
         public async Task<bool> SendChatInvite(int chatId, int toUserId)
         {
             return await Requester.GetRequestAsync
-                (RequestHeaders.SendChatInvite, new ChatInvite(chatId, toUserId));
+                (RequestHeaders.SendChatInvite, new ChatInvite(chatId, toUserId,Api.Id));
         }
 
         public async Task<ChatInvite?> GetChatInvite(int inviteId)

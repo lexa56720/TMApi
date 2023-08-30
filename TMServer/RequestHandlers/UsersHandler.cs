@@ -42,7 +42,8 @@ namespace TMServer.RequestHandlers
         public static SerializableArray<User> GetUsers(ApiData<IntArrayContainer> ids)
         {
             var users = Users.GetUserMain(ids.Data.Values);
-
+            if(!users.Any())
+                return new SerializableArray<User>(Array.Empty<User>());
             return new SerializableArray<User>(users.Select(u => new User(u.Name, u.Id, u.IsOnline)).ToArray());
         }
 
