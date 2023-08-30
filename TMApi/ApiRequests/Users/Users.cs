@@ -8,7 +8,7 @@ namespace TMApi.ApiRequests.Users
 {
     public class Users : BaseRequester
     {
-        internal Users(RequestSender requester, TMApi api) : base(requester, api)
+        internal Users(RequestSender requester, Api api) : base(requester, api)
         {
         }
 

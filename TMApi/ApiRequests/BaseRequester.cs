@@ -3,9 +3,9 @@
     public abstract class BaseRequester : IDisposable
     {
         private protected RequestSender Requester { get; }
-        protected TMApi Api { get; }
+        protected Api Api { get; }
 
-        internal BaseRequester(RequestSender requester, TMApi api)
+        internal BaseRequester(RequestSender requester, Api api)
         {
             Requester = requester;
             Api = api;

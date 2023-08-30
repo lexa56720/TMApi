@@ -12,7 +12,7 @@ using TMApi.ApiRequests.Users;
 
 namespace TMApi
 {
-    public class TMApi : IDisposable
+    public class Api : IDisposable
     {
         public int Id { get; private set; }
 
@@ -41,7 +41,7 @@ namespace TMApi
         private RequestSender Requester { get; set; }
         private LongPolling LongPolling { get; set; }
 
-        internal TMApi(string token, DateTime tokenTime, int userId, int cryptId, byte[] aesKey)
+        internal Api(string token, DateTime tokenTime, int userId, int cryptId, byte[] aesKey)
         {
             Id = userId;
             AccesToken = token;

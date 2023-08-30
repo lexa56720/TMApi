@@ -11,7 +11,7 @@ namespace TMApi.ApiRequests
 
         private Notification? LastState;
 
-        public LongPolling(RequestSender requester, TMApi api) : base(requester, api)
+        public LongPolling(RequestSender requester, Api api) : base(requester, api)
         {
         }
 

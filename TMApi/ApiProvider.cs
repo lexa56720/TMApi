@@ -27,7 +27,7 @@ namespace TMApi
                 return -1;
             return version.Value;
         }
-        public async Task<TMApi?> GetApiRegister(string login, string password)
+        public async Task<Api?> GetApiRegister(string login, string password)
         {
             var coderDecoder = await GetCoderDecoder();
             using var inputDecoder = coderDecoder.Item1;
@@ -45,7 +45,7 @@ namespace TMApi
             return null;
         }
 
-        public async Task<TMApi?> GetApiLogin(string login, string password)
+        public async Task<Api?> GetApiLogin(string login, string password)
         {
             var coderDecoder = await GetCoderDecoder();
             using var inputDecoder = coderDecoder.Item1;
@@ -54,7 +54,7 @@ namespace TMApi
             return await Login(login, password, inputDecoder, outputEncoder);
         }
 
-        private async Task<TMApi?> Login(string login, string password, RsaEncrypter inputDecoder, RsaEncrypter outputEncoder)
+        private async Task<Api?> Login(string login, string password, RsaEncrypter inputDecoder, RsaEncrypter outputEncoder)
         {
             password = GetPasswordHash(password);
             AuthorizationResponse? authResult = null;
@@ -69,7 +69,7 @@ namespace TMApi
             return null;
         }
 
-        public async Task<TMApi?> Load(byte[] authData)
+        public async Task<Api?> Load(byte[] authData)
         {
             using var ms = new MemoryStream(authData);
             using var br = new BinaryReader(ms);
@@ -92,9 +92,9 @@ namespace TMApi
             return api;
         }
 
-        private async Task<TMApi?> GetApi(string token, DateTime expiration, int userId, int cryptId, byte[] aesKey)
+        private async Task<Api?> GetApi(string token, DateTime expiration, int userId, int cryptId, byte[] aesKey)
         {
-            var api = new TMApi(token, expiration, userId, cryptId, aesKey);
+            var api = new Api(token, expiration, userId, cryptId, aesKey);
             await api.Init();
             return api;
         }

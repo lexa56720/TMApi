@@ -7,7 +7,7 @@ namespace TMApi.ApiRequests.Chats
 {
     public class Chats : BaseRequester
     {
-        internal Chats(RequestSender requester, TMApi api) : base(requester, api)
+        internal Chats(RequestSender requester, Api api) : base(requester, api)
         {
         }
 

@@ -5,7 +5,7 @@ namespace TMApi.ApiRequests.Security
 {
     public class Auth : BaseRequester
     {
-        internal Auth(RequestSender requester, TMApi api) : base(requester, api)
+        internal Auth(RequestSender requester, Api api) : base(requester, api)
         {
         }
 

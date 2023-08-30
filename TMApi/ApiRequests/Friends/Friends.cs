@@ -6,7 +6,7 @@ namespace TMApi.ApiRequests.Friends
 {
     public class Friends : BaseRequester
     {
-        internal Friends(RequestSender requester, TMApi api) : base(requester, api)
+        internal Friends(RequestSender requester, Api api) : base(requester, api)
         {
         }
         public async Task<FriendRequest?> GetFriendRequest(int requestId)
