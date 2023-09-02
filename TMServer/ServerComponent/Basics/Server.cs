@@ -1,6 +1,7 @@
 ﻿using ApiTypes.Communication.Packets;
 using CSDTP.Cryptography.Providers;
 using CSDTP.Requests;
+using TMServer.Logger;
 
 namespace TMServer.ServerComponent.Basics
 {
@@ -8,18 +9,20 @@ namespace TMServer.ServerComponent.Basics
     {
 
         protected Responder Responder { get; set; }
+        protected ILogger Logger { get; }
 
-
-        protected Server(int port, IEncryptProvider encryptProvider, IEncryptProvider decryptProvider)
+        protected Server(int port, IEncryptProvider encryptProvider, IEncryptProvider decryptProvider, ILogger logger)
         {
             Responder = new Responder(TimeSpan.FromSeconds(20), port, encryptProvider, decryptProvider);
             Responder.SetPacketType(typeof(TMPacket<>));
+            Logger = logger;
         }
 
-        protected Server(int port, IEncryptProvider twoWayProvider)
+        protected Server(int port, IEncryptProvider twoWayProvider,ILogger logger)
         {
             Responder = new Responder(TimeSpan.FromSeconds(20), port, twoWayProvider, twoWayProvider);
             Responder.SetPacketType(typeof(TMPacket<>));
+            Logger = logger;
         }
         public void Dispose()
         {

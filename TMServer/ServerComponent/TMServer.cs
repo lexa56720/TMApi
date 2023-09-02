@@ -7,6 +7,7 @@ using ApiTypes.Communication.Info;
 using ApiTypes.Communication.Search;
 using ApiTypes.Communication.Users;
 using TMServer.DataBase;
+using TMServer.Logger;
 using TMServer.RequestHandlers;
 using TMServer.ServerComponent.ApiResponser;
 using TMServer.ServerComponent.Auth;
@@ -20,10 +21,10 @@ namespace TMServer.Servers
 
         private ResponseServer ApiServer { get; set; }
 
-        public TMServer(int authPort, int responsePort)
+        public TMServer(int authPort, int responsePort,ILogger logger)
         {
-            AuthServer = new AuthorizationServer(authPort, new AuthEncryptProvider());
-            ApiServer = new ResponseServer(responsePort, new ApiEncryptProvider());
+            AuthServer = new AuthorizationServer(authPort, new AuthEncryptProvider(), logger);
+            ApiServer = new ResponseServer(responsePort, new ApiEncryptProvider(), logger);
             RegisterAuthMethods();
             RegisterApiMethods();
         }

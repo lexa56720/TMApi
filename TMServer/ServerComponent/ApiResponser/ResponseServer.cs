@@ -4,6 +4,7 @@ using CSDTP.Cryptography.Providers;
 using CSDTP.Requests;
 using TMServer.DataBase;
 using TMServer.DataBase.Interaction;
+using TMServer.Logger;
 using TMServer.ServerComponent.Basics;
 
 namespace TMServer.ServerComponent.ApiResponser
@@ -15,11 +16,11 @@ namespace TMServer.ServerComponent.ApiResponser
 
         private Dictionary<Type, Dictionary<RequestHeaders, object>> GetHandlers = new();
 
-        public ResponseServer(int port, IEncryptProvider encryptProvider) : base(port, encryptProvider)
+        public ResponseServer(int port, IEncryptProvider encryptProvider, ILogger logger) : base(port, encryptProvider, logger)
         {
         }
 
-        public void RegisterGetHandler<T>(Action<ApiData<T>> func, RequestHeaders header) where T : ISerializable<T> 
+        public void RegisterGetHandler<T>(Action<ApiData<T>> func, RequestHeaders header) where T : ISerializable<T>
         {
             var type = typeof(ApiData<T>);
             if (!GetHandlers.ContainsKey(type))
@@ -52,22 +53,30 @@ namespace TMServer.ServerComponent.ApiResponser
         {
             if (IsRequestLegal(request) && PostHandlers.TryGetValue(typeof(ApiData<T>),
                 out var typeHandler) && typeHandler.TryGetValue(request.Header, out var handler))
-
+            {
+                Logger.Log(request);
                 ((Delegate)handler).Method.Invoke(handler, new object[] { request });
+            }
         }
         private U? InvokeHandler<T, U>(ApiData<T> request) where T : ISerializable<T> where U : ISerializable<U>
         {
             if (IsRequestLegal(request) && PostHandlers.TryGetValue(typeof(ApiData<T>),
                 out var typeHandler) && typeHandler.TryGetValue(request.Header, out var handler))
-
+            {
+                Logger.Log(request);
                 return (U?)((Delegate)handler).Method.Invoke(handler, new object[] { request });
+            }
+
 
             return default;
         }
 
-        private static bool IsRequestLegal<T>(ApiData<T> request) where T : ISerializable<T>
+        private bool IsRequestLegal<T>(ApiData<T> request) where T : ISerializable<T>
         {
-            return Security.IsTokenCorrect(request.Token, request.UserId);
+            var isLegal = Security.IsTokenCorrect(request.Token, request.UserId);
+            if (!isLegal)
+                Logger.Log($"illegal request from {request.UserId}");
+            return isLegal;
         }
     }
 }
