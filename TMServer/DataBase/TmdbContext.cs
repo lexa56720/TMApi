@@ -37,7 +37,7 @@ public partial class TmdbContext : DbContext
     public virtual DbSet<DBMessageMedia> MessageMedias { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        => optionsBuilder.UseNpgsql(GlobalSettings.ConnectionString).LogTo(Console.WriteLine);
+        => optionsBuilder.UseNpgsql(GlobalSettings.ConnectionString);
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -209,13 +209,13 @@ public partial class TmdbContext : DbContext
             entity.Property(e => e.ToUserId).HasColumnName("user_id");
 
             entity.HasOne(e => e.Chat).WithOne()
-            .HasPrincipalKey<DBChatInvite>(i => i.ChatId);
+            .HasForeignKey<DBChatInvite>(i => i.ChatId);
 
             entity.HasOne(e => e.Inviter).WithOne()
-            .HasPrincipalKey<DBChatInvite>(i => i.InviterId);
+            .HasForeignKey<DBChatInvite>(i => i.InviterId);
 
             entity.HasOne(e => e.DestinationUser).WithOne()
-            .HasPrincipalKey<DBChatInvite>(i => i.ToUserId);
+            .HasForeignKey<DBChatInvite>(i => i.ToUserId);
         });
 
         modelBuilder.Entity<DBFriendRequest>(entity =>
@@ -233,10 +233,10 @@ public partial class TmdbContext : DbContext
               .HasColumnName("user_id_two");
 
             entity.HasOne(e => e.UserOne)
-            .WithOne().HasPrincipalKey<DBFriendRequest>(r => r.UserOneId);
+            .WithOne().HasForeignKey<DBFriendRequest>(r => r.UserOneId);
 
             entity.HasOne(e => e.UserTwo)
-           .WithOne().HasPrincipalKey<DBFriendRequest>(r => r.UserTwoId);
+           .WithOne().HasForeignKey<DBFriendRequest>(r => r.UserTwoId);
         });
 
         modelBuilder.Entity<DBMessageMedia>(entity =>

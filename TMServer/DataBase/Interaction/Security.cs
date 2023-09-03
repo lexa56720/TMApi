@@ -54,10 +54,7 @@ namespace TMServer.DataBase.Interaction
         public static bool IsTokenCorrect(string token, int userId)
         {
             using var db = new TmdbContext();
-            var dbToken = db.Tokens.SingleOrDefault(t => t.UserId == userId);
-            if (dbToken != null)
-                return dbToken.AccessToken.Equals(token) && DateTime.UtcNow < dbToken.Expiration;
-            return false;
+            return db.Tokens.Any(t => t.UserId == userId && token.Equals(t.AccessToken) && DateTime.UtcNow < t.Expiration);
         }
     }
 }

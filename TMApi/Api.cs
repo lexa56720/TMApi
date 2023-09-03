@@ -22,7 +22,6 @@ namespace TMApi
             set
             {
                 accesToken = value;
-                Requester.Token = value;
             }
         }
         private string accesToken = string.Empty;
@@ -121,6 +120,7 @@ namespace TMApi
 
             Encrypter.Key = response.AesKey;
             Requester.Token = response.AccessToken;
+            AccesToken = response.AccessToken;
             Id = Requester.UserId = response.UserId;
             Expiration = response.Expiration;
         }
