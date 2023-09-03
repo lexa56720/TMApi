@@ -27,20 +27,22 @@ namespace TMApi
                 return -1;
             return version.Value;
         }
-        public async Task<Api?> GetApiRegister(string username,string login, string password)
+        public async Task<Api?> GetApiRegistration(string username, string login, string password)
         {
             var coderDecoder = await GetCoderDecoder();
-            using var inputDecoder = coderDecoder.Item1;
-            using var outputEncoder = coderDecoder.Item2;
+            if (coderDecoder == null)
+                return null;
+            using var inputDecoder = coderDecoder.Value.Item1;
+            using var outputEncoder = coderDecoder.Value.Item2;
 
             RegisterResponse? registerResult = null;
             using var rsaRequester = new RequestSender(true, outputEncoder, inputDecoder);
 
-            registerResult = await rsaRequester.PostAsync<RegisterResponse, RegisterRequest>(new RegisterRequest() 
-            { 
-                Username= username,
-                Login =login,
-                Password= GetPasswordHash(password),
+            registerResult = await rsaRequester.PostAsync<RegisterResponse, RegisterRequest>(new RegisterRequest()
+            {
+                Username = username,
+                Login = login,
+                Password = GetPasswordHash(password),
             });
 
 
@@ -53,8 +55,10 @@ namespace TMApi
         public async Task<Api?> GetApiLogin(string login, string password)
         {
             var coderDecoder = await GetCoderDecoder();
-            using var inputDecoder = coderDecoder.Item1;
-            using var outputEncoder = coderDecoder.Item2;
+            if (coderDecoder == null)
+                return null;
+            using var inputDecoder = coderDecoder.Value.Item1;
+            using var outputEncoder = coderDecoder.Value.Item2;
 
             return await Login(login, password, inputDecoder, outputEncoder);
         }
@@ -90,6 +94,9 @@ namespace TMApi
 
 
             var api = await GetApi(token, expiration, id, cryptId, key);
+            if (api == null)
+                return null;
+
             var newData = await api.Auth.UpdateAuth();
 
             if (newData != null && newData.IsSuccessful)
@@ -100,25 +107,35 @@ namespace TMApi
         private async Task<Api?> GetApi(string token, DateTime expiration, int userId, int cryptId, byte[] aesKey)
         {
             var api = new Api(token, expiration, userId, cryptId, aesKey);
-            await api.Init();
-            return api;
+            if (await api.Init())
+                return api;
+            return null;
         }
-        private async Task<(RsaEncrypter, RsaEncrypter)> GetCoderDecoder()
+        private async Task<(RsaEncrypter, RsaEncrypter)?> GetCoderDecoder()
         {
-            var inputDecoder = new RsaEncrypter();
+            try
+            {
+                var inputDecoder = new RsaEncrypter();
 
-            var rsaKey = await GetRsaKey(inputDecoder);
-            var outputEncoder = new RsaEncrypter(rsaKey.Item1);
+                var rsaKey = await GetRsaKey(inputDecoder);
+                var outputEncoder = new RsaEncrypter(rsaKey.Item1);
 
-            IdHolder.Value = rsaKey.Item2;
+                IdHolder.Value = rsaKey.Item2;
 
-            return (inputDecoder, outputEncoder);
+                return (inputDecoder, outputEncoder);
+            }
+            catch
+            {
+                return null;
+            }
+
         }
         private async Task<(string, int)> GetRsaKey(RsaEncrypter inputDecoder)
         {
             using var uncryptRequester = new RequestSender(true);
             var request = new RsaPublicKey(inputDecoder.PublicKey);
-            var response = await uncryptRequester.PostAsync<RsaPublicKey, RsaPublicKey>(request);
+            var response = await uncryptRequester.PostAsync<RsaPublicKey, RsaPublicKey>(request)
+                ?? throw new Exception("no response");
 
             string serverRsaPublicKey = response.Key;
             return (serverRsaPublicKey, response.Id);

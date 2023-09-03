@@ -51,7 +51,7 @@ namespace TMApi
 
             SetupRequester(token, userId);
         }
-        internal async Task Init()
+        internal async Task<bool> Init()
         {
             Users = new Users(Requester, this);
             Messages = new Messages(Requester, this);
@@ -62,6 +62,8 @@ namespace TMApi
             LongPolling.StateUpdated += OnUpdateArrived;
 
             UserInfo = await Users.GetUserInfo(Id);
+
+            return UserInfo != null;
         }
         private void SetupRequester(string token, int userId)
         {
