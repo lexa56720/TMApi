@@ -59,7 +59,7 @@ namespace TMServer.RequestHandlers
             if (isSuccsessful)
             {
                 using var aes = new AesEncrypter();
-                isSuccsessful = Authentication.CreateUser(request.Login, request.Password, aes.Key);
+                Authentication.CreateUser(request.Username,request.Login, request.Password, aes.Key);
             }
 
             return new RegisterResponse()

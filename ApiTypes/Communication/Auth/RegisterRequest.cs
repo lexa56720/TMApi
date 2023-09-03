@@ -5,14 +5,17 @@ namespace ApiTypes.Communication.Auth
 {
     public class RegisterRequest : ISerializable<RegisterRequest>
     {
+        public required string Username { get; init; }
+
         public required string Login { get; init; }
 
         public required string Password { get; init; }
 
 
         [SetsRequiredMembers]
-        public RegisterRequest(string login, string password)
+        public RegisterRequest(string username, string login, string password)
         {
+            Username = username;
             Login = login;
             Password = password;
         }
@@ -23,6 +26,7 @@ namespace ApiTypes.Communication.Auth
 
         public void Serialize(BinaryWriter writer)
         {
+            writer.Write(Username);
             writer.Write(Login);
             writer.Write(Password);
         }
@@ -31,6 +35,7 @@ namespace ApiTypes.Communication.Auth
         {
             return new RegisterRequest()
             {
+                Username = reader.ReadString(),
                 Login = reader.ReadString(),
                 Password = reader.ReadString()
             };

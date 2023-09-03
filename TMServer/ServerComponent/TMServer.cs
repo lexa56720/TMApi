@@ -20,6 +20,7 @@ namespace TMServer.Servers
         private AuthorizationServer AuthServer { get; set; }
 
         private ResponseServer ApiServer { get; set; }
+        private ILogger Logger { get; }
 
         public TMServer(int authPort, int responsePort,ILogger logger)
         {
@@ -27,6 +28,7 @@ namespace TMServer.Servers
             ApiServer = new ResponseServer(responsePort, new ApiEncryptProvider(), logger);
             RegisterAuthMethods();
             RegisterApiMethods();
+            Logger = logger;
         }
 
         private void RegisterAuthMethods()
@@ -107,6 +109,7 @@ namespace TMServer.Servers
             base.Start();
             AuthServer.Start();
             ApiServer.Start();
+            Logger.Log("server started");
         }
 
         public override void Stop()
@@ -114,6 +117,7 @@ namespace TMServer.Servers
             base.Stop();
             AuthServer.Stop();
             ApiServer.Stop();
+            Logger.Log("server stoped");
         }
         public void Dispose()
         {

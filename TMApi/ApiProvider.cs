@@ -27,7 +27,7 @@ namespace TMApi
                 return -1;
             return version.Value;
         }
-        public async Task<Api?> GetApiRegister(string login, string password)
+        public async Task<Api?> GetApiRegister(string username,string login, string password)
         {
             var coderDecoder = await GetCoderDecoder();
             using var inputDecoder = coderDecoder.Item1;
@@ -36,7 +36,12 @@ namespace TMApi
             RegisterResponse? registerResult = null;
             using var rsaRequester = new RequestSender(true, outputEncoder, inputDecoder);
 
-            registerResult = await rsaRequester.PostAsync<RegisterResponse, RegisterRequest>(new RegisterRequest(login, GetPasswordHash(password)));
+            registerResult = await rsaRequester.PostAsync<RegisterResponse, RegisterRequest>(new RegisterRequest() 
+            { 
+                Username= username,
+                Login =login,
+                Password= GetPasswordHash(password),
+            });
 
 
             if (registerResult.IsSuccessful)

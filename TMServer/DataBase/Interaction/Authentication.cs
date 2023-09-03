@@ -19,32 +19,27 @@ namespace TMServer.DataBase.Interaction
             using var db = new TmdbContext();
             return !db.Users.Any(u => u.Login == login);
         }
-        public static bool CreateUser(string login, string password, byte[] aesKey)
+        public static void CreateUser(string username, string login, string password, byte[] aesKey)
         {
             using var db = new TmdbContext();
-            if (!db.Users.Any(u => u.Login == login))
+
+            var user = new DBUser()
             {
-                var user = new DBUser()
-                {
-                    Login = login,
-                    LastRequest = DateTime.UtcNow,
-                    RegisterDate = DateTime.UtcNow,
-                    Name = login,
-                    Password = GetPasswordWithSalt(password, login),
-                };
-                db.Users.Add(user);
-                db.SaveChanges();
+                Login = login,
+                LastRequest = DateTime.UtcNow,
+                RegisterDate = DateTime.UtcNow,
+                Name = username,
+                Password = GetPasswordWithSalt(password, login),
+            };
+            db.Users.Add(user);
+            db.SaveChanges();
 
-                db.AesCrypts.Add(new DBAes()
-                {
-                    AesKey = aesKey,
-                    UserId = user.Id,
-                });
-                db.SaveChanges();
-
-                return true;
-            }
-            return false;
+            db.AesCrypts.Add(new DBAes()
+            {
+                AesKey = aesKey,
+                UserId = user.Id,
+            });
+            db.SaveChanges();
         }
 
         public static int SaveAuth(int userId, byte[] aesKey, string token, DateTime expiration)

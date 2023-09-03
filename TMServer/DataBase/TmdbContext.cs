@@ -13,6 +13,7 @@ public partial class TmdbContext : DbContext
     public TmdbContext(DbContextOptions<TmdbContext> options)
         : base(options)
     {
+       
     }
 
     public virtual DbSet<DBAes> AesCrypts { get; set; }
@@ -36,7 +37,7 @@ public partial class TmdbContext : DbContext
     public virtual DbSet<DBMessageMedia> MessageMedias { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        => optionsBuilder.UseNpgsql(GlobalSettings.ConnectionString);
+        => optionsBuilder.UseNpgsql(GlobalSettings.ConnectionString).LogTo(Console.WriteLine);
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

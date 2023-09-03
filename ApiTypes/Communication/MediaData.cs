@@ -49,7 +49,5 @@ namespace ApiTypes.Communication
             };
 
         }
-
-
     }
 }
