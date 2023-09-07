@@ -16,6 +16,5 @@ namespace TMServer.DataBase.Tables
 
 
         public virtual DBMessage Message { get; set; } = null!;
-
     }
 }

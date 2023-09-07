@@ -4,6 +4,7 @@ using ApiTypes.Communication.BaseTypes;
 using ApiTypes.Communication.Chats;
 using ApiTypes.Communication.Friends;
 using ApiTypes.Communication.Info;
+using ApiTypes.Communication.Messages;
 using ApiTypes.Communication.Search;
 using ApiTypes.Communication.Users;
 using TMServer.DataBase;
@@ -30,7 +31,11 @@ namespace TMServer.Servers
             RegisterApiMethods();
             Logger = logger;
         }
-
+        public void Dispose()
+        {
+            AuthServer.Dispose();
+            ApiServer.Dispose();
+        }
         private void RegisterAuthMethods()
         {
             AuthServer.Register<RsaPublicKey, RsaPublicKey>(AuthHandler.RsaKeyTrade);
@@ -44,10 +49,18 @@ namespace TMServer.Servers
             ApiServer.RegisterPostHandler<AuthUpdateRequest, AuthorizationResponse>
                 (AuthHandler.UpdateAuth, RequestHeaders.UpdateAuth);
 
-
+            RegisterMessageMethods();
             RegisterUserMethods();
             RegisterFriendMethods();
             RegisterChatMethods();
+        }
+        private void RegisterMessageMethods()
+        {
+            ApiServer.RegisterPostHandler<MessageHistoryRequest,MessageHistoryResponse>
+                (MessagesHandler.GetMessages, RequestHeaders.GetLastMessages);
+
+            ApiServer.RegisterGetHandler<MessageSendRequest>
+              (MessagesHandler.NewMessage, RequestHeaders.SendMessage);
         }
         private void RegisterUserMethods()
         {
@@ -80,7 +93,6 @@ namespace TMServer.Servers
             ApiServer.RegisterGetHandler<RequestResponse>
                 (FriendsHandler.FriendRequestResponse, RequestHeaders.ResponseFriendRequest);
         }
-
         private void RegisterChatMethods()
         {
             ApiServer.RegisterPostHandler<ChatCreationRequest, Chat>
@@ -104,6 +116,7 @@ namespace TMServer.Servers
             ApiServer.RegisterGetHandler<RequestResponse>
                 (ChatsHandler.ChatInviteResponse, RequestHeaders.ChatInviteRespose);
         }
+
         public override void Start()
         {
             base.Start();
@@ -119,9 +132,6 @@ namespace TMServer.Servers
             ApiServer.Stop();
             Logger.Log("server stoped");
         }
-        public void Dispose()
-        {
-            AuthServer.Dispose();
-        }
+
     }
 }

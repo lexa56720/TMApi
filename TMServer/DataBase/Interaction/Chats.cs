@@ -73,6 +73,13 @@ namespace TMServer.DataBase.Interaction
 
         }
 
+        public static bool IsHaveAccess(int chatId,int userId)
+        {
+            using var db = new TmdbContext();
+
+            return IsMemberOfChat(userId,chatId) || IsInvited(userId,chatId);
+        }
+
         public static void InviteResponse(int inviteId, int userId, bool isAccepted)
         {
             using var db = new TmdbContext();
@@ -90,16 +97,19 @@ namespace TMServer.DataBase.Interaction
             db.ChatInvites.Remove(invite);
             db.SaveChanges();
         }
-        public static bool IsHaveAccess(int userId, int chatId)
+        public static bool IsInvited(int userId, int chatId)
         {
             using var db = new TmdbContext();
 
-            var chat = db.Chats.Include(c => c.Members).SingleOrDefault(c => c.Id == chatId);
-            if (chat == null)
-                return false;
-            return chat.Members.Any(m => m.Id == userId);
+            return db.ChatInvites.Any(i => i.ToUserId == userId && i.ChatId == chatId);
         }
+        public static bool IsMemberOfChat(int userId, int chatId)
+        {
+            using var db = new TmdbContext();
 
+            return db.Chats.Include(c => c.Members)
+                .Any(c => c.Id == chatId && c.Members.Any(m => m.Id == userId));
+        }
         public static bool IsCanInvite(int inviterId, int userId, int chatId)
         {
             using var db = new TmdbContext();
@@ -109,12 +119,11 @@ namespace TMServer.DataBase.Interaction
                                    || f.UserIdOne == userId && f.UserIdTwo == inviterId) != null;
 
             bool isInviterInChat = db.Chats.Include(c => c.Members).Any(c => c.Id == chatId && c.Members.Any(m => m.Id == inviterId));
-            bool isAlreadyInvited = db.ChatInvites.Any(i => i.ToUserId == userId && i.ChatId == chatId);
+            bool isAlreadyInvited = IsInvited(userId,chatId);
             bool isUserInChat = db.Chats.Include(c => c.Members).Any(c => c.Id == chatId && c.Members.Any(m => m.Id == userId));
 
             return isInviterInChat && !isAlreadyInvited && isUserInChat && isFriends;
         }
-
         public static bool IsCanCreate(int userId, int[] memberIds)
         {
             using var db = new TmdbContext();

@@ -26,13 +26,20 @@ namespace TMServer.RequestHandlers
 
         public static Chat? GetChat(ApiData<IntContainer> request)
         {
+            if (!Chats.IsHaveAccess(request.Data.Value, request.UserId))
+                return null;
+
             var chat = Chats.GetChat(request.Data.Value);
             if (chat == null)
                 return null;
+
             return new Chat(chat.Id, chat.Admin.Id, chat.Members.Select(m => m.Id).ToArray());
         }
         public static SerializableArray<Chat> GetChats(ApiData<IntArrayContainer> request)
         {
+            if(!request.Data.Values.Select(v=>Chats.IsHaveAccess(v,request.UserId)).All(a=>a))
+                return new SerializableArray<Chat>(Array.Empty<Chat>());
+
             var chats = Chats.GetChat(request.Data.Values);
             if (!chats.Any())
                 return new SerializableArray<Chat>(Array.Empty<Chat>());
@@ -52,7 +59,6 @@ namespace TMServer.RequestHandlers
 
             Chats.InviteToChat(request.UserId, request.Data.ToUserId, request.Data.ChatId);
         }
-
 
         public static ChatInvite? GetChatInvite(ApiData<IntContainer> request)
         {
