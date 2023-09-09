@@ -21,7 +21,7 @@ namespace TMServer.RequestHandlers
                 return null;
 
             var chat = Chats.CreateChat(request.Data.ChatName, chatMembers);
-            return new Chat(chat.Id, chat.Admin.Id, chat.Members.Select(m => m.Id).ToArray());
+            return new Chat(chat.Id, chat.Admin.Id, request.Data.ChatName, chat.Members.Select(m => m.Id).ToArray());
         }
 
         public static Chat? GetChat(ApiData<IntContainer> request)
@@ -33,7 +33,7 @@ namespace TMServer.RequestHandlers
             if (chat == null)
                 return null;
 
-            return new Chat(chat.Id, chat.Admin.Id, chat.Members.Select(m => m.Id).ToArray());
+            return new Chat(chat.Id, chat.Admin.Id,chat.Name ,chat.Members.Select(m => m.Id).ToArray());
         }
         public static SerializableArray<Chat> GetChats(ApiData<IntArrayContainer> request)
         {
@@ -49,6 +49,7 @@ namespace TMServer.RequestHandlers
                     new Chat(
                         c.Id,
                         c.Admin.Id,
+                        c.Name,
                         c.Members.Select(m => m.Id).ToArray()))
                 .ToArray());
         }
