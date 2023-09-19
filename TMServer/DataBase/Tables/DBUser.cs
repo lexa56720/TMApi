@@ -1,4 +1,6 @@
-﻿namespace TMServer.DataBase.Tables;
+﻿using ApiTypes.Communication.Users;
+
+namespace TMServer.DataBase.Tables;
 
 public partial class DBUser
 {
@@ -25,5 +27,16 @@ public partial class DBUser
     public virtual ICollection<DBFriend> FriendsOne { get; set; } = new List<DBFriend>();
 
     public virtual ICollection<DBFriend> FriendsTwo { get; set; } = new List<DBFriend>();
+
+
+    public IEnumerable<DBUser> GetFriends()
+    {
+        return FriendsOne.Concat(FriendsTwo).Select(f =>
+        {
+            if (f.UserIdOne == Id)
+                return f.UserOne;
+            return f.UserTwo;
+        });
+    }
 
 }

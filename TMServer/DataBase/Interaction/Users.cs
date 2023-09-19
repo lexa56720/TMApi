@@ -32,10 +32,17 @@ namespace TMServer.DataBase.Interaction
             using var db = new TmdbContext();
 
             return db.Users
-                .Where(u => u.Name.ToUpperInvariant().Contains(name.ToUpperInvariant()))
+                .Where(u => u.Name.Contains(name))
                 .Take(20).ToArray();
         }
+        public static DBUser[] GetUserByLogin(string login)
+        {
+            using var db = new TmdbContext();
 
+            return db.Users
+                .Where(u => u.Login.Contains(login))
+                .Take(20).ToArray();
+        }
         public static void ChangeName(int userId, string newName)
         {
             using var db = new TmdbContext();

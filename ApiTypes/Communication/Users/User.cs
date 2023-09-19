@@ -9,13 +9,16 @@ namespace ApiTypes.Communication.Users
 
         public required int Id { get; init; }
 
+        public required string Login { get; init; }
+
         public required bool IsOnline { get; init; } = false;
 
         [SetsRequiredMembers]
-        public User(string name, int id, bool isOnline)
+        public User(string name, int id,string login, bool isOnline)
         {
             Name = name;
             Id = id;
+            Login = login;
             IsOnline = isOnline;
         }
         public User()
@@ -29,6 +32,7 @@ namespace ApiTypes.Communication.Users
             {
                 Name = reader.ReadString(),
                 Id = reader.ReadInt32(),
+                Login = reader.ReadString(),
                 IsOnline = reader.ReadBoolean()
             };
         }
@@ -37,6 +41,7 @@ namespace ApiTypes.Communication.Users
         {
             writer.Write(Name);
             writer.Write(Id);
+            writer.Write(Login);
             writer.Write(IsOnline);
         }
     }

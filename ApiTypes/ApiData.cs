@@ -50,8 +50,8 @@ namespace ApiTypes
             {
                 Header = (RequestHeaders)reader.ReadByte(),
                 Token = reader.ReadString(),
-                UserId = reader.Read(),
-                CryptId = reader.Read(),
+                UserId = reader.ReadInt32(),
+                CryptId = reader.ReadInt32(),
                 Data = T.Deserialize(reader)
             };
         }
