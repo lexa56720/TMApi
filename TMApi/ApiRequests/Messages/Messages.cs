@@ -1,4 +1,5 @@
 ﻿using ApiTypes;
+using ApiTypes.Communication.BaseTypes;
 using ApiTypes.Communication.Messages;
 using ApiTypes.Shared;
 
@@ -21,12 +22,12 @@ namespace TMApi.ApiRequests.Messages
             return messages.Messages;
         }
 
-        public async Task<bool> SendMessage(string text, int destinationId)
+        public async Task<Message?> SendMessage(string text, int destinationId)
         {
             if (!DataConstraints.IsMessageLegal(text))
-                return false;
+                return null;
 
-            return await Requester.GetRequestAsync
+            return await Requester.PostRequestAsync< Message, MessageSendRequest>
                 (RequestHeaders.SendMessage, new MessageSendRequest(text, destinationId));
         }
 

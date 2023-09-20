@@ -59,7 +59,7 @@ namespace TMServer.Servers
             ApiServer.RegisterPostHandler<MessageHistoryRequest,MessageHistoryResponse>
                 (MessagesHandler.GetMessages, RequestHeaders.GetLastMessages);
 
-            ApiServer.RegisterGetHandler<MessageSendRequest>
+            ApiServer.RegisterPostHandler<MessageSendRequest,Message>
               (MessagesHandler.NewMessage, RequestHeaders.SendMessage);
         }
         private void RegisterUserMethods()

@@ -4,19 +4,21 @@ namespace TMServer.DataBase.Interaction
 {
     internal static class Messages
     {
-        public static void AddMessage(int authorId, string content, int destinationId)
+        public static DBMessage AddMessage(int authorId, string content, int destinationId)
         {
             using var db = new TmdbContext();
 
-            db.Messages.Add(new DBMessage()
+            var message = new DBMessage()
             {
                 AuthorId = authorId,
                 DestinationId = destinationId,
                 Content = content,
                 SendTime = DateTime.UtcNow,
-            });
+            };
+            db.Messages.Add(message);
 
             db.SaveChanges();
+            return message;
         }
 
         public static DBMessage[] GetMessages(int chatId, int offset, int count)

@@ -9,11 +9,16 @@ namespace TMServer.RequestHandlers
 {
     internal class MessagesHandler
     {
-        public static void NewMessage(ApiData<MessageSendRequest> message)
+        public static Message? NewMessage(ApiData<MessageSendRequest> message)
         {
             if (DataConstraints.IsMessageLegal(message.Data.Text) &&
                 Chats.IsMemberOfChat(message.UserId, message.Data.DestinationId))
-                Messages.AddMessage(message.UserId, message.Data.Text, message.Data.DestinationId);
+            {
+                var dbMessage = Messages.AddMessage(message.UserId, message.Data.Text, message.Data.DestinationId);
+
+                return new Message(dbMessage.Id, dbMessage.AuthorId, dbMessage.Content, dbMessage.SendTime);
+            }
+            return null;
         }
 
         public static MessageHistoryResponse? GetMessages(ApiData<MessageHistoryRequest> request)
