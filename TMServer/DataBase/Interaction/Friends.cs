@@ -56,6 +56,24 @@ namespace TMServer.DataBase.Interaction
 
         }
 
+        private static void RegisterFriends(int idOne, int idTwo)
+        {
+            using var db = new TmdbContext();
+            if (IsFriendshipPossible(idOne, idTwo))
+                db.Friends.Add(new DBFriend()
+                {
+                    UserIdOne = idOne,
+                    UserIdTwo = idTwo
+                });
+            db.SaveChanges();
+            Chats.CreateChat(string.Empty, idOne, idTwo);
+        }
+        public static int[] GetAllForUser(int userId)
+        {
+            using var db = new TmdbContext();
+            return db.FriendRequests.Where(i => i.UserTwoId == userId)
+                                    .Select(i => i.Id).ToArray();
+        }
         private static bool IsFriendshipPossible(int idOne, int idTwo)
         {
             using var db = new TmdbContext();
@@ -68,18 +86,6 @@ namespace TMServer.DataBase.Interaction
                 return false;
 
             return true;
-        }
-        private static void RegisterFriends(int idOne, int idTwo)
-        {
-            using var db = new TmdbContext();
-            if (IsFriendshipPossible(idOne, idTwo))
-                db.Friends.Add(new DBFriend()
-                {
-                    UserIdOne = idOne,
-                    UserIdTwo = idTwo
-                });
-            db.SaveChanges();
-            Chats.CreateChat(string.Empty,idOne, idTwo);
         }
     }
 }

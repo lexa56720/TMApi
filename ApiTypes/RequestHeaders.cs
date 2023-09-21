@@ -19,12 +19,14 @@
 
         GetFriendRequest,
         GetFriendRequestMany,
-        ResponseFriendRequest,
+        ResponseFriendRequest, 
+        GetAllFriendRequestForUser,
         SendFriendRequest,
 
         CreateChat,
         GetChat,
         GetChatMany,
+        GetAllChatInvitesForUser,
         SendChatInvite,
         GetChatInvite,
         GetChatInviteMany,

@@ -23,7 +23,7 @@ namespace TMServer.Servers
         private ResponseServer ApiServer { get; set; }
         private ILogger Logger { get; }
 
-        public TMServer(int authPort, int responsePort,ILogger logger)
+        public TMServer(int authPort, int responsePort, ILogger logger)
         {
             AuthServer = new AuthorizationServer(authPort, new AuthEncryptProvider(), logger);
             ApiServer = new ResponseServer(responsePort, new ApiEncryptProvider(), logger);
@@ -56,10 +56,10 @@ namespace TMServer.Servers
         }
         private void RegisterMessageMethods()
         {
-            ApiServer.RegisterPostHandler<MessageHistoryRequest,MessageHistoryResponse>
+            ApiServer.RegisterPostHandler<MessageHistoryRequest, MessageHistoryResponse>
                 (MessagesHandler.GetMessages, RequestHeaders.GetLastMessages);
 
-            ApiServer.RegisterPostHandler<MessageSendRequest,Message>
+            ApiServer.RegisterPostHandler<MessageSendRequest, Message>
               (MessagesHandler.NewMessage, RequestHeaders.SendMessage);
         }
         private void RegisterUserMethods()
@@ -78,6 +78,7 @@ namespace TMServer.Servers
 
             ApiServer.RegisterPostHandler<SearchRequest, SerializableArray<User>>
                 (SearchHandler.GetUserByName, RequestHeaders.SearchByName);
+
         }
         private void RegisterFriendMethods()
         {
@@ -92,6 +93,9 @@ namespace TMServer.Servers
 
             ApiServer.RegisterGetHandler<RequestResponse>
                 (FriendsHandler.FriendRequestResponse, RequestHeaders.ResponseFriendRequest);
+
+            ApiServer.RegisterPostHandler<IntContainer, IntArrayContainer>
+                (FriendsHandler.GetAllFriendRequests, RequestHeaders.GetAllFriendRequestForUser);
         }
         private void RegisterChatMethods()
         {
@@ -115,6 +119,9 @@ namespace TMServer.Servers
 
             ApiServer.RegisterGetHandler<RequestResponse>
                 (ChatsHandler.ChatInviteResponse, RequestHeaders.ChatInviteRespose);
+
+            ApiServer.RegisterPostHandler<IntContainer, IntArrayContainer>
+                (ChatsHandler.GetAllChatInvites, RequestHeaders.GetAllChatInvitesForUser);
         }
 
         public override void Start()

@@ -36,7 +36,7 @@ namespace TMApi.ApiRequests.Chats
         public async Task<bool> SendChatInvite(int chatId, int toUserId)
         {
             return await Requester.GetRequestAsync
-                (RequestHeaders.SendChatInvite, new ChatInvite(chatId, toUserId,Api.Id));
+                (RequestHeaders.SendChatInvite, new ChatInvite(chatId, toUserId, Api.Id));
         }
 
         public async Task<ChatInvite?> GetChatInvite(int inviteId)
@@ -54,7 +54,15 @@ namespace TMApi.ApiRequests.Chats
                 return Array.Empty<ChatInvite>();
             return invites.Items;
         }
+        public async Task<int[]> GetAllInvites(int userId)
+        {
+            var invites = await Requester.PostRequestAsync<IntArrayContainer, IntContainer>
+                (RequestHeaders.GetAllChatInvitesForUser, new IntContainer(userId));
 
+            if (invites == null)
+                return Array.Empty<int>();
+            return invites.Values;
+        }
         public async Task<bool> SendChatInviteResponse(ChatInvite invite, bool isAccepted)
         {
             var response = new RequestResponse(invite.Id, isAccepted);

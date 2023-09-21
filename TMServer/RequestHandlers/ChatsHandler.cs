@@ -53,6 +53,7 @@ namespace TMServer.RequestHandlers
                         c.Members.Select(m => m.Id).ToArray()))
                 .ToArray());
         }
+
         public static void SendChatInvite(ApiData<ChatInvite> request)
         {
             if (!Chats.IsCanInvite(request.UserId, request.Data.ToUserId, request.Data.ChatId))
@@ -60,7 +61,6 @@ namespace TMServer.RequestHandlers
 
             Chats.InviteToChat(request.UserId, request.Data.ToUserId, request.Data.ChatId);
         }
-
         public static ChatInvite? GetChatInvite(ApiData<IntContainer> request)
         {
             var invite = Chats.GetInvite(request.Data.Value, request.UserId);
@@ -89,6 +89,14 @@ namespace TMServer.RequestHandlers
         {
             if (Chats.GetInvite(request.Data.RequestId, request.UserId) != null)
                 Chats.InviteResponse(request.Data.RequestId, request.UserId, request.Data.IsAccepted);
+        }
+
+        public static IntArrayContainer? GetAllChatInvites(ApiData<IntContainer> userId)
+        {
+            if (userId.UserId != userId.Data.Value)
+                return null;
+
+            return new IntArrayContainer(Chats.GetAllForUser(userId.UserId));
         }
     }
 }

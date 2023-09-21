@@ -41,6 +41,13 @@ namespace TMServer.RequestHandlers
             Friends.FriendRequestResponse(data.Data.RequestId, data.Data.IsAccepted);
         }
 
+        public static IntArrayContainer? GetAllFriendRequests(ApiData<IntContainer> userId)
+        {
+            if (userId.UserId != userId.Data.Value)
+                return null;
+
+            return new IntArrayContainer(Friends.GetAllForUser(userId.UserId));
+        }
         private static bool IsHaveAccess(DBFriendRequest request, int userId)
         {
             return request.UserOneId == userId || request.UserTwoId == userId;

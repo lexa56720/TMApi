@@ -72,14 +72,6 @@ namespace TMServer.DataBase.Interaction
                   .ToArray();
 
         }
-
-        public static bool IsHaveAccess(int chatId,int userId)
-        {
-            using var db = new TmdbContext();
-
-            return IsMemberOfChat(userId,chatId) || IsInvited(userId,chatId);
-        }
-
         public static void InviteResponse(int inviteId, int userId, bool isAccepted)
         {
             using var db = new TmdbContext();
@@ -96,6 +88,19 @@ namespace TMServer.DataBase.Interaction
             }
             db.ChatInvites.Remove(invite);
             db.SaveChanges();
+        }
+
+        public static int[] GetAllForUser(int userId)
+        {
+            using var db = new TmdbContext();
+            return db.ChatInvites.Where(i => i.ToUserId == userId)
+                                 .Select(i => i.Id).ToArray();
+        }
+        public static bool IsHaveAccess(int chatId, int userId)
+        {
+            using var db = new TmdbContext();
+
+            return IsMemberOfChat(userId, chatId) || IsInvited(userId, chatId);
         }
         public static bool IsInvited(int userId, int chatId)
         {
@@ -119,7 +124,7 @@ namespace TMServer.DataBase.Interaction
                                    || f.UserIdOne == userId && f.UserIdTwo == inviterId) != null;
 
             bool isInviterInChat = db.Chats.Include(c => c.Members).Any(c => c.Id == chatId && c.Members.Any(m => m.Id == inviterId));
-            bool isAlreadyInvited = IsInvited(userId,chatId);
+            bool isAlreadyInvited = IsInvited(userId, chatId);
             bool isUserInChat = db.Chats.Include(c => c.Members).Any(c => c.Id == chatId && c.Members.Any(m => m.Id == userId));
 
             return isInviterInChat && !isAlreadyInvited && isUserInChat && isFriends;

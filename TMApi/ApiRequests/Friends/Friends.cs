@@ -24,6 +24,16 @@ namespace TMApi.ApiRequests.Friends
                 return Array.Empty<FriendRequest>();
             return requests.Items;
         }
+
+        public async Task<int[]> GetAllRequests(int userId)
+        {
+            var requests = await Requester.PostRequestAsync<IntArrayContainer, IntContainer>
+                (RequestHeaders.GetAllFriendRequestForUser, new IntContainer(userId));
+
+            if (requests == null)
+                return Array.Empty<int>();
+            return requests.Values;
+        }
         public async Task<bool> ResponseFriendRequest(FriendRequest request, bool isAccepted)
         {
             return await Requester.GetRequestAsync
