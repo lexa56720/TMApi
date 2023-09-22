@@ -55,6 +55,7 @@ namespace TMServer.DataBase.Interaction
             {
                 AesKey = aesKey,
                 UserId = userId,
+                DeprecatedDate = DateTime.MaxValue,
             };
             db.AesCrypts.Add(aes);
             db.SaveChanges();
