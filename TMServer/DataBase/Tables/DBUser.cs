@@ -31,12 +31,9 @@ public partial class DBUser
 
     public IEnumerable<DBUser> GetFriends()
     {
-        return FriendsOne.Concat(FriendsTwo).Select(f =>
-        {
-            if (f.UserIdOne == Id)
-                return f.UserOne;
-            return f.UserTwo;
-        });
+        var friends =FriendsOne.Concat(FriendsTwo)
+            .Select(f => f.UserIdOne == Id? f.UserTwo :f.UserOne);
+        return friends;
     }
 
 }

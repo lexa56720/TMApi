@@ -44,7 +44,7 @@ namespace TMServer.DataBase.Interaction
         public static void RegisterFriendRequest(int fromId, int toId)
         {
             using var db = new TmdbContext();
-            if (IsFriendshipPossible(fromId, toId))
+            if (!IsAlreadyRequested(fromId, toId) && !IsAlreadyFriends(fromId,toId))
             {
                 db.FriendRequests.Add(new DBFriendRequest()
                 {
@@ -58,33 +58,35 @@ namespace TMServer.DataBase.Interaction
         private static void RegisterFriends(int idOne, int idTwo)
         {
             using var db = new TmdbContext();
-            if (IsFriendshipPossible(idOne, idTwo))
+            if (!IsAlreadyFriends(idOne, idTwo))
+            {
                 db.Friends.Add(new DBFriend()
                 {
                     UserIdOne = idOne,
                     UserIdTwo = idTwo
                 });
-            db.SaveChanges();
-            Chats.CreateChat(string.Empty, idOne, idTwo);
+                db.SaveChanges();
+                Chats.CreateChat(string.Empty, idOne, idTwo);
+            }
         }
+              
         public static int[] GetAllForUser(int userId)
         {
             using var db = new TmdbContext();
             return db.FriendRequests.Where(i => i.UserTwoId == userId)
                                     .Select(i => i.Id).ToArray();
         }
-        private static bool IsFriendshipPossible(int idOne, int idTwo)
+        private static bool IsAlreadyRequested(int idOne, int idTwo)
         {
             using var db = new TmdbContext();
-            if (db.FriendRequests.Any(r => (r.UserOneId == idOne && r.UserTwoId == idTwo)
-                                        || (r.UserOneId == idTwo && r.UserTwoId == idOne)))
-                return false;
-
-            if (db.Friends.Any(f => (f.UserIdOne == idOne && f.UserIdTwo == idTwo)
-                              || (f.UserIdOne == idTwo && f.UserIdTwo == idOne)))
-                return false;
-
-            return true;
+            return db.FriendRequests.Any(r => (r.UserOneId == idOne && r.UserTwoId == idTwo)
+                                           || (r.UserOneId == idTwo && r.UserTwoId == idOne));
+        }
+        private static bool IsAlreadyFriends(int idOne, int idTwo)
+        {
+            using var db = new TmdbContext();
+            return db.Friends.Any(f => (f.UserIdOne == idOne && f.UserIdTwo == idTwo)
+                                    || (f.UserIdOne == idTwo && f.UserIdTwo == idOne));
         }
     }
 }

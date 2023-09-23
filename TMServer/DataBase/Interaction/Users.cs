@@ -10,8 +10,8 @@ namespace TMServer.DataBase.Interaction
             using var db = new TmdbContext();
             return db.Users
                 .Include(u => u.Chats)
-                .Include(u => u.FriendsTwo)
-                .Include(u => u.FriendsOne)
+                .Include(u => u.FriendsTwo).ThenInclude(f=>f.UserOne)
+                .Include(u => u.FriendsOne).ThenInclude(f => f.UserTwo)
                 .SingleOrDefault(u => u.Id == id);
         }
         public static DBUser? GetUserMain(int id)
