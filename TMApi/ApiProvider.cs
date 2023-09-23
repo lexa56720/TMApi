@@ -36,10 +36,10 @@ namespace TMApi
             using var inputDecoder = coderDecoder.Value.Item1;
             using var outputEncoder = coderDecoder.Value.Item2;
 
-            RegisterResponse? registerResult = null;
+            RequestResponse? registerResult = null;
             using var rsaRequester = new RequestSender(true, outputEncoder, inputDecoder);
 
-            registerResult = await rsaRequester.PostAsync<RegisterResponse, RegisterRequest>(new RegisterRequest()
+            registerResult = await rsaRequester.PostAsync<RequestResponse, RegisterRequest>(new RegisterRequest()
             {
                 Username = username,
                 Login = login,
@@ -47,7 +47,7 @@ namespace TMApi
             });
 
 
-            if (registerResult.IsSuccessful)
+            if (registerResult.IsAccepted)
                 return await Login(login, password, inputDecoder, outputEncoder);
 
             return null;

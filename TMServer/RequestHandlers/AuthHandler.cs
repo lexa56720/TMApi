@@ -52,9 +52,10 @@ namespace TMServer.RequestHandlers
             };
         }
 
-        public static RegisterResponse Register(RegisterRequest request)
+        public static RequestResponse Register(RegisterRequest request)
         {
-            var isSuccsessful = DataConstraints.IsLoginLegal(request.Login) && Authentication.IsLoginAvailable(request.Login);
+            var isSuccsessful = DataConstraints.IsLoginLegal(request.Login)
+                             && Authentication.IsLoginAvailable(request.Login);
 
             if (isSuccsessful)
             {
@@ -62,10 +63,7 @@ namespace TMServer.RequestHandlers
                 Authentication.CreateUser(request.Username,request.Login, request.Password, aes.Key);
             }
 
-            return new RegisterResponse()
-            {
-                IsSuccessful = isSuccsessful
-            };
+            return new RequestResponse(isSuccsessful);
         }
 
         public static IntContainer GetVersion()

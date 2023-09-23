@@ -1,4 +1,6 @@
-﻿namespace ApiTypes.Shared
+﻿using System.Text.RegularExpressions;
+
+namespace ApiTypes.Shared
 {
     public static class DataConstraints
     {
@@ -10,7 +12,7 @@
         }
         public static bool IsLoginLegal(string login)
         {
-            return login.Length < 128 && login.Length > 3;
+            return Regex.IsMatch(login, "^[a-zA-Z0-9]{3,128}$"); ;
         }
 
         public static bool IsPasswordLegal(string password)

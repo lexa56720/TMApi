@@ -40,7 +40,7 @@ namespace TMServer.Servers
         {
             AuthServer.Register<RsaPublicKey, RsaPublicKey>(AuthHandler.RsaKeyTrade);
             AuthServer.Register<AuthorizationRequest, AuthorizationResponse>(AuthHandler.Auth);
-            AuthServer.Register<RegisterRequest, RegisterResponse>(AuthHandler.Register);
+            AuthServer.Register<RegisterRequest, RequestResponse>(AuthHandler.Register);
             AuthServer.Register<VersionRequest, IntContainer>(e => AuthHandler.GetVersion());
         }
 

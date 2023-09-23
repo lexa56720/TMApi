@@ -5,15 +5,20 @@ namespace ApiTypes.Communication.BaseTypes
 {
     public class RequestResponse : ISerializable<RequestResponse>
     {
-        public bool IsAccepted { get; init; }
+        public required bool IsAccepted { get; init; }
 
-        public int RequestId { get; init; }
+        public int RequestId { get; init; } = -1;
 
 
         [SetsRequiredMembers]
         public RequestResponse(int requestId, bool isAccepted)
         {
             RequestId = requestId;
+            IsAccepted = isAccepted;
+        }
+        [SetsRequiredMembers]
+        public RequestResponse(bool isAccepted)
+        {
             IsAccepted = isAccepted;
         }
 
