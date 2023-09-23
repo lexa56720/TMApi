@@ -36,8 +36,12 @@ namespace TMApi.ApiRequests.Friends
         }
         public async Task<bool> ResponseFriendRequest(FriendRequest request, bool isAccepted)
         {
+            return await ResponseFriendRequest(request.Id, isAccepted);
+        }
+        public async Task<bool> ResponseFriendRequest(int requestId, bool isAccepted)
+        {
             return await Requester.GetRequestAsync
-                (RequestHeaders.ResponseFriendRequest, new RequestResponse(request.Id, isAccepted));
+                (RequestHeaders.ResponseFriendRequest, new RequestResponse(requestId, isAccepted));
         }
         public async Task<bool> SendFriendRequest(int toId)
         {

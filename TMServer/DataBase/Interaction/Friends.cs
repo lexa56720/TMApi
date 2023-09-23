@@ -53,7 +53,6 @@ namespace TMServer.DataBase.Interaction
                 });
                 db.SaveChanges();
             }
-
         }
 
         private static void RegisterFriends(int idOne, int idTwo)
@@ -78,7 +77,7 @@ namespace TMServer.DataBase.Interaction
         {
             using var db = new TmdbContext();
             if (db.FriendRequests.Any(r => (r.UserOneId == idOne && r.UserTwoId == idTwo)
-                                        || (r.UserTwoId == idTwo && r.UserOneId == idOne)))
+                                        || (r.UserOneId == idTwo && r.UserTwoId == idOne)))
                 return false;
 
             if (db.Friends.Any(f => (f.UserIdOne == idOne && f.UserIdTwo == idTwo)

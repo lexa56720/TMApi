@@ -65,7 +65,11 @@ namespace TMApi.ApiRequests.Chats
         }
         public async Task<bool> SendChatInviteResponse(ChatInvite invite, bool isAccepted)
         {
-            var response = new RequestResponse(invite.Id, isAccepted);
+            return await SendChatInviteResponse(invite.Id,isAccepted);
+        }
+        public async Task<bool> SendChatInviteResponse(int inviteId, bool isAccepted)
+        {
+            var response = new RequestResponse(inviteId, isAccepted);
 
             return await Requester.GetRequestAsync(RequestHeaders.ChatInviteRespose, response);
         }

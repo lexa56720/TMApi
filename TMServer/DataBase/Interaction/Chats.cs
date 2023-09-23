@@ -16,13 +16,16 @@ namespace TMServer.DataBase.Interaction
                 Name = name,
             };
             db.Chats.Add(chat);
-            for (int i = 1; i < usersId.Length; i++)
+            for (int i = 0; i < usersId.Length; i++)
             {
                 var user = db.Users.Find(usersId[i]);
                 if (user != null)
+                {
                     chat.Members.Add(user);
+                }
             }
             db.SaveChanges();
+            chat.Admin = db.Users.SingleOrDefault(u => u.Id == usersId[0]);
             return chat;
         }
         public static void InviteToChat(int inviterId, int userId, int chatId)

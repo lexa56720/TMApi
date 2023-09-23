@@ -51,7 +51,7 @@ namespace TMServer.ServerComponent.ApiResponser
 
         private void InvokeHandler<T>(ApiData<T> request) where T : ISerializable<T>
         {
-            if (IsRequestLegal(request) && PostHandlers.TryGetValue(typeof(ApiData<T>),
+            if (IsRequestLegal(request) && GetHandlers.TryGetValue(typeof(ApiData<T>),
                 out var typeHandler) && typeHandler.TryGetValue(request.Header, out var handler))
             {
                 Logger.Log(request);
