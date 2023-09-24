@@ -22,13 +22,17 @@ namespace TMServer.ServerComponent.ApiResponser
         {
             var cryptId = ((ITMPacket)packet).Id.InstanceValue;
             var key = Security.GetAesKey(cryptId);
+            if (key == null)
+                return null;
             return new AesEncrypter(key);
         }
 
         public IEncrypter? GetEncrypter(IPacketInfo packet)
         {
             var cryptId = ((ITMPacket)packet.InfoObj).Id.InstanceValue;
-            var key = Security.GetAesKey(cryptId);
+            var key = Security.GetAesKey(cryptId); 
+            if (key == null)
+                return null;
             return new AesEncrypter(key);
         }
     }

@@ -24,7 +24,7 @@ namespace TMServer.RequestHandlers
                 Chats = user.Chats.Select(c => c.Id).ToArray(),
                 Friends = friends,
                 FriendRequests=Friends.GetAllForUser(id.UserId),
-                ChatInvites=Chats.GetAllForUser(id.UserId),
+                ChatInvites=Chats.GetAllChatInvites(id.UserId),
                 MainInfo = new User(user.Name, user.Id, user.Login, user.IsOnline),
             };
         }

@@ -67,6 +67,8 @@ public partial class TmdbContext : DbContext
             entity.Property(e => e.AdminId).HasColumnName("admin_id");
             entity.Property(e => e.Name).HasColumnName("name");
 
+            entity.Property(e => e.IsDialogue).HasColumnName("is_dialogue");
+
             entity.HasOne(e => e.Admin).WithOne()
             .HasForeignKey<DBChat>(c => c.AdminId);
 
@@ -82,22 +84,22 @@ public partial class TmdbContext : DbContext
             entity.ToTable("friends");
             entity.Property(e => e.Id).HasColumnName("id");
 
-            entity.Property(e => e.UserIdOne)
+            entity.Property(e => e.SenderId)
                 .ValueGeneratedNever()
-                .HasColumnName("user_id_one");
+                .HasColumnName("sender_id");
 
-            entity.Property(e => e.UserIdTwo)
+            entity.Property(e => e.DestId)
               .ValueGeneratedNever()
-              .HasColumnName("user_id_two");
+              .HasColumnName("dest_id");
 
-            entity.HasOne(e => e.UserOne)
+            entity.HasOne(e => e.Sender)
             .WithMany(e => e.FriendsOne)
-            .HasForeignKey(f => f.UserIdOne)
+            .HasForeignKey(f => f.SenderId)
             .HasPrincipalKey(u => u.Id);
 
-            entity.HasOne(e => e.UserTwo)
+            entity.HasOne(e => e.Dest)
             .WithMany(e => e.FriendsTwo)
-            .HasForeignKey(f => f.UserIdTwo)
+            .HasForeignKey(f => f.DestId)
             .HasPrincipalKey(u => u.Id);
         });
 

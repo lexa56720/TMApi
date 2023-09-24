@@ -11,7 +11,7 @@ namespace TMApi.ApiRequests.Security
 
         public async Task<AuthorizationResponse?> UpdateAuth()
         {
-            return await Requester.PostRequestAsync<AuthorizationResponse, AuthUpdateRequest>(RequestHeaders.UpdateAuth, new AuthUpdateRequest());
+            return await Requester.PostAsync<AuthorizationResponse, AuthUpdateRequest>(RequestHeaders.UpdateAuth, new AuthUpdateRequest());
         }
     }
 }

@@ -62,11 +62,11 @@ namespace TMServer.DataBase.Interaction
             {
                 db.Friends.Add(new DBFriend()
                 {
-                    UserIdOne = idOne,
-                    UserIdTwo = idTwo
+                    SenderId = idOne,
+                    DestId = idTwo
                 });
                 db.SaveChanges();
-                Chats.CreateChat(string.Empty, idOne, idTwo);
+                Chats.CreateChat(string.Empty,true ,idOne, idTwo);
             }
         }
               
@@ -85,8 +85,8 @@ namespace TMServer.DataBase.Interaction
         private static bool IsAlreadyFriends(int idOne, int idTwo)
         {
             using var db = new TmdbContext();
-            return db.Friends.Any(f => (f.UserIdOne == idOne && f.UserIdTwo == idTwo)
-                                    || (f.UserIdOne == idTwo && f.UserIdTwo == idOne));
+            return db.Friends.Any(f => (f.SenderId == idOne && f.DestId == idTwo)
+                                    || (f.SenderId == idTwo && f.DestId == idOne));
         }
     }
 }

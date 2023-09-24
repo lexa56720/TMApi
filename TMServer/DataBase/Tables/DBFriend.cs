@@ -3,10 +3,10 @@
 public partial class DBFriend
 {
     public int Id { get; set; }
-    public required int UserIdOne { get; set; }
-    public required int UserIdTwo { get; set; }
+    public required int SenderId { get; set; }
+    public required int DestId { get; set; }
 
-    public virtual DBUser UserOne { get; set; } = null!;
+    public virtual DBUser Sender { get; set; } = null!;
 
-    public virtual DBUser UserTwo { get; set; } = null!;
+    public virtual DBUser Dest { get; set; } = null!;
 }

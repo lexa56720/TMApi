@@ -122,6 +122,9 @@ namespace TMServer.Servers
 
             ApiServer.RegisterPostHandler<IntContainer, IntArrayContainer>
                 (ChatsHandler.GetAllChatInvites, RequestHeaders.GetAllChatInvitesForUser);
+
+            ApiServer.RegisterPostHandler<ChatRequest, SerializableArray<Chat>>
+                (ChatsHandler.GetAllByDialogue, RequestHeaders.GetChatsByDialogue);
         }
 
         public override void Start()

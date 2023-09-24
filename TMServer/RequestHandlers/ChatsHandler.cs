@@ -20,8 +20,15 @@ namespace TMServer.RequestHandlers
             if (chatMembers.Length < 2 || !DataConstraints.IsNameLegal(request.Data.ChatName))
                 return null;
 
-            var chat = Chats.CreateChat(request.Data.ChatName, chatMembers);
-            return new Chat(chat.Id, chat.Admin.Id, request.Data.ChatName, chat.Members.Select(m => m.Id).ToArray());
+            var chat = Chats.CreateChat(request.Data.ChatName, false, chatMembers);
+            return new Chat()
+            {
+                Id = chat.Id,
+                AdminId = chat.Admin.Id,
+                Name = request.Data.ChatName,
+                MemberIds = chat.Members.Select(m => m.Id).ToArray(),
+                IsDialogue = chat.IsDialogue,
+            };
         }
 
         public static Chat? GetChat(ApiData<IntContainer> request)
@@ -33,11 +40,18 @@ namespace TMServer.RequestHandlers
             if (chat == null)
                 return null;
 
-            return new Chat(chat.Id, chat.Admin.Id,chat.Name ,chat.Members.Select(m => m.Id).ToArray());
+            return new Chat()
+            {
+                Id = chat.Id,
+                AdminId = chat.Admin.Id,
+                Name = chat.Name,
+                MemberIds = chat.Members.Select(m => m.Id).ToArray(),
+                IsDialogue = chat.IsDialogue,
+            };
         }
         public static SerializableArray<Chat> GetChats(ApiData<IntArrayContainer> request)
         {
-            if(!request.Data.Values.Select(v=>Chats.IsHaveAccess(v,request.UserId)).All(a=>a))
+            if (!request.Data.Values.Select(v => Chats.IsHaveAccess(v, request.UserId)).All(a => a))
                 return new SerializableArray<Chat>(Array.Empty<Chat>());
 
             var chats = Chats.GetChat(request.Data.Values);
@@ -45,13 +59,14 @@ namespace TMServer.RequestHandlers
                 return new SerializableArray<Chat>(Array.Empty<Chat>());
 
             return new SerializableArray<Chat>(
-                chats.Select(c =>
-                    new Chat(
-                        c.Id,
-                        c.Admin.Id,
-                        c.Name,
-                        c.Members.Select(m => m.Id).ToArray()))
-                .ToArray());
+                chats.Select(c => new Chat()
+                {
+                    Id = c.Id,
+                    AdminId = c.Admin.Id,
+                    Name = c.Name,
+                    MemberIds = c.Members.Select(m => m.Id).ToArray(),
+                    IsDialogue = c.IsDialogue,
+                }).ToArray());
         }
 
         public static void SendChatInvite(ApiData<ChatInvite> request)
@@ -96,7 +111,23 @@ namespace TMServer.RequestHandlers
             if (userId.UserId != userId.Data.Value)
                 return null;
 
-            return new IntArrayContainer(Chats.GetAllForUser(userId.UserId));
+            return new IntArrayContainer(Chats.GetAllChatInvites(userId.UserId));
         }
+
+
+        public static SerializableArray<Chat> GetAllByDialogue(ApiData<ChatRequest> request)
+        {
+            var chats = Chats.GetAllChatByDialogue(request.UserId, request.Data.IsDialogues);
+
+            return new SerializableArray<Chat>(chats.Select(c => new Chat()
+            {
+                Id = c.Id,
+                AdminId = c.AdminId,
+                MemberIds = c.Members.Select(m => m.Id).ToArray(),
+                IsDialogue = c.IsDialogue,
+                Name = c.Name,
+            }).ToArray());
+        }
+
     }
 }

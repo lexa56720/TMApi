@@ -12,17 +12,18 @@ namespace ApiTypes.Communication.Chats
         public required int AdminId { get; init; }
         public required int[] MemberIds { get; init; } = Array.Empty<int>();
 
-
+        public required bool IsDialogue { get; init; }
         public string Name { get; set; } = string.Empty;
 
 
         [SetsRequiredMembers]
-        public Chat(int id, int adminId,string name ,params int[] userIds)
+        public Chat(int id, int adminId, bool isDialogue, string name, params int[] userIds)
         {
             Id = id;
             AdminId = adminId;
             MemberIds = userIds;
-            Name=name;
+            IsDialogue=isDialogue;
+            Name = name;
         }
 
         public Chat()
@@ -31,9 +32,10 @@ namespace ApiTypes.Communication.Chats
 
         public void Serialize(BinaryWriter writer)
         {
-            writer.Write(Id);      
+            writer.Write(Id);
             writer.Write(AdminId);
             writer.Write(MemberIds);
+            writer.Write(IsDialogue);
             writer.Write(Name);
         }
 
@@ -41,9 +43,10 @@ namespace ApiTypes.Communication.Chats
         {
             var chat = new Chat()
             {
-                Id = reader.ReadInt32(),             
+                Id = reader.ReadInt32(),
                 AdminId = reader.ReadInt32(),
                 MemberIds = reader.ReadInt32Array(),
+                IsDialogue = reader.ReadBoolean(),
                 Name = reader.ReadString(),
             };
             return chat;

@@ -44,7 +44,7 @@ namespace TMApi.ApiRequests
             {
                 while (IsPolling)
                 {
-                    LastState = await Requester.PostRequestAsync<Notification, LongPollingRequest>(RequestHeaders.LongPoll, new LongPollingRequest(), TimeSpan.MaxValue);
+                    LastState = await Requester.PostAsync<Notification, LongPollingRequest>(RequestHeaders.LongPoll, new LongPollingRequest(), TimeSpan.MaxValue);
                     if (LastState != null)
                         StateUpdated?.Invoke(this, LastState);
                 }

@@ -41,12 +41,13 @@ namespace TMServer.DataBase.Interaction
             db.SaveChanges();
         }
 
-        public static byte[] GetAesKey(int cryptId)
+        public static byte[]? GetAesKey(int cryptId)
         {
             using var db = new TmdbContext();
 
             var dbAes = db.AesCrypts.SingleOrDefault(a => a.Id == cryptId);
-            ArgumentNullException.ThrowIfNull(dbAes);
+            if (dbAes == null)
+                return null;
 
             return dbAes.AesKey;
         }

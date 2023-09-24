@@ -6,13 +6,14 @@ namespace TMServer.DataBase.Interaction
 {
     internal static class Chats
     {
-        public static DBChat CreateChat(string name, params int[] usersId)
+        public static DBChat CreateChat(string name, bool isDialogue, params int[] usersId)
         {
             using var db = new TmdbContext();
 
             var chat = new DBChat()
             {
                 AdminId = usersId[0],
+                IsDialogue = isDialogue,
                 Name = name,
             };
             db.Chats.Add(chat);
@@ -55,7 +56,20 @@ namespace TMServer.DataBase.Interaction
         {
             using var db = new TmdbContext();
 
-            var chats = db.Chats.Include(c => c.Members).Where(c => chatIds.Contains(c.Id)).ToArray();
+            var chats = db.Chats.Include(c => c.Members)
+                                .Where(c => chatIds.Contains(c.Id))
+                                .ToArray();
+            return chats;
+        }
+
+        public static DBChat[] GetAllChatByDialogue(int userId, bool isDialogue)
+        {
+            using var db = new TmdbContext();
+
+            var chats = db.Chats
+                .Include(c => c.Members)
+                .Where(c => c.IsDialogue == isDialogue && c.Members.Any(m => m.Id == userId))
+                .ToArray();
             return chats;
         }
 
@@ -93,7 +107,7 @@ namespace TMServer.DataBase.Interaction
             db.SaveChanges();
         }
 
-        public static int[] GetAllForUser(int userId)
+        public static int[] GetAllChatInvites(int userId)
         {
             using var db = new TmdbContext();
             return db.ChatInvites.Where(i => i.ToUserId == userId)
@@ -123,8 +137,8 @@ namespace TMServer.DataBase.Interaction
             using var db = new TmdbContext();
 
             bool isFriends = db.Friends
-                .SingleOrDefault(f => f.UserIdOne == inviterId && f.UserIdTwo == userId
-                                   || f.UserIdOne == userId && f.UserIdTwo == inviterId) != null;
+                .SingleOrDefault(f => f.SenderId == inviterId && f.DestId == userId
+                                   || f.SenderId == userId && f.DestId == inviterId) != null;
 
             bool isInviterInChat = db.Chats.Include(c => c.Members).Any(c => c.Id == chatId && c.Members.Any(m => m.Id == inviterId));
             bool isAlreadyInvited = IsInvited(userId, chatId);

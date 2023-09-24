@@ -63,26 +63,16 @@ namespace TMApi
             return await Requester.GetAsync<T>(data);
         }
 
-
-        public async Task<T?> PostRequestAsync<T, U>(U data) where T : ISerializable<T> where U : ISerializable<U>
-        {
-            return await Requester.PostAsync<T, ApiData<U>>(new ApiData<U>(Token, UserId, data), Timeout);
-        }
-        public async Task<bool> GetRequestAsync<T>(T data) where T : ISerializable<T>
-        {
-            return await Requester.GetAsync(new ApiData<T>(Token, UserId, data));
-        }
-
-        public async Task<T?> PostRequestAsync<T, U>(RequestHeaders header, U data) where T : ISerializable<T> where U : ISerializable<U>
+        public async Task<T?> PostAsync<T, U>(RequestHeaders header, U data) where T : ISerializable<T> where U : ISerializable<U>
         {
             return await Requester.PostAsync<T, ApiData<U>>(new ApiData<U>(header, Token, UserId, data, CryptId), Timeout);
         }
-        public async Task<bool> GetRequestAsync<T>(RequestHeaders header, T data) where T : ISerializable<T>
+        public async Task<bool> GetAsync<T>(RequestHeaders header, T data) where T : ISerializable<T>
         {
             return await Requester.GetAsync(new ApiData<T>(header, Token, UserId, data, CryptId));
         }
 
-        public async Task<T?> PostRequestAsync<T, U>(RequestHeaders header, U data, TimeSpan timeout) where T : ISerializable<T> where U : ISerializable<U>
+        public async Task<T?> PostAsync<T, U>(RequestHeaders header, U data, TimeSpan timeout) where T : ISerializable<T> where U : ISerializable<U>
         {
             return await Requester.PostAsync<T, ApiData<U>>(new ApiData<U>(header, Token, UserId, data, CryptId), timeout);
         }
