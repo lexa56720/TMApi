@@ -11,10 +11,20 @@ namespace TMApi.ApiRequests.Messages
         {
         }
 
-        public async Task<Message[]?> GetLastMessages(int chatId, int count, int offset)
+        public async Task<Message[]?> GetMessages(int chatId, int count, int offset)
+        {
+            var messages = await Requester.PostAsync<MessageHistoryResponse, LastMessagesRequest>
+                (RequestHeaders.GetLastMessages, new LastMessagesRequest(chatId, offset, count));
+
+            if (messages == null)
+                return Array.Empty<Message>();
+
+            return messages.Messages;
+        }
+        public async Task<Message[]?> GetMessages(int chatId, int fromMessageId)
         {
             var messages = await Requester.PostAsync<MessageHistoryResponse, MessageHistoryRequest>
-                (RequestHeaders.GetLastMessages, new MessageHistoryRequest(chatId, offset, count));
+                (RequestHeaders.GetMessages, new MessageHistoryRequest(chatId, fromMessageId));
 
             if (messages == null)
                 return Array.Empty<Message>();
@@ -30,6 +40,5 @@ namespace TMApi.ApiRequests.Messages
             return await Requester.PostAsync< Message, MessageSendRequest>
                 (RequestHeaders.SendMessage, new MessageSendRequest(text, destinationId));
         }
-
     }
 }

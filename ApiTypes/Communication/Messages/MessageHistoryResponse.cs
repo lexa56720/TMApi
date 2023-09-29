@@ -20,8 +20,6 @@ namespace ApiTypes.Communication.Messages
         {
         }
 
-
-
         public static MessageHistoryResponse Deserialize(BinaryReader reader)
         {
             return new MessageHistoryResponse()

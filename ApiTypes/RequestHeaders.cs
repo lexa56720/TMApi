@@ -14,6 +14,7 @@
         ChangeName,
         SearchByName,
 
+        GetMessages,
         GetLastMessages,
         SendMessage,
 
@@ -32,6 +33,7 @@
         SendChatInvite,
         GetChatInvite,
         GetChatInviteMany,
-        ChatInviteRespose
+        ChatInviteRespose,
+        
     }
 }

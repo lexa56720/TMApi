@@ -20,22 +20,36 @@ namespace TMServer.RequestHandlers
             }
             return null;
         }
-
-        public static MessageHistoryResponse? GetMessages(ApiData<MessageHistoryRequest> request)
+        public static MessageHistoryResponse? GetMessagesByOffset(ApiData<LastMessagesRequest> request)
         {
             if (!Chats.IsMemberOfChat(request.UserId, request.Data.ChatId))
                 return null;
 
-            DBMessage[] dbMessages;
-            if (request.Data.LastMessageId >= 0)
-                dbMessages = Messages.GetMessages(request.Data.ChatId, request.Data.Offset,
-                    request.Data.MaxCount, request.Data.LastMessageId, request.Data.LastMessageDate);
-            else
-                dbMessages = Messages.GetMessages(request.Data.ChatId, request.Data.Offset, request.Data.MaxCount);
+            var dbMessages = Messages.GetMessages
+                             (request.Data.ChatId, request.Data.Offset, request.Data.MaxCount);
+            return new MessageHistoryResponse()
+            {
+                FromId = request.Data.ChatId,
+                Messages = dbMessages.Select(ConvertMessages).ToArray()
+            };
+        }
+        public static MessageHistoryResponse? GetMessagesById(ApiData<MessageHistoryRequest> request)
+        {
+            if (!Chats.IsMemberOfChat(request.UserId, request.Data.ChatId))
+                return null;
 
-            var messages = dbMessages.Select(m => new Message(m.Id, m.AuthorId, m.Content, m.SendTime));
-            return new MessageHistoryResponse(request.Data.ChatId, messages.ToArray());
+            var dbMessages = Messages.GetMessages
+                             (request.Data.ChatId,0,request.Data.MaxCount,request.Data.LastMessageId);
+            return new MessageHistoryResponse()
+            {
+               FromId = request.Data.ChatId,
+               Messages= dbMessages.Select(ConvertMessages).ToArray()
+            };
         }
 
+        private static Message ConvertMessages(DBMessage dBMessage)
+        {
+            return new Message(dBMessage.Id, dBMessage.AuthorId, dBMessage.Content, dBMessage.SendTime);
+        }
     }
 }

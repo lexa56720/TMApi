@@ -31,15 +31,15 @@ namespace TMServer.DataBase.Interaction
                 .Take(count)
                 .ToArray();
         }
-        public static DBMessage[] GetMessages(int chatId, int offset, int count, int lastMessageId, DateTime lastMessageDate)
+        public static DBMessage[] GetMessages(int chatId, int offset, int count, int lastMessageId)
         {
-           using var db = new TmdbContext();
+            using var db = new TmdbContext();
 
             return db.Messages
                 .Where(m => m.DestinationId == chatId)
                 .OrderBy(m => m.SendTime)
                 .ThenBy(m => m.Id)
-                .Where(m => m.SendTime < lastMessageDate || (m.SendTime == lastMessageDate && m.Id < lastMessageId))
+                .Where(m => m.Id < lastMessageId)
                 .Skip(offset)
                 .Take(count)
                 .ToArray();

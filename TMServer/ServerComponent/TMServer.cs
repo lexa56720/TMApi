@@ -56,11 +56,14 @@ namespace TMServer.Servers
         }
         private void RegisterMessageMethods()
         {
-            ApiServer.RegisterPostHandler<MessageHistoryRequest, MessageHistoryResponse>
-                (MessagesHandler.GetMessages, RequestHeaders.GetLastMessages);
+            ApiServer.RegisterPostHandler<LastMessagesRequest, MessageHistoryResponse>
+                (MessagesHandler.GetMessagesByOffset, RequestHeaders.GetLastMessages);
 
             ApiServer.RegisterPostHandler<MessageSendRequest, Message>
               (MessagesHandler.NewMessage, RequestHeaders.SendMessage);
+
+            ApiServer.RegisterPostHandler<MessageHistoryRequest,MessageHistoryResponse>
+                (MessagesHandler.GetMessagesById,RequestHeaders.GetMessages);
         }
         private void RegisterUserMethods()
         {
