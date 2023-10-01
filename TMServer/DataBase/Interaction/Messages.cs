@@ -27,6 +27,8 @@ namespace TMServer.DataBase.Interaction
 
             return db.Messages
                 .Where(m => m.DestinationId == chatId)
+                .OrderByDescending(m => m.SendTime)
+                .ThenByDescending(m => m.Id)
                 .Skip(offset)
                 .Take(count)
                 .ToArray();
@@ -37,8 +39,8 @@ namespace TMServer.DataBase.Interaction
 
             return db.Messages
                 .Where(m => m.DestinationId == chatId)
-                .OrderBy(m => m.SendTime)
-                .ThenBy(m => m.Id)
+                .OrderByDescending(m => m.SendTime)
+                .ThenByDescending(m => m.Id)
                 .Where(m => m.Id < lastMessageId)
                 .Skip(offset)
                 .Take(count)
