@@ -1,5 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using ApiTypes.Communication.LongPolling;
+using Microsoft.EntityFrameworkCore;
 using TMServer.DataBase.Tables;
+using TMServer.DataBase.Tables.LongPolling;
 
 namespace TMServer.DataBase;
 
@@ -9,7 +11,6 @@ public partial class TmdbContext : DbContext
     {
 
     }
-
     public TmdbContext(DbContextOptions<TmdbContext> options)
         : base(options)
     {
@@ -17,24 +18,24 @@ public partial class TmdbContext : DbContext
     }
 
     public virtual DbSet<DBAes> AesCrypts { get; set; }
-
     public virtual DbSet<DBChat> Chats { get; set; }
-
     public virtual DbSet<DBFriend> Friends { get; set; }
-
     public virtual DbSet<DBMessage> Messages { get; set; }
-
     public virtual DbSet<DBRsa> RsaCrypts { get; set; }
-
     public virtual DbSet<DBToken> Tokens { get; set; }
-
     public virtual DbSet<DBUser> Users { get; set; }
-
     public virtual DbSet<DBChatInvite> ChatInvites { get; set; }
-
     public virtual DbSet<DBFriendRequest> FriendRequests { get; set; }
-
     public virtual DbSet<DBMessageMedia> MessageMedias { get; set; }
+
+
+    public virtual DbSet<DBLongPollRequest> LongPollRequests { get; set; }
+    public virtual DbSet<DBChatInviteUpdate> ChatInviteUpdates { get; set; }
+    public virtual DbSet<DBChatUpdate> ChatUpdates { get; set; }
+    public virtual DbSet<DBFriendRequestUpdate> FriendRequestUpdates { get; set; }
+    public virtual DbSet<DBFriendProfileUpdate> FriendProfileUpdates { get; set; }
+
+
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         => optionsBuilder.UseNpgsql(GlobalSettings.ConnectionString);
@@ -57,7 +58,6 @@ public partial class TmdbContext : DbContext
             entity.HasOne(e => e.User).WithMany(u => u.Crypts)
             .HasForeignKey(u => u.UserId);
         });
-
         modelBuilder.Entity<DBChat>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("chats_pkey");
@@ -77,7 +77,6 @@ public partial class TmdbContext : DbContext
             entity.HasMany(c => c.Messages).WithOne(m => m.Destination)
             .HasForeignKey(m => m.DestinationId);
         });
-
         modelBuilder.Entity<DBFriend>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("friends_pkey");
@@ -97,12 +96,11 @@ public partial class TmdbContext : DbContext
             .HasForeignKey(f => f.SenderId)
             .HasPrincipalKey(u => u.Id);
 
-            entity.HasOne(e => e.Dest)
+            entity.HasOne(e => e.Receiver)
             .WithMany(e => e.FriendsTwo)
             .HasForeignKey(f => f.DestId)
             .HasPrincipalKey(u => u.Id);
         });
-
         modelBuilder.Entity<DBMessage>(entity =>
         {
             entity.HasKey(e => e.Id)
@@ -135,7 +133,6 @@ public partial class TmdbContext : DbContext
                 .HasForeignKey(d => d.DestinationId)
                 .OnDelete(DeleteBehavior.ClientSetNull);
         });
-
         modelBuilder.Entity<DBRsa>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("rsa_pkey");
@@ -152,7 +149,6 @@ public partial class TmdbContext : DbContext
 
             entity.Property(e => e.CreateDate).HasColumnName("create_date");
         });
-
         modelBuilder.Entity<DBToken>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("tokens_pkey");
@@ -174,7 +170,6 @@ public partial class TmdbContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("tokens_userid_fkey");
         });
-
         modelBuilder.Entity<DBUser>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("users_pkey");
@@ -197,7 +192,6 @@ public partial class TmdbContext : DbContext
                 .HasMaxLength(512)
                 .HasColumnName("password");
         });
-
         modelBuilder.Entity<DBChatInvite>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("chat_invites_pkey");
@@ -219,7 +213,6 @@ public partial class TmdbContext : DbContext
             entity.HasOne(e => e.DestinationUser).WithOne()
             .HasForeignKey<DBChatInvite>(i => i.ToUserId);
         });
-
         modelBuilder.Entity<DBFriendRequest>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("friend_requests_pkey");
@@ -240,7 +233,6 @@ public partial class TmdbContext : DbContext
             entity.HasOne(e => e.UserTwo)
            .WithOne().HasForeignKey<DBFriendRequest>(r => r.UserTwoId);
         });
-
         modelBuilder.Entity<DBMessageMedia>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("message_medias_pkey");
@@ -251,6 +243,90 @@ public partial class TmdbContext : DbContext
 
             entity.Property(e=>e.Data).HasColumnName("data");
 
+        });
+
+
+        modelBuilder.Entity<DBLongPollRequest>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("longpoll_requests_pkey");
+            entity.ToTable("longpoll_requests");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.DataType).HasColumnName("data_type");
+            entity.Property(e => e.RequestPacket).HasColumnName("request_packet");
+            entity.Property(e => e.UserId).HasColumnName("user_id");
+
+            entity.HasOne(e => e.User)
+                  .WithOne()
+                  .HasForeignKey<DBLongPollRequest>(u => u.UserId);
+        });
+        modelBuilder.Entity<DBChatUpdate>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("chat_updates_pkey");
+            entity.ToTable("chat_updates");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.MessageId).HasColumnName("message_id");
+            entity.Property(e => e.UserId).HasColumnName("user_id");
+
+            entity.HasOne(e => e.User)
+                  .WithOne()
+                  .HasForeignKey<DBChatUpdate>(u => u.UserId);
+
+            entity.HasOne(e => e.Message)
+                  .WithOne()
+                  .HasForeignKey<DBChatUpdate>(u => u.MessageId);
+        });
+        modelBuilder.Entity<DBChatInviteUpdate>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("chat_invite_updates_pkey");
+            entity.ToTable("chat_invite_updates");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.ChatInviteId).HasColumnName("invite_id");
+            entity.Property(e => e.UserId).HasColumnName("user_id");
+
+            entity.HasOne(e => e.User)
+                  .WithOne()
+                  .HasForeignKey<DBChatInviteUpdate>(u => u.UserId);
+
+            entity.HasOne(e => e.Invite)
+                  .WithOne()
+                  .HasForeignKey<DBChatInviteUpdate>(u => u.ChatInviteId);
+        });
+        modelBuilder.Entity<DBFriendProfileUpdate>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("friend_profile_updates_pkey");
+            entity.ToTable("friend_profile_updates");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.FriendId).HasColumnName("friend_id");
+            entity.Property(e => e.UserId).HasColumnName("user_id");
+
+            entity.HasOne(e => e.User)
+                  .WithOne()
+                  .HasForeignKey<DBFriendProfileUpdate>(u => u.UserId);
+
+            entity.HasOne(e => e.Friend)
+                  .WithOne()
+                  .HasForeignKey<DBFriendProfileUpdate>(u => u.FriendId);
+        }); 
+        modelBuilder.Entity<DBFriendRequestUpdate>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("friend_request_updates_pkey");
+            entity.ToTable("friend_request_updates");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.RequestId).HasColumnName("request_id");
+            entity.Property(e => e.UserId).HasColumnName("user_id");
+
+            entity.HasOne(e => e.User)
+                  .WithOne()
+                  .HasForeignKey<DBFriendRequestUpdate>(u => u.UserId);
+
+            entity.HasOne(e => e.FriendRequest)
+                  .WithOne()
+                  .HasForeignKey<DBFriendRequestUpdate>(u => u.RequestId);
         });
 
         OnModelCreatingPartial(modelBuilder);

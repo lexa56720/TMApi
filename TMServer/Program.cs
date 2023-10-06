@@ -18,7 +18,7 @@ namespace TMServer
             var server = new Servers.TMServer(GlobalSettings.AuthPort, GlobalSettings.ApiPort,logger);
             server.Start();
 
-            var tokenCleaner = new TokenCleaner(TimeSpan.FromMinutes(5),logger);
+            var tokenCleaner = new TokenCleaner(TimeSpan.FromMinutes(15),logger);
             tokenCleaner.Start();
 
             Console.ReadLine();

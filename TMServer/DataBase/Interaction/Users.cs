@@ -11,7 +11,7 @@ namespace TMServer.DataBase.Interaction
             return db.Users
                 .Include(u => u.Chats)
                 .Include(u => u.FriendsTwo).ThenInclude(f=>f.Sender)
-                .Include(u => u.FriendsOne).ThenInclude(f => f.Dest)
+                .Include(u => u.FriendsOne).ThenInclude(f => f.Receiver)
                 .SingleOrDefault(u => u.Id == id);
         }
         public static DBUser? GetUserMain(int id)
@@ -52,6 +52,14 @@ namespace TMServer.DataBase.Interaction
                 return;
 
             user.Name = newName;
+            db.SaveChanges();
+        }
+
+        public static void UpdateLastRequest(int userId)
+        {
+            using var db = new TmdbContext();
+            var user = db.Users.Find(userId);
+            user.LastRequest = DateTime.UtcNow;
             db.SaveChanges();
         }
     }

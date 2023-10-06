@@ -6,15 +6,13 @@ using System.Threading.Tasks;
 
 namespace TMServer.DataBase.Tables.LongPolling
 {
-    public partial class DBLongPollRequest
+    public partial class DBFriendProfileUpdate
     {
         public int Id { get; set; }
         public required int UserId { get; set; }
-
-        public required string DataType { get; set; }
-
-        public required byte[] RequestPacket { get; set; }
+        public required int FriendId { get; set; }
 
         public virtual DBUser User { get; set; } = null!;
+        public virtual DBUser Friend { get; set; } = null!;
     }
 }

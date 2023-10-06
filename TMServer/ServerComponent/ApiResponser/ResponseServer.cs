@@ -76,6 +76,8 @@ namespace TMServer.ServerComponent.ApiResponser
             var isLegal = Security.IsTokenCorrect(request.Token, request.UserId);
             if (!isLegal)
                 Logger.Log($"illegal request from {request.UserId}");
+            else
+                Users.UpdateLastRequest(request.UserId);
             return isLegal;
         }
     }

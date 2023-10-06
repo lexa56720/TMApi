@@ -48,7 +48,7 @@ namespace TMServer.ServerComponent.LongPolling
             using var ms = new MemoryStream(data.RequestPacket);
             throw new NotImplementedException();
         }
-        public void Response(int userId)
+        public void Respond(int userId)
         {
             var packet = LoadFromDB(userId);
             var requestContainer = packet.DataObj as IRequestContainer;
@@ -56,12 +56,13 @@ namespace TMServer.ServerComponent.LongPolling
             Responder.ResponseManually(requestContainer, packet, new Notification());
         }
 
-
         private bool IsRequestLegal<T>(ApiData<T> request) where T : ISerializable<T>
         {
             var isLegal = Security.IsTokenCorrect(request.Token, request.UserId);
             if (!isLegal)
                 Logger.Log($"illegal request from {request.UserId}");
+            else
+                Users.UpdateLastRequest(request.UserId);
             return isLegal;
         }
     }

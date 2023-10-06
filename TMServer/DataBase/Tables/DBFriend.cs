@@ -8,5 +8,5 @@ public partial class DBFriend
 
     public virtual DBUser Sender { get; set; } = null!;
 
-    public virtual DBUser Dest { get; set; } = null!;
+    public virtual DBUser Receiver { get; set; } = null!;
 }
