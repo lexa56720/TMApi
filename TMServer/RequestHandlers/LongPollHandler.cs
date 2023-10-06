@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TMServer.DataBase.Tables;
+using TMServer.DataBase.Tables.LongPolling;
 
 namespace TMServer.RequestHandlers
 {
@@ -21,7 +21,7 @@ namespace TMServer.RequestHandlers
         {
             throw new NotImplementedException();
         }
-        public static DBLongPoll LoadFromDB(int userId)
+        public static DBLongPollRequest LoadFromDB(int userId)
         {
             throw new NotImplementedException();
         }

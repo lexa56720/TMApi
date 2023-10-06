@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TMServer.DataBase.Tables
+namespace TMServer.DataBase.Tables.LongPolling
 {
-    internal class DBLongPoll
+    internal class DBLongPollRequest
     {
         public DateTime RequestTime { get; set; }
 

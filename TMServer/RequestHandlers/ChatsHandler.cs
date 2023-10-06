@@ -10,7 +10,7 @@ namespace TMServer.RequestHandlers
     {
         public static Chat? CreateChat(ApiData<ChatCreationRequest> request)
         {
-            if (!Chats.IsCanCreate(request.UserId, request.Data.Members))
+            if (!Security.IsCanCreateChat(request.UserId, request.Data.Members))
                 return null;
 
             var members = new List<int>(request.Data.Members);
@@ -33,7 +33,7 @@ namespace TMServer.RequestHandlers
 
         public static Chat? GetChat(ApiData<IntContainer> request)
         {
-            if (!Chats.IsHaveAccess(request.Data.Value, request.UserId))
+            if (!Security.IsHaveAccessToChat(request.Data.Value, request.UserId))
                 return null;
 
             var chat = Chats.GetChat(request.Data.Value);
@@ -51,7 +51,7 @@ namespace TMServer.RequestHandlers
         }
         public static SerializableArray<Chat> GetChats(ApiData<IntArrayContainer> request)
         {
-            if (!request.Data.Values.Select(v => Chats.IsHaveAccess(v, request.UserId)).All(a => a))
+            if (!request.Data.Values.Select(v => Security.IsHaveAccessToChat(v, request.UserId)).All(a => a))
                 return new SerializableArray<Chat>(Array.Empty<Chat>());
 
             var chats = Chats.GetChat(request.Data.Values);
@@ -71,7 +71,7 @@ namespace TMServer.RequestHandlers
 
         public static void SendChatInvite(ApiData<ChatInvite> request)
         {
-            if (!Chats.IsCanInvite(request.UserId, request.Data.ToUserId, request.Data.ChatId))
+            if (!Security.IsCanInviteToChat(request.UserId, request.Data.ToUserId, request.Data.ChatId))
                 return;
 
             Chats.InviteToChat(request.UserId, request.Data.ToUserId, request.Data.ChatId);

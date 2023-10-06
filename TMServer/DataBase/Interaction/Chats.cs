@@ -33,7 +33,7 @@ namespace TMServer.DataBase.Interaction
         {
             using var db = new TmdbContext();
 
-            if (!IsCanInvite(inviterId, userId, chatId))
+            if (!Security.IsCanInviteToChat(inviterId, userId, chatId))
                 return;
 
             db.ChatInvites.Add(new DBChatInvite()
@@ -112,56 +112,6 @@ namespace TMServer.DataBase.Interaction
             using var db = new TmdbContext();
             return db.ChatInvites.Where(i => i.ToUserId == userId)
                                  .Select(i => i.Id).ToArray();
-        }
-        public static bool IsHaveAccess(int chatId, int userId)
-        {
-            using var db = new TmdbContext();
-
-            return IsMemberOfChat(userId, chatId) || IsInvited(userId, chatId);
-        }
-        public static bool IsInvited(int userId, int chatId)
-        {
-            using var db = new TmdbContext();
-
-            return db.ChatInvites.Any(i => i.ToUserId == userId && i.ChatId == chatId);
-        }
-        public static bool IsMemberOfChat(int userId, int chatId)
-        {
-            using var db = new TmdbContext();
-
-            return db.Chats.Include(c => c.Members)
-                .Any(c => c.Id == chatId && c.Members.Any(m => m.Id == userId));
-        }
-        public static bool IsCanInvite(int inviterId, int userId, int chatId)
-        {
-            using var db = new TmdbContext();
-
-            bool isFriends = db.Friends
-                .SingleOrDefault(f => f.SenderId == inviterId && f.DestId == userId
-                                   || f.SenderId == userId && f.DestId == inviterId) != null;
-
-            bool isInviterInChat = db.Chats.Include(c => c.Members).Any(c => c.Id == chatId && c.Members.Any(m => m.Id == inviterId));
-            bool isAlreadyInvited = IsInvited(userId, chatId);
-            bool isUserInChat = db.Chats.Include(c => c.Members).Any(c => c.Id == chatId && c.Members.Any(m => m.Id == userId));
-
-            return isInviterInChat && !isAlreadyInvited && isUserInChat && isFriends;
-        }
-        public static bool IsCanCreate(int userId, int[] memberIds)
-        {
-            using var db = new TmdbContext();
-            var user = db.Users
-                  .Include(u => u.FriendsOne)
-                  .Include(u => u.FriendsTwo)
-                  .SingleOrDefault(u => u.Id == userId);
-
-            if (user == null)
-                return false;
-
-            for (int i = 0; i < memberIds.Length; i++)
-                if (!user.Friends.Any(u => u.Id == memberIds[i]))
-                    return false;
-
-            return true;
         }
     }
 }

@@ -12,7 +12,7 @@ namespace TMServer.RequestHandlers
         public static Message? NewMessage(ApiData<MessageSendRequest> message)
         {
             if (DataConstraints.IsMessageLegal(message.Data.Text) &&
-                Chats.IsMemberOfChat(message.UserId, message.Data.DestinationId))
+               Security.IsMemberOfChat(message.UserId, message.Data.DestinationId))
             {
                 var dbMessage = Messages.AddMessage(message.UserId, message.Data.Text, message.Data.DestinationId);
 
@@ -22,7 +22,7 @@ namespace TMServer.RequestHandlers
         }
         public static MessageHistoryResponse? GetMessagesByOffset(ApiData<LastMessagesRequest> request)
         {
-            if (!Chats.IsMemberOfChat(request.UserId, request.Data.ChatId))
+            if (!Security.IsMemberOfChat(request.UserId, request.Data.ChatId))
                 return null;
 
             var dbMessages = Messages.GetMessages
@@ -35,7 +35,7 @@ namespace TMServer.RequestHandlers
         }
         public static MessageHistoryResponse? GetMessagesById(ApiData<MessageHistoryRequest> request)
         {
-            if (!Chats.IsMemberOfChat(request.UserId, request.Data.ChatId))
+            if (!Security.IsMemberOfChat(request.UserId, request.Data.ChatId))
                 return null;
 
             var dbMessages = Messages.GetMessages

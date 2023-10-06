@@ -21,7 +21,7 @@ namespace TMServer.ServerComponent.ApiResponser
         public IEncrypter? GetDecrypter(IPacketInfo packet)
         {
             var cryptId = ((ITMPacket)packet).Id.InstanceValue;
-            var key = Security.GetAesKey(cryptId);
+            var key = Crypt.GetAesKey(cryptId);
             if (key == null)
                 return null;
             return new AesEncrypter(key);
@@ -30,7 +30,7 @@ namespace TMServer.ServerComponent.ApiResponser
         public IEncrypter? GetEncrypter(IPacketInfo packet)
         {
             var cryptId = ((ITMPacket)packet.InfoObj).Id.InstanceValue;
-            var key = Security.GetAesKey(cryptId); 
+            var key = Crypt.GetAesKey(cryptId); 
             if (key == null)
                 return null;
             return new AesEncrypter(key);

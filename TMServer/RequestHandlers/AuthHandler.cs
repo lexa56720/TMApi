@@ -18,7 +18,7 @@ namespace TMServer.RequestHandlers
             using RsaEncrypter encrypter = new RsaEncrypter();
             var serverKey = encrypter.PublicKey;
 
-            var id = Security.SaveRsaKeyPair(encrypter.PrivateKey, clientKey.Key);
+            var id = Crypt.SaveRsaKeyPair(encrypter.PrivateKey, clientKey.Key);
             return new RsaPublicKey(serverKey, id);
         }
 
@@ -73,7 +73,7 @@ namespace TMServer.RequestHandlers
 
         public static AuthorizationResponse UpdateAuth(ApiData<AuthUpdateRequest> request)
         {
-            Security.SetDeprecated(request.CryptId);
+            Crypt.SetDeprecated(request.CryptId);
             var newAuth = GetAuthData(request.UserId);
             return newAuth;
         }
