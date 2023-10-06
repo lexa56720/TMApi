@@ -135,7 +135,7 @@ namespace TMServer.Servers
             base.Start();
             AuthServer.Start();
             ApiServer.Start();
-            Logger.Log("server started");
+
         }
 
         public override void Stop()
@@ -143,7 +143,6 @@ namespace TMServer.Servers
             base.Stop();
             AuthServer.Stop();
             ApiServer.Stop();
-            Logger.Log("server stoped");
         }
 
     }

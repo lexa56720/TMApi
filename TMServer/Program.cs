@@ -21,6 +21,9 @@ namespace TMServer
             var tokenCleaner = new TokenCleaner(TimeSpan.FromMinutes(15),logger);
             tokenCleaner.Start();
 
+            var keyCleaner=new KeyCleaner(TimeSpan.FromMinutes(15),logger); 
+            keyCleaner.Start();
+
             Console.ReadLine();
         }
     }

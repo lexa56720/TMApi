@@ -52,7 +52,6 @@ public partial class TmdbContext : DbContext
                 .HasMaxLength(32)
                 .HasColumnName("aes_key");
 
-            entity.Property(e => e.IsDeprecated).HasColumnName("is_depricated");
             entity.Property(e => e.DeprecatedDate).HasColumnName("depricated_date");
 
             entity.HasOne(e => e.User).WithMany(u => u.Crypts)
@@ -147,7 +146,7 @@ public partial class TmdbContext : DbContext
                 .HasMaxLength(1024)
                 .HasColumnName("public_client_key");
 
-            entity.Property(e => e.CreateDate).HasColumnName("create_date");
+            entity.Property(e => e.Expiration).HasColumnName("expiration_date");
         });
         modelBuilder.Entity<DBToken>(entity =>
         {

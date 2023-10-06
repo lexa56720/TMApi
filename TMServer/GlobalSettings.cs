@@ -10,25 +10,36 @@ namespace TMServer
 {
     internal static class GlobalSettings
     {
-        public static int AuthPort;
+        public static int AuthPort { get; set; }
 
-        public static int ApiPort;
+        public static int ApiPort { get; set; }
 
-        public static string ConnectionString;
+        public static TimeSpan TokenLifeTime { get; set; }
 
-        public static string PasswordSalt;
+        public static TimeSpan RsaLifeTime { get; set; }
 
-        public static int Version;
+
+        public static string ConnectionString { get; set; }
+
+        public static string PasswordSalt { get; set; }
+
+        public static int Version { get; set; }
         static GlobalSettings()
+        {
+            Reload();
+        }
+
+        public static void Reload()
         {
             Configurator configurator = new Configurator("config.cfg", false);
             AuthPort = configurator.GetValue<int>("auth-port");
             ApiPort = configurator.GetValue<int>("api-port");
             ConnectionString = configurator["connection-string"];
+            TokenLifeTime = TimeSpan.FromHours(configurator.GetValue<int>("token-lifetime-hours"));
+            RsaLifeTime = TimeSpan.FromHours(configurator.GetValue<int>("rsa-key-lifetime-hours"));
             PasswordSalt = configurator["password-salt"];
-            Version = GetVersion( configurator["version"]);
+            Version = GetVersion(configurator["version"]);
         }
-
         private static int GetVersion(string ver)
         {
             var versionComponents = Regex.Replace(ver, "[^0-9.]", "").Split('.', StringSplitOptions.TrimEntries);

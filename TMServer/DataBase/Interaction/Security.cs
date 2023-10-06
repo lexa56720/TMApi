@@ -60,7 +60,7 @@ namespace TMServer.DataBase.Interaction
                 return false;
 
             for (int i = 0; i < memberIds.Length; i++)
-                if (!user.Friends.Any(u => u.Id == memberIds[i]))
+                if (!user.GetFriends().Any(u => u.Id == memberIds[i]))
                     return false;
 
             return true;

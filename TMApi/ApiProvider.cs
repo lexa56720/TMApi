@@ -47,7 +47,7 @@ namespace TMApi
             });
 
 
-            if (registerResult.IsAccepted)
+            if (registerResult !=null && registerResult.IsAccepted)
                 return await Login(login, password, inputDecoder, outputEncoder);
 
             return null;

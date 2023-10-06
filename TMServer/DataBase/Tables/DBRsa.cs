@@ -8,6 +8,6 @@ public partial class DBRsa
 
     public required string PrivateServerKey { get; set; }
 
-    public required DateTime CreateDate { get; set; }
+    public required DateTime Expiration { get; set; }
 
 }

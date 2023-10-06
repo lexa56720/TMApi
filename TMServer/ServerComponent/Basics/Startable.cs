@@ -2,7 +2,7 @@
 {
     internal abstract class Startable
     {
-        public virtual bool IsRunning { get; private set; }
+        public virtual bool IsRunning { get; protected set; }
 
         public virtual void Start()
         {

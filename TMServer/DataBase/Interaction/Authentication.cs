@@ -34,12 +34,7 @@ namespace TMServer.DataBase.Interaction
             db.Users.Add(user);
             db.SaveChanges();
 
-            db.AesCrypts.Add(new DBAes()
-            {
-                AesKey = aesKey,
-                UserId = user.Id,
-            });
-            db.SaveChanges();
+            AddAes(user.Id, aesKey);
         }
 
         public static int SaveAuth(int userId, byte[] aesKey, string token, DateTime expiration)
@@ -54,8 +49,8 @@ namespace TMServer.DataBase.Interaction
             var aes = new DBAes()
             {
                 AesKey = aesKey,
-                UserId = userId,
                 DeprecatedDate = DateTime.MaxValue,
+                UserId = userId,
             };
             db.AesCrypts.Add(aes);
             db.SaveChanges();

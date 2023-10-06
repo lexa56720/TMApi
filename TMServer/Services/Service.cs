@@ -20,10 +20,12 @@ namespace TMServer.Services
         }
 
         public override void Start()
-        {
+        {      
             if (IsRunning)
                 return;
-            base.Start();
+            IsRunning = true;
+            Logger.Log($"{this.GetType().Name} started");
+
             Task.Run(async () =>
             {
                 while (IsRunning)
@@ -33,6 +35,12 @@ namespace TMServer.Services
                     await timer;
                 }
             });
+        }
+
+        public override void Stop()
+        {
+            base.Stop();
+            Logger.Log($"{this.GetType().Name} stopped");
         }
 
         protected abstract Task Work(ILogger logger);

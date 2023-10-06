@@ -11,14 +11,14 @@ namespace TMServer.RequestHandlers
 {
     internal static class AuthHandler
     {
-        private static TimeSpan TokenLife = TimeSpan.FromDays(3);
-
         public static RsaPublicKey RsaKeyTrade(RsaPublicKey clientKey, IPacketInfo info)
         {
             using RsaEncrypter encrypter = new RsaEncrypter();
             var serverKey = encrypter.PublicKey;
 
-            var id = Crypt.SaveRsaKeyPair(encrypter.PrivateKey, clientKey.Key);
+            var id = Crypt.SaveRsaKeyPair(encrypter.PrivateKey,clientKey.Key, 
+                                          DateTime.UtcNow + GlobalSettings.RsaLifeTime);
+
             return new RsaPublicKey(serverKey, id);
         }
 
@@ -37,7 +37,7 @@ namespace TMServer.RequestHandlers
         {
             var token = HashGenerator.GetRandomString();
             var aesCrypter = new AesEncrypter();
-            var expiration = DateTime.UtcNow.Add(TokenLife);
+            var expiration = DateTime.UtcNow.Add(GlobalSettings.TokenLifeTime);
 
             var cryptId = Authentication.SaveAuth(userId, aesCrypter.Key, token, expiration);
 
@@ -54,13 +54,13 @@ namespace TMServer.RequestHandlers
 
         public static RequestResponse Register(RegisterRequest request)
         {
-            var isSuccsessful = DataConstraints.IsLoginLegal(request.Login)
-                             && Authentication.IsLoginAvailable(request.Login);
+            var isSuccsessful = DataConstraints.IsLoginLegal(request.Login) &&
+                                Authentication.IsLoginAvailable(request.Login);
 
             if (isSuccsessful)
             {
                 using var aes = new AesEncrypter();
-                Authentication.CreateUser(request.Username,request.Login, request.Password, aes.Key);
+                Authentication.CreateUser(request.Username, request.Login, request.Password, aes.Key);
             }
 
             return new RequestResponse(isSuccsessful);

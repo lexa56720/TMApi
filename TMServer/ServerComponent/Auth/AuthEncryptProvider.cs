@@ -39,11 +39,9 @@ namespace TMServer.ServerComponent.Auth
             return rsaDecrypter;
         }
 
-        private DBRsa GetKeys(IPacketInfo packet)
+        private DBRsa? GetKeys(IPacketInfo packet)
         {
-            var rsa = Crypt.GetRsaKeysById(((ITMPacket)packet).Id.InstanceValue);
-            ArgumentNullException.ThrowIfNull(rsa);
-            return rsa;
+            return Crypt.GetRsaKeysById(((ITMPacket)packet).Id.InstanceValue);
         }
         private bool IsInitPacket(IPacketInfo packet)
         {

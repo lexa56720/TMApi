@@ -9,7 +9,7 @@ namespace TMServer.DataBase.Interaction
 {
     internal static class Crypt
     {
-        public static int SaveRsaKeyPair(string serverPrivateKey, string clientPublicKey)
+        public static int SaveRsaKeyPair(string serverPrivateKey, string clientPublicKey, DateTime expiration)
         {
             using var db = new TmdbContext();
 
@@ -17,7 +17,7 @@ namespace TMServer.DataBase.Interaction
             {
                 PrivateServerKey = serverPrivateKey,
                 PublicClientKey = clientPublicKey,
-                CreateDate = DateTime.UtcNow,
+                Expiration = expiration,
             };
             db.RsaCrypts.Add(rsa);
             db.SaveChanges();
@@ -28,7 +28,8 @@ namespace TMServer.DataBase.Interaction
         public static DBRsa? GetRsaKeysById(int rsaId)
         {
             using var db = new TmdbContext();
-            return db.RsaCrypts.Find(rsaId);
+            var now = DateTime.UtcNow;
+            return db.RsaCrypts.SingleOrDefault(rsa => rsa.Id == rsaId && rsa.Expiration > now);
         }
 
         public static void SetDeprecated(int cryptId)
@@ -38,10 +39,7 @@ namespace TMServer.DataBase.Interaction
             var aes = db.AesCrypts.Find(cryptId);
 
             if (aes != null)
-            {
-                aes.IsDeprecated = true;
-                aes.DeprecatedDate = DateTime.UtcNow;
-            }
+                aes.DeprecatedDate = DateTime.UtcNow+TimeSpan.FromHours(1);
 
             db.SaveChanges();
         }
@@ -50,8 +48,8 @@ namespace TMServer.DataBase.Interaction
         {
             using var db = new TmdbContext();
 
-            var dbAes = db.AesCrypts.SingleOrDefault(a => 
-            a.Id == cryptId && a.IsDeprecated==false);
+            var dbAes = db.AesCrypts.SingleOrDefault(a =>
+            a.Id == cryptId && a.DeprecatedDate>DateTime.UtcNow);
             if (dbAes == null)
                 return null;
 

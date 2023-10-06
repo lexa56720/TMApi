@@ -34,10 +34,12 @@ namespace TMServer.ServerComponent.Basics
             base.Start();
 
             Responder.Start();
+            Logger.Log($"{GetType().Name} started");
         }
         public override void Stop()
         {
-            Responder.Stop();
+            Responder.Stop(); 
+            Logger.Log($"{GetType().Name} stopped");
         }
 
 

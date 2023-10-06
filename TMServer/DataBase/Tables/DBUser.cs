@@ -23,11 +23,9 @@ public partial class DBUser
 
     public virtual ICollection<DBChat> Chats { get; set; } = new List<DBChat>();
 
-    public DBFriend[] Friends => FriendsOne.Concat(FriendsTwo).ToArray();
     public virtual ICollection<DBFriend> FriendsOne { get; set; } = new List<DBFriend>();
 
     public virtual ICollection<DBFriend> FriendsTwo { get; set; } = new List<DBFriend>();
-
 
     public IEnumerable<DBUser> GetFriends()
     {
