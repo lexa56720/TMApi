@@ -1,5 +1,6 @@
 ﻿using ApiTypes.Communication.LongPolling;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using TMServer.DataBase.Tables;
 using TMServer.DataBase.Tables.LongPolling;
 
@@ -9,12 +10,14 @@ public partial class TmdbContext : DbContext
 {
     public TmdbContext()
     {
-
     }
+
+
+
     public TmdbContext(DbContextOptions<TmdbContext> options)
         : base(options)
     {
-       
+
     }
 
     public virtual DbSet<DBAes> AesCrypts { get; set; }
@@ -238,9 +241,9 @@ public partial class TmdbContext : DbContext
             entity.ToTable("message_medias");
             entity.Property(e => e.Id).HasColumnName("id");
 
-            entity.Property(e=>e.MediaType).HasColumnName("type");
+            entity.Property(e => e.MediaType).HasColumnName("type");
 
-            entity.Property(e=>e.Data).HasColumnName("data");
+            entity.Property(e => e.Data).HasColumnName("data");
 
         });
 
@@ -309,7 +312,7 @@ public partial class TmdbContext : DbContext
             entity.HasOne(e => e.Friend)
                   .WithOne()
                   .HasForeignKey<DBFriendProfileUpdate>(u => u.FriendId);
-        }); 
+        });
         modelBuilder.Entity<DBFriendRequestUpdate>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("friend_request_updates_pkey");
@@ -330,6 +333,25 @@ public partial class TmdbContext : DbContext
 
         OnModelCreatingPartial(modelBuilder);
     }
+
+    public override int SaveChanges()
+    {
+        var isHasChanges = ChangeTracker.HasChanges();
+
+        var changes = GetChangedEntities(isHasChanges);
+
+        var value = base.SaveChanges();
+        if (isHasChanges)
+           DBChangeHandler.HandleChanges(changes);
+        return value;
+    }
+
+    private (EntityEntry, EntityState)[] GetChangedEntities(bool isHasChanges)
+    {
+        var entries = ChangeTracker.Entries();
+        return entries.Select(e => (e, e.State)).ToArray();
+    }
+
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }

@@ -19,10 +19,12 @@ namespace TMServer.ServerComponent.LongPolling
 {
     internal class LongPollingServer : Server
     {
-        public LongPollingServer(int port, IEncryptProvider twoWayProvider, ILogger logger) : base(port, twoWayProvider, logger)
+        public LongPollingServer(int port, IEncryptProvider twoWayProvider, ILogger logger) 
+                          : base(port, twoWayProvider, logger)
         {
             Responder.ResponseIfNull = false;
-            Responder.RegisterPostHandler<ApiData<LongPollingRequest>, Notification>(LongPollArrived);
+            Responder.RegisterPostHandler
+                      <ApiData<LongPollingRequest>, Notification>(LongPollArrived);
         }
 
 
@@ -33,27 +35,19 @@ namespace TMServer.ServerComponent.LongPolling
 
             var packet = info as IPacket;
 
-            SaveToDB(request.UserId, packet);
+            LongPollHandler.SaveToDB(request.UserId, packet);
             return null;
         }
-        private void SaveToDB(int userId, IPacket packet)
-        {
-            using var ms = new MemoryStream();
-            packet.Serialize(new BinaryWriter(ms));
-            LongPollHandler.SaveToDB(userId, ms.ToArray());
-        }
-        private IPacket LoadFromDB(int userId)
-        {
-            var data = LongPollHandler.LoadFromDB(userId);
-            using var ms = new MemoryStream(data.RequestPacket);
-            throw new NotImplementedException();
-        }
+
         public void Respond(int userId)
         {
-            var packet = LoadFromDB(userId);
+            var packet = LongPollHandler.LoadFromDB(userId);
+            var notification = LongPollHandler.GetUpdates(userId);
+            if (packet == null)
+                return;
             var requestContainer = packet.DataObj as IRequestContainer;
 
-            Responder.ResponseManually(requestContainer, packet, new Notification());
+            Responder.ResponseManually(requestContainer, packet, notification);
         }
 
         private bool IsRequestLegal<T>(ApiData<T> request) where T : ISerializable<T>

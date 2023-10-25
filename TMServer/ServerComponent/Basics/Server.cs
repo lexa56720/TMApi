@@ -7,7 +7,6 @@ namespace TMServer.ServerComponent.Basics
 {
     internal abstract class Server : Startable, IDisposable
     {
-
         protected Responder Responder { get; set; }
         protected ILogger Logger { get; }
 

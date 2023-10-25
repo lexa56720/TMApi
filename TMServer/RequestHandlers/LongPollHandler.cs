@@ -1,29 +1,40 @@
 ﻿using ApiTypes;
 using ApiTypes.Communication.LongPolling;
+using CSDTP.Packets;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TMServer.DataBase.Interaction;
 using TMServer.DataBase.Tables.LongPolling;
 
 namespace TMServer.RequestHandlers
 {
     internal class LongPollHandler
     {
-        public static Notification GetUpdates(ApiData<LongPollingRequest> request)
+        public static Notification GetUpdates(int userId)
         {
-            var n = new Notification();
-            return n;
+            return new Notification()
+            {
+                MessagesIds = LongPolling.GetChatUpdate(userId),
+            };
         }
 
-        public static void SaveToDB(int userId,byte[] bytes)
+        public static void SaveToDB(int userId, IPacket packet)
         {
-            throw new NotImplementedException();
+            using var ms = new MemoryStream();
+            using var bw = new BinaryWriter(ms);
+            packet.Serialize(bw);
+            LongPolling.SaveRequest(userId, ms.ToArray(), packet.GetType().AssemblyQualifiedName);
         }
-        public static DBLongPollRequest LoadFromDB(int userId)
+        public static IPacket? LoadFromDB(int userId)
         {
-            throw new NotImplementedException();
+            var data = LongPolling.LoadRequest(userId);
+            using var ms = new MemoryStream(data.RequestPacket);
+            using var br = new BinaryReader(ms);
+            var packet = Activator.CreateInstance(Type.GetType(data.DataType)) as IPacket;
+            return packet.Deserialize(br);
         }
     }
 }
