@@ -14,8 +14,11 @@ namespace TMServer
 
         public static int ApiPort { get; set; }
 
-        public static TimeSpan TokenLifeTime { get; set; }
+        public static int LongPollPort { get; set; }
 
+
+        public static TimeSpan LongPollLifeTime { get; set; }
+        public static TimeSpan TokenLifeTime { get; set; }
         public static TimeSpan RsaLifeTime { get; set; }
 
 
@@ -32,11 +35,16 @@ namespace TMServer
         public static void Reload()
         {
             Configurator configurator = new Configurator("config.cfg", false);
+
             AuthPort = configurator.GetValue<int>("auth-port");
             ApiPort = configurator.GetValue<int>("api-port");
-            ConnectionString = configurator["connection-string"];
+            LongPollPort = configurator.GetValue<int>("long-poll-port");
+
+            LongPollLifeTime = TimeSpan.FromSeconds(configurator.GetValue<int>("long-poll-lifetime-seconds"));
             TokenLifeTime = TimeSpan.FromHours(configurator.GetValue<int>("token-lifetime-hours"));
             RsaLifeTime = TimeSpan.FromHours(configurator.GetValue<int>("rsa-key-lifetime-hours"));
+
+            ConnectionString = configurator["connection-string"];
             PasswordSalt = configurator["password-salt"];
             Version = GetVersion(configurator["version"]);
         }

@@ -9,6 +9,8 @@ namespace TMServer.DataBase.Tables.LongPolling
     public partial class DBLongPollRequest
     {
         public int Id { get; set; }
+
+        public required DateTime CreateDate { get; set; }
         public required int UserId { get; set; }
 
         public required string DataType { get; set; }

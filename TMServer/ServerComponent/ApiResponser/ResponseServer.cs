@@ -67,18 +67,9 @@ namespace TMServer.ServerComponent.ApiResponser
                 return (U?)((Delegate)handler).Method.Invoke(handler, new object[] { request });
             }
 
-
             return default;
         }
 
-        private bool IsRequestLegal<T>(ApiData<T> request) where T : ISerializable<T>
-        {
-            var isLegal = Security.IsTokenCorrect(request.Token, request.UserId);
-            if (!isLegal)
-                Logger.Log($"illegal request from {request.UserId}");
-            else
-                Users.UpdateLastRequest(request.UserId);
-            return isLegal;
-        }
+
     }
 }

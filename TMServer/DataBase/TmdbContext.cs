@@ -12,8 +12,6 @@ public partial class TmdbContext : DbContext
     {
     }
 
-
-
     public TmdbContext(DbContextOptions<TmdbContext> options)
         : base(options)
     {
@@ -254,6 +252,7 @@ public partial class TmdbContext : DbContext
             entity.ToTable("longpoll_requests");
 
             entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.CreateDate).HasColumnName("create_date");
             entity.Property(e => e.DataType).HasColumnName("data_type");
             entity.Property(e => e.RequestPacket).HasColumnName("request_packet");
             entity.Property(e => e.UserId).HasColumnName("user_id");
@@ -342,7 +341,7 @@ public partial class TmdbContext : DbContext
 
         var value = base.SaveChanges();
         if (isHasChanges)
-           DBChangeHandler.HandleChanges(changes);
+            DBChangeHandler.HandleChanges(changes);
         return value;
     }
 

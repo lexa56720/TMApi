@@ -17,5 +17,6 @@ namespace TMApi
                 IdHolder.Value = value;
             }
         }
+        public static TimeSpan LongPollPeriod => TimeSpan.FromSeconds(60);
     }
 }

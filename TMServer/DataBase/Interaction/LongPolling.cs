@@ -29,6 +29,7 @@ namespace TMServer.DataBase.Interaction
             db.LongPollRequests.Add(new DBLongPollRequest()
             {
                 RequestPacket = data,
+                CreateDate=DateTime.Now,
                 UserId = userId,
                 DataType = dataType
             });

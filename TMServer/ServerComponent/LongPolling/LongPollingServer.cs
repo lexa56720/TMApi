@@ -20,7 +20,7 @@ namespace TMServer.ServerComponent.LongPolling
     internal class LongPollingServer : Server
     {
         public LongPollingServer(int port, IEncryptProvider twoWayProvider, ILogger logger) 
-                          : base(port, twoWayProvider, logger)
+                              : base(port, twoWayProvider, logger)
         {
             Responder.ResponseIfNull = false;
             Responder.RegisterPostHandler
@@ -50,14 +50,5 @@ namespace TMServer.ServerComponent.LongPolling
             Responder.ResponseManually(requestContainer, packet, notification);
         }
 
-        private bool IsRequestLegal<T>(ApiData<T> request) where T : ISerializable<T>
-        {
-            var isLegal = Security.IsTokenCorrect(request.Token, request.UserId);
-            if (!isLegal)
-                Logger.Log($"illegal request from {request.UserId}");
-            else
-                Users.UpdateLastRequest(request.UserId);
-            return isLegal;
-        }
     }
 }

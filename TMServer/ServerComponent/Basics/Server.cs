@@ -1,6 +1,9 @@
-﻿using ApiTypes.Communication.Packets;
+﻿using ApiTypes;
+using ApiTypes.Communication.Packets;
+using CSDTP;
 using CSDTP.Cryptography.Providers;
 using CSDTP.Requests;
+using TMServer.DataBase.Interaction;
 using TMServer.Logger;
 
 namespace TMServer.ServerComponent.Basics
@@ -40,7 +43,15 @@ namespace TMServer.ServerComponent.Basics
             Responder.Stop(); 
             Logger.Log($"{GetType().Name} stopped");
         }
-
+        protected virtual bool IsRequestLegal<T>(ApiData<T> request) where T : ISerializable<T>
+        {
+            var isLegal = Security.IsTokenCorrect(request.Token, request.UserId);
+            if (!isLegal)
+                Logger.Log($"illegal request from {request.UserId}");
+            else
+                Users.UpdateLastRequest(request.UserId);
+            return isLegal;
+        }
 
     }
 }

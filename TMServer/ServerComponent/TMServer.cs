@@ -13,6 +13,7 @@ using TMServer.RequestHandlers;
 using TMServer.ServerComponent.ApiResponser;
 using TMServer.ServerComponent.Auth;
 using TMServer.ServerComponent.Basics;
+using TMServer.ServerComponent.LongPolling;
 
 namespace TMServer.Servers
 {
@@ -21,12 +22,17 @@ namespace TMServer.Servers
         private AuthorizationServer AuthServer { get; set; }
 
         private ResponseServer ApiServer { get; set; }
+
+        private LongPollingServer LongPollServer { get; set; }
+
         private ILogger Logger { get; }
 
-        public TMServer(int authPort, int responsePort, ILogger logger)
+        public TMServer(int authPort, int responsePort,int longPollPort ,ILogger logger)
         {
             AuthServer = new AuthorizationServer(authPort, new AuthEncryptProvider(), logger);
             ApiServer = new ResponseServer(responsePort, new ApiEncryptProvider(), logger);
+            LongPollServer = new LongPollingServer(longPollPort, new ApiEncryptProvider(), logger);
+
             RegisterAuthMethods();
             RegisterApiMethods();
             Logger = logger;
@@ -35,6 +41,7 @@ namespace TMServer.Servers
         {
             AuthServer.Dispose();
             ApiServer.Dispose();
+            LongPollServer.Dispose();
         }
         private void RegisterAuthMethods()
         {
@@ -43,7 +50,6 @@ namespace TMServer.Servers
             AuthServer.Register<RegisterRequest, RequestResponse>(AuthHandler.Register);
             AuthServer.Register<VersionRequest, IntContainer>(e => AuthHandler.GetVersion());
         }
-
         private void RegisterApiMethods()
         {
             ApiServer.RegisterPostHandler<AuthUpdateRequest, AuthorizationResponse>
@@ -133,9 +139,12 @@ namespace TMServer.Servers
         public override void Start()
         {
             base.Start();
+
             AuthServer.Start();
             ApiServer.Start();
+            LongPollServer.Start();
 
+            Logger.Log("\nServer is ready\n");
         }
 
         public override void Stop()
@@ -143,7 +152,9 @@ namespace TMServer.Servers
             base.Stop();
             AuthServer.Stop();
             ApiServer.Stop();
-        }
+            LongPollServer.Stop();
 
+            Logger.Log("\n Server is down");
+        }
     }
 }

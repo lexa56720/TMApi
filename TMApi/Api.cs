@@ -77,7 +77,6 @@ namespace TMApi
         {
             LongPolling.Start();
         }
-
         public void StopLongPolling()
         {
             LongPolling.Stop();
@@ -91,6 +90,7 @@ namespace TMApi
             Chats.Dispose();
             Friends.Dispose();
             Auth.Dispose();
+
             LongPolling.StateUpdated -= OnUpdateArrived;
             LongPolling.Dispose();
         }
