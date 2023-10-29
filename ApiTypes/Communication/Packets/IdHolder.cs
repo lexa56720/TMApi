@@ -6,7 +6,7 @@
         {
             InstanceValue = id;
         }
-        public int InstanceValue { get; }
+        public int InstanceValue { get; set; }
         public static int Value { get; set; }
     }
 }

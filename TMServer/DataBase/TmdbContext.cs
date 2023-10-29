@@ -271,12 +271,12 @@ public partial class TmdbContext : DbContext
             entity.Property(e => e.UserId).HasColumnName("user_id");
 
             entity.HasOne(e => e.User)
-                  .WithOne()
-                  .HasForeignKey<DBChatUpdate>(u => u.UserId);
+                  .WithMany()
+                  .HasForeignKey(u => u.UserId);
 
-            entity.HasOne(e => e.Message)
-                  .WithOne()
-                  .HasForeignKey<DBChatUpdate>(u => u.MessageId);
+            entity.HasOne(e=>e.Message)
+                  .WithMany()
+                  .HasForeignKey(u => u.MessageId);
         });
         modelBuilder.Entity<DBChatInviteUpdate>(entity =>
         {

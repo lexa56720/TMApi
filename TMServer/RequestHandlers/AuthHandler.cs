@@ -16,7 +16,7 @@ namespace TMServer.RequestHandlers
             using RsaEncrypter encrypter = new RsaEncrypter();
             var serverKey = encrypter.PublicKey;
 
-            var id = Crypt.SaveRsaKeyPair(encrypter.PrivateKey,clientKey.Key, 
+            var id = Crypt.SaveRsaKeyPair(encrypter.PrivateKey, clientKey.Key,
                                           DateTime.UtcNow + GlobalSettings.RsaLifeTime);
 
             return new RsaPublicKey(serverKey, id);
@@ -30,6 +30,8 @@ namespace TMServer.RequestHandlers
                 {
                     IsSuccessful = false
                 };
+            else
+                LongPolling.ClearUpdates(id);
 
             return GetAuthData(id);
         }

@@ -14,6 +14,8 @@ namespace TMApi
 
         internal static int AesPort { get; set; }
 
+        internal static int LongPollPort { get; set; }
+
         internal static IPAddress Server { get; set; } = IPAddress.Loopback;
 
         public string Token { get; internal set; } = string.Empty;
@@ -21,6 +23,8 @@ namespace TMApi
         public int UserId { get; internal set; }
 
         public int CryptId => Preferences.CtyptId;
+
+        private Requester LongPollRequester { get; set; }
 
         private Requester Requester { get; set; }
 
@@ -30,15 +34,27 @@ namespace TMApi
 
         public RequestSender(bool isRsa, IEncrypter encrypter, IEncrypter decrypter)
         {
-            Requester = new Requester(new IPEndPoint(Server, GetPort(isRsa)), new SimpleEncryptProvider(encrypter), new SimpleEncryptProvider(decrypter));
+            Requester = new Requester(new IPEndPoint(Server, GetPort(isRsa,false)),
+                                      new SimpleEncryptProvider(encrypter), 
+                                      new SimpleEncryptProvider(decrypter));
             Requester.SetPacketType(typeof(TMPacket<>));
+
+            LongPollRequester = new Requester(new IPEndPoint(Server, GetPort(isRsa, true)),
+                                      new SimpleEncryptProvider(encrypter),
+                                      new SimpleEncryptProvider(decrypter));
+            LongPollRequester.SetPacketType(typeof(TMPacket<>));
+
             IsRsa = isRsa;
         }
 
         public RequestSender(bool isRsa)
         {
-            Requester = new Requester(new IPEndPoint(Server, GetPort(isRsa)));
+            Requester = new Requester(new IPEndPoint(Server, GetPort(isRsa, false)));
             Requester.SetPacketType(typeof(TMPacket<>));
+
+            LongPollRequester = new Requester(new IPEndPoint(Server, GetPort(isRsa, true)));
+            LongPollRequester.SetPacketType(typeof(TMPacket<>));
+
             IsRsa = isRsa;
         }
 
@@ -47,8 +63,10 @@ namespace TMApi
             Requester.Dispose();
         }
 
-        private int GetPort(bool isRsa)
+        private int GetPort(bool isRsa,bool isLongPoll)
         {
+            if (isLongPoll)
+                return LongPollPort;
             if (isRsa)
                 return RsaPort;
             return AesPort;
@@ -75,6 +93,12 @@ namespace TMApi
         public async Task<T?> PostAsync<T, U>(RequestHeaders header, U data, TimeSpan timeout) where T : ISerializable<T> where U : ISerializable<U>
         {
             return await Requester.PostAsync<T, ApiData<U>>(new ApiData<U>(header, Token, UserId, data, CryptId), timeout);
+        }
+
+        public async Task<T?> LongPollAsync<T, U>(RequestHeaders header, U data, TimeSpan timeout) where T : ISerializable<T> where U : ISerializable<U>
+        {
+            return await LongPollRequester.PostAsync<T, ApiData<U>>
+                (new ApiData<U>(header, Token, UserId, data, CryptId), timeout);
         }
     }
 }

@@ -10,11 +10,12 @@ namespace TMApi
 {
     public class ApiProvider
     {
-        public ApiProvider(IPAddress server, int authPort, int apiPort)
+        public ApiProvider(IPAddress server, int authPort, int apiPort,int longPollPort)
         {
             RequestSender.Server = server;
             RequestSender.RsaPort = authPort;
             RequestSender.AesPort = apiPort;
+            RequestSender.LongPollPort = longPollPort;
         }
 
         public async Task<int> GetVersion()

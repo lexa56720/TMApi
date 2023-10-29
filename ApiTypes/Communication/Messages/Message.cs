@@ -9,6 +9,8 @@ namespace ApiTypes.Communication.Messages
 
         public required int AuthorId { get; init; }
 
+        public required int DestinationId { get; init; }
+
         public required string Text { get; init; }
 
         public required DateTime SendTime { get; init; }
@@ -20,17 +22,20 @@ namespace ApiTypes.Communication.Messages
         }
 
         [SetsRequiredMembers]
-        public Message(int id, int authorId, string text, DateTime sendTime)
+        public Message(int id, int authorId, int destinationId, string text, DateTime sendTime)
         {
             Id = id;
             AuthorId = authorId;
+            DestinationId = destinationId;
             Text = text;
             SendTime = sendTime;
+     
         }
         public void Serialize(BinaryWriter writer)
         {
             writer.Write(Id);
             writer.Write(AuthorId);
+            writer.Write(DestinationId);
             writer.Write(Text);
             writer.Write(SendTime.ToBinary());
         }
@@ -41,6 +46,7 @@ namespace ApiTypes.Communication.Messages
             {
                 Id = reader.ReadInt32(),
                 AuthorId = reader.ReadInt32(),
+                DestinationId = reader.ReadInt32(),
                 Text = reader.ReadString(),
                 SendTime = DateTime.FromBinary(reader.ReadInt64())
             };

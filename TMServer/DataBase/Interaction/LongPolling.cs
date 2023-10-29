@@ -18,7 +18,7 @@ namespace TMServer.DataBase.Interaction
                            .Where(c => c.UserId == userId)
                            .Select(m => m.MessageId)
                            .ToArray();
-            db.RemoveRange(result);
+            db.ChatUpdates.Where(u => u.UserId == userId).ExecuteDelete();
             db.SaveChanges();
             return result;
         }
@@ -29,26 +29,33 @@ namespace TMServer.DataBase.Interaction
             db.LongPollRequests.Add(new DBLongPollRequest()
             {
                 RequestPacket = data,
-                CreateDate=DateTime.Now,
+                CreateDate = DateTime.UtcNow,
                 UserId = userId,
                 DataType = dataType
             });
             db.SaveChanges();
         }
-        public static DBLongPollRequest LoadRequest(int userId)
+        public static DBLongPollRequest? LoadRequest(int userId)
         {
             using var db = new TmdbContext();
             var result = db.LongPollRequests
                            .SingleOrDefault(r => r.UserId == userId);
-            db.LongPollRequests.Remove(result);
+            if (result != null)
+                db.LongPollRequests.Remove(result);
             return result;
         }
 
+        public static void ClearUpdates(int userId)
+        {
+            using var db = new TmdbContext();
+            db.ChatUpdates.Where(u => u.UserId == userId).ExecuteDelete();
+            db.SaveChanges();
+        }
         public static bool IsHaveUpdates(int userId)
         {
             using var db = new TmdbContext();
 
-            return db.ChatUpdates.Any(u=>u.UserId==userId);
+            return db.ChatUpdates.Any(u => u.UserId == userId);
         }
     }
 }

@@ -17,7 +17,7 @@ namespace TMServer.RequestHandlers
             {
                 var dbMessage = Messages.AddMessage(message.UserId, message.Data.Text, message.Data.DestinationId);
 
-                return new Message(dbMessage.Id, dbMessage.AuthorId, dbMessage.Content, dbMessage.SendTime);
+                return ConvertMessages(dbMessage);
             }
             return null;
         }
@@ -40,25 +40,26 @@ namespace TMServer.RequestHandlers
                 return null;
 
             var dbMessages = Messages.GetMessages
-                             (request.Data.ChatId,0,request.Data.MaxCount,request.Data.LastMessageId);
+                             (request.Data.ChatId, 0, request.Data.MaxCount, request.Data.LastMessageId);
             return new MessageHistoryResponse()
             {
-               FromId = request.Data.ChatId,
-               Messages= dbMessages.Select(ConvertMessages).ToArray()
+                FromId = request.Data.ChatId,
+                Messages = dbMessages.Select(ConvertMessages).ToArray()
             };
         }
         public static SerializableArray<Message>? GetMessagesById(ApiData<IntArrayContainer> request)
-        {       
+        {
             var dbMessages = Messages.GetMessages(request.Data.Values);
 
-            if (dbMessages.Any(m=>!Security.IsMemberOfChat(request.UserId,m.DestinationId)))
+            if (dbMessages.Any(m => !Security.IsMemberOfChat(request.UserId, m.DestinationId)))
                 return null;
 
             return new SerializableArray<Message>(dbMessages.Select(ConvertMessages).ToArray());
         }
-        private static Message ConvertMessages(DBMessage dBMessage)
+        private static Message ConvertMessages(DBMessage dbMessage)
         {
-            return new Message(dBMessage.Id, dBMessage.AuthorId, dBMessage.Content, dBMessage.SendTime);
+            return new Message(dbMessage.Id, dbMessage.AuthorId, 
+                               dbMessage.DestinationId, dbMessage.Content, dbMessage.SendTime);
         }
     }
 }
