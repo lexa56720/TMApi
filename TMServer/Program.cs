@@ -16,7 +16,7 @@ namespace TMServer
             db.Database.EnsureCreated();
             db.SaveChanges();
 
-            var server = new Servers.TMServer(GlobalSettings.AuthPort,
+            using var server = new Servers.TMServer(GlobalSettings.AuthPort,
                                               GlobalSettings.ApiPort,
                                               GlobalSettings.LongPollPort,logger);
             server.Start();

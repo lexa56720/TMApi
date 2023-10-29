@@ -14,22 +14,29 @@ namespace TMServer.DataBase
 {
     internal static class DBChangeHandler
     {
-        public static void HandleChanges((EntityEntry, EntityState)[] entities)
+        public static event EventHandler<int>? UpdateForUser;
+        public static void HandleChanges((EntityEntry entity, EntityState state)[] entities)
         {
             foreach (var entity in entities)
             {
-                if (entity.Item2 == EntityState.Added)
+                switch (entity.state)
                 {
-                    var name = entity.Item1.Metadata.ClrType.Name;
-                    HandleAddedEntity(name, entity.Item1);
-
-
+                    case EntityState.Added:
+                        var name = entity.entity.Metadata.ClrType.Name;
+                        HandleAddedEntity(name, entity.entity);
+                        break;
                 }
             }
         }
 
         private static void HandleAddedEntity(string className, EntityEntry entity)
         {
+            if (entity.Metadata.ClrType.BaseType == typeof(DBUpdate))
+            {
+                NotifyUser((DBUpdate)entity.Entity);
+                return;
+            }
+
             switch (className)
             {
                 case nameof(DBMessage):
@@ -45,12 +52,18 @@ namespace TMServer.DataBase
             var chatMembers = Chats.GetChat(message.DestinationId)
                                    .Members.Select(m => m.Id);
             foreach (var member in chatMembers)
-                context.ChatUpdates.Add(new DBChatUpdate() 
-                { 
-                    MessageId = message.Id, 
-                    UserId = member 
+                context.ChatUpdates.Add(new DBChatUpdate()
+                {
+                    MessageId = message.Id,
+                    UserId = member
                 });
             context.SaveChanges();
+        }
+
+
+        private static void NotifyUser(DBUpdate update)
+        {
+            UpdateForUser?.Invoke(null, update.UserId);
         }
 
     }

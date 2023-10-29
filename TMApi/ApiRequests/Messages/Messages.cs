@@ -11,34 +11,43 @@ namespace TMApi.ApiRequests.Messages
         {
         }
 
-        public async Task<Message[]?> GetMessages(int chatId, int count, int offset)
+        public async Task<Message[]> GetMessages(int chatId, int count, int offset)
         {
             var messages = await Requester.PostAsync<MessageHistoryResponse, LastMessagesRequest>
-                (RequestHeaders.GetLastMessages, new LastMessagesRequest(chatId, offset, count));
+                (RequestHeaders.GetMessageByOffset, new LastMessagesRequest(chatId, offset, count));
 
             if (messages == null)
                 return Array.Empty<Message>();
 
             return messages.Messages;
         }
-        public async Task<Message[]?> GetMessages(int chatId, int fromMessageId)
+        public async Task<Message[]> GetMessages(int chatId, int fromMessageId)
         {
             var messages = await Requester.PostAsync<MessageHistoryResponse, MessageHistoryRequest>
-                (RequestHeaders.GetMessages, new MessageHistoryRequest(chatId, fromMessageId));
+                (RequestHeaders.GetMessagesByLastId, new MessageHistoryRequest(chatId, fromMessageId));
 
             if (messages == null)
                 return Array.Empty<Message>();
 
             return messages.Messages;
         }
+        public async Task<Message[]> GetMessages(params int[] messagesId)
+        {
+            var messages = await Requester.PostAsync<SerializableArray<Message>, IntArrayContainer>
+                (RequestHeaders.GetMessagesById, new IntArrayContainer(messagesId));
 
+            if (messages == null)
+                return Array.Empty<Message>();
+
+            return messages.Items;
+        }
         public async Task<Message?> SendMessage(string text, int destinationId)
         {
             if (!DataConstraints.IsMessageLegal(text))
                 return null;
 
             return await Requester.PostAsync< Message, MessageSendRequest>
-                (RequestHeaders.SendMessage, new MessageSendRequest(text, destinationId));
+                (RequestHeaders.NewMessage, new MessageSendRequest(text, destinationId));
         }
     }
 }

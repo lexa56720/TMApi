@@ -27,7 +27,7 @@ namespace TMServer.Servers
 
         private ILogger Logger { get; }
 
-        public TMServer(int authPort, int responsePort,int longPollPort ,ILogger logger)
+        public TMServer(int authPort, int responsePort, int longPollPort, ILogger logger)
         {
             AuthServer = new AuthorizationServer(authPort, new AuthEncryptProvider(), logger);
             ApiServer = new ResponseServer(responsePort, new ApiEncryptProvider(), logger);
@@ -39,6 +39,7 @@ namespace TMServer.Servers
         }
         public void Dispose()
         {
+            Stop();
             AuthServer.Dispose();
             ApiServer.Dispose();
             LongPollServer.Dispose();
@@ -63,13 +64,16 @@ namespace TMServer.Servers
         private void RegisterMessageMethods()
         {
             ApiServer.RegisterPostHandler<LastMessagesRequest, MessageHistoryResponse>
-                (MessagesHandler.GetMessagesByOffset, RequestHeaders.GetLastMessages);
+                (MessagesHandler.GetMessagesByOffset, RequestHeaders.GetMessageByOffset);
 
             ApiServer.RegisterPostHandler<MessageSendRequest, Message>
-              (MessagesHandler.NewMessage, RequestHeaders.SendMessage);
+              (MessagesHandler.NewMessage, RequestHeaders.NewMessage);
 
-            ApiServer.RegisterPostHandler<MessageHistoryRequest,MessageHistoryResponse>
-                (MessagesHandler.GetMessagesById,RequestHeaders.GetMessages);
+            ApiServer.RegisterPostHandler<MessageHistoryRequest, MessageHistoryResponse>
+                (MessagesHandler.GetMessagesByLastId, RequestHeaders.GetMessagesByLastId);
+
+            ApiServer.RegisterPostHandler<IntArrayContainer, SerializableArray<Message>>
+              (MessagesHandler.GetMessagesById, RequestHeaders.GetMessagesById);
         }
         private void RegisterUserMethods()
         {
@@ -138,6 +142,9 @@ namespace TMServer.Servers
 
         public override void Start()
         {
+            if (IsRunning)
+                return;
+
             base.Start();
 
             AuthServer.Start();
@@ -149,6 +156,9 @@ namespace TMServer.Servers
 
         public override void Stop()
         {
+            if (!IsRunning)
+                return;
+
             base.Stop();
             AuthServer.Stop();
             ApiServer.Stop();

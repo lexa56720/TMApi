@@ -26,7 +26,7 @@ namespace TMServer.ServerComponent.Basics
             Responder.SetPacketType(typeof(TMPacket<>));
             Logger = logger;
         }
-        public void Dispose()
+        public virtual void Dispose()
         {
             Responder.Dispose();
         }

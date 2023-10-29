@@ -345,12 +345,11 @@ public partial class TmdbContext : DbContext
         return value;
     }
 
-    private (EntityEntry, EntityState)[] GetChangedEntities(bool isHasChanges)
+    private (EntityEntry entity, EntityState state)[] GetChangedEntities(bool isHasChanges)
     {
         var entries = ChangeTracker.Entries();
         return entries.Select(e => (e, e.State)).ToArray();
     }
-
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }

@@ -14,9 +14,10 @@
         ChangeName,
         SearchByName,
 
-        GetMessages,
-        GetLastMessages,
-        SendMessage,
+        GetMessagesByLastId,
+        GetMessageByOffset,
+        GetMessagesById,
+        NewMessage,
 
         GetFriendRequest,
         GetFriendRequestMany,

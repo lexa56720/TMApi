@@ -46,5 +46,15 @@ namespace TMServer.DataBase.Interaction
                 .Take(count)
                 .ToArray();
         }
+        public static DBMessage[] GetMessages(int[] ids)
+        {
+            using var db = new TmdbContext();
+
+            return db.Messages    
+                .OrderByDescending(m => m.SendTime)
+                .ThenByDescending(m => m.Id)
+                .Where(m =>ids.Contains( m.Id) )
+                .ToArray();
+        }
     }
 }

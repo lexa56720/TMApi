@@ -1,4 +1,5 @@
 ﻿using ApiTypes;
+using ApiTypes.Communication.BaseTypes;
 using ApiTypes.Communication.Messages;
 using ApiTypes.Shared;
 using TMServer.DataBase;
@@ -33,7 +34,7 @@ namespace TMServer.RequestHandlers
                 Messages = dbMessages.Select(ConvertMessages).ToArray()
             };
         }
-        public static MessageHistoryResponse? GetMessagesById(ApiData<MessageHistoryRequest> request)
+        public static MessageHistoryResponse? GetMessagesByLastId(ApiData<MessageHistoryRequest> request)
         {
             if (!Security.IsMemberOfChat(request.UserId, request.Data.ChatId))
                 return null;
@@ -46,7 +47,15 @@ namespace TMServer.RequestHandlers
                Messages= dbMessages.Select(ConvertMessages).ToArray()
             };
         }
+        public static SerializableArray<Message>? GetMessagesById(ApiData<IntArrayContainer> request)
+        {       
+            var dbMessages = Messages.GetMessages(request.Data.Values);
 
+            if (dbMessages.Any(m=>!Security.IsMemberOfChat(request.UserId,m.DestinationId)))
+                return null;
+
+            return new SerializableArray<Message>(dbMessages.Select(ConvertMessages).ToArray());
+        }
         private static Message ConvertMessages(DBMessage dBMessage)
         {
             return new Message(dBMessage.Id, dBMessage.AuthorId, dBMessage.Content, dBMessage.SendTime);

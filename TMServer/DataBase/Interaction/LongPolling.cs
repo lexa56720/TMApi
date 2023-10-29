@@ -44,5 +44,11 @@ namespace TMServer.DataBase.Interaction
             return result;
         }
 
+        public static bool IsHaveUpdates(int userId)
+        {
+            using var db = new TmdbContext();
+
+            return db.ChatUpdates.Any(u=>u.UserId==userId);
+        }
     }
 }

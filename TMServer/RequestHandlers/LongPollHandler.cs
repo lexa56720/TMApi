@@ -28,6 +28,7 @@ namespace TMServer.RequestHandlers
             packet.Serialize(bw);
             LongPolling.SaveRequest(userId, ms.ToArray(), packet.GetType().AssemblyQualifiedName);
         }
+
         public static IPacket? LoadFromDB(int userId)
         {
             var data = LongPolling.LoadRequest(userId);
@@ -35,6 +36,11 @@ namespace TMServer.RequestHandlers
             using var br = new BinaryReader(ms);
             var packet = Activator.CreateInstance(Type.GetType(data.DataType)) as IPacket;
             return packet.Deserialize(br);
+        }
+
+        public static bool IsHaveNotifications(int userId)
+        {
+            return LongPolling.IsHaveUpdates(userId);
         }
     }
 }
