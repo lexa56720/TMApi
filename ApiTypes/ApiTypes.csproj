@@ -7,10 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\CSDTP\CSDTP\CSDTP.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Reference Include="CSDTP">
       <HintPath>Lib\CSDTP.dll</HintPath>
     </Reference>

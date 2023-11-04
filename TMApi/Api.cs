@@ -121,7 +121,7 @@ namespace TMApi
         {
             Preferences.CtyptId = response.CryptId;
 
-            Encrypter. = response.AesKey;
+            Encrypter.Key = response.AesKey;
             Requester.Token = response.AccessToken;
             AccesToken = response.AccessToken;
             Id = Requester.UserId = response.UserId;
