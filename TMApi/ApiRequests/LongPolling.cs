@@ -9,8 +9,6 @@ namespace TMApi.ApiRequests
 
         public event EventHandler<Notification>? StateUpdated;
 
-        private Notification? LastState;
-
         public LongPolling(RequestSender requester, Api api) : base(requester, api)
         {
         }
@@ -44,10 +42,10 @@ namespace TMApi.ApiRequests
             {
                 while (IsPolling)
                 {
-                    LastState = await Requester.LongPollAsync<Notification, LongPollingRequest>
-                        (RequestHeaders.LongPoll, new LongPollingRequest(), Preferences.LongPollPeriod);
-                    if (LastState != null)
-                        StateUpdated?.Invoke(this, LastState);
+                    var notification = await Requester.LongPollAsync<Notification, LongPollingRequest>
+                               (RequestHeaders.LongPoll, new LongPollingRequest(), Preferences.LongPollPeriod);
+                    if (notification != null)
+                        StateUpdated?.Invoke(this, notification);
                 }
             });
         }

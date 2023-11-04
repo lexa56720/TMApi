@@ -39,7 +39,9 @@ namespace TMServer.DataBase.Interaction
         {
             using var db = new TmdbContext();
             var result = db.LongPollRequests
-                           .SingleOrDefault(r => r.UserId == userId);
+                           .Where(r => r.UserId == userId).ToArray()
+                           .MaxBy(r => r.CreateDate);
+                           
             if (result != null)
                 db.LongPollRequests.Remove(result);
             return result;

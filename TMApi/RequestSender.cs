@@ -90,15 +90,18 @@ namespace TMApi
             return await Requester.GetAsync(new ApiData<T>(header, Token, UserId, data, CryptId));
         }
 
-        public async Task<T?> PostAsync<T, U>(RequestHeaders header, U data, TimeSpan timeout) where T : ISerializable<T> where U : ISerializable<U>
+        public async Task<T?> PostAsync<T, U>(RequestHeaders header, U data, TimeSpan timeout) 
+                                  where T : ISerializable<T> where U : ISerializable<U>
         {
-            return await Requester.PostAsync<T, ApiData<U>>(new ApiData<U>(header, Token, UserId, data, CryptId), timeout);
+            return await Requester.PostAsync<T, ApiData<U>>
+                         (new ApiData<U>(header, Token, UserId, data, CryptId), timeout);
         }
 
-        public async Task<T?> LongPollAsync<T, U>(RequestHeaders header, U data, TimeSpan timeout) where T : ISerializable<T> where U : ISerializable<U>
+        public async Task<T?> LongPollAsync<T, U>(RequestHeaders header, U data, TimeSpan timeout) 
+                                      where T : ISerializable<T> where U : ISerializable<U>
         {
             return await LongPollRequester.PostAsync<T, ApiData<U>>
-                (new ApiData<U>(header, Token, UserId, data, CryptId), timeout);
+                         (new ApiData<U>(header, Token, UserId, data, CryptId), timeout);
         }
     }
 }

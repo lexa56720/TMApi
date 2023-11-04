@@ -9,7 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ApiTypes", "ApiTypes\ApiTyp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TMServer", "TMServer\TMServer.csproj", "{972605BD-147E-49C6-9B39-4B1051FDEC23}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TMClient", "TMClient\TMClient.csproj", "{6DB60612-B7D2-4C8D-A0D1-00C804F33EF9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TMClient", "TMClient\TMClient.csproj", "{6DB60612-B7D2-4C8D-A0D1-00C804F33EF9}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CSDTP", "..\CSDTP\CSDTP\CSDTP.csproj", "{5FAA74E4-4DE0-434D-BEDA-1EE8A8CFE000}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{6DB60612-B7D2-4C8D-A0D1-00C804F33EF9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6DB60612-B7D2-4C8D-A0D1-00C804F33EF9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6DB60612-B7D2-4C8D-A0D1-00C804F33EF9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5FAA74E4-4DE0-434D-BEDA-1EE8A8CFE000}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5FAA74E4-4DE0-434D-BEDA-1EE8A8CFE000}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5FAA74E4-4DE0-434D-BEDA-1EE8A8CFE000}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5FAA74E4-4DE0-434D-BEDA-1EE8A8CFE000}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

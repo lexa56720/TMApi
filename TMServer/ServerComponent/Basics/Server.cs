@@ -2,6 +2,7 @@
 using ApiTypes.Communication.Packets;
 using CSDTP;
 using CSDTP.Cryptography.Providers;
+using CSDTP.Protocols;
 using CSDTP.Requests;
 using TMServer.DataBase.Interaction;
 using TMServer.Logger;

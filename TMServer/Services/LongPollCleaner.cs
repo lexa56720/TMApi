@@ -23,7 +23,7 @@ namespace TMServer.Services
         {
             using var db = new TmdbContext();
             var now = DateTime.UtcNow;
-            var result = await db.LongPollRequests.Where(t => (now-t.CreateDate)<lifeTime).ExecuteDeleteAsync();
+            var result = await db.LongPollRequests.Where(t => (now-t.CreateDate)>lifeTime).ExecuteDeleteAsync();
             await db.SaveChangesAsync();
             logger.Log($"LongPollCleaner removed {result} old requests");
         }

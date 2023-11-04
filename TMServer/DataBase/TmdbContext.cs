@@ -39,7 +39,10 @@ public partial class TmdbContext : DbContext
 
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        => optionsBuilder.UseNpgsql(GlobalSettings.ConnectionString);
+    {
+        optionsBuilder.UseNpgsql(GlobalSettings.ConnectionString);
+        //optionsBuilder.LogTo(Console.WriteLine);
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

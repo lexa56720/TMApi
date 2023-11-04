@@ -46,6 +46,9 @@ namespace TMApi
             AccesToken = token;
             Expiration = tokenTime;
             Encrypter = new AesEncrypter(aesKey);
+
+            
+
             Preferences.CtyptId = cryptId;
 
             SetupRequester(token, userId);
@@ -118,7 +121,7 @@ namespace TMApi
         {
             Preferences.CtyptId = response.CryptId;
 
-            Encrypter.Key = response.AesKey;
+            Encrypter. = response.AesKey;
             Requester.Token = response.AccessToken;
             AccesToken = response.AccessToken;
             Id = Requester.UserId = response.UserId;

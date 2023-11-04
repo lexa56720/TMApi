@@ -41,23 +41,26 @@ namespace TMServer.ServerComponent.LongPolling
 
         private Notification? LongPollArrived(ApiData<LongPollingRequest> request, IPacketInfo info)
         {
+            Logger.Log($"poll request from {request.UserId} arrived");
+
             if (!IsRequestLegal(request))
                 return null;
 
             if (LongPollHandler.IsHaveNotifications(request.UserId))
                 return LongPollHandler.GetUpdates(request.UserId);
 
-            var packet = info as IPacket;
-            LongPollHandler.SaveToDB(request.UserId, packet);
+            LongPollHandler.SaveToDB(request.UserId, (IPacket)info);
             return null;
         }
 
         public void RespondOnSaved(int userId)
-        {
+        {      
             var packet = LongPollHandler.LoadFromDB(userId);         
             if (packet == null)
                 return;
             var requestContainer = packet.DataObj as IRequestContainer;
+
+            Logger.Log($"poll request from {userId} responsed");
 
             var notification = LongPollHandler.GetUpdates(userId);
             Responder.ResponseManually(requestContainer, packet, notification);

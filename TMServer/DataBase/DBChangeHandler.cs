@@ -50,7 +50,9 @@ namespace TMServer.DataBase
             using var context = new TmdbContext();
 
             var chatMembers = Chats.GetChat(message.DestinationId)
-                                   .Members.Select(m => m.Id);
+                                   .Members.Select(m => m.Id)
+                                   .Where(id=>id!=message.AuthorId);
+
             foreach (var member in chatMembers)
                 context.ChatUpdates.Add(new DBChatUpdate()
                 {
