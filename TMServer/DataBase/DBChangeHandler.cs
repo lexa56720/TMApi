@@ -31,6 +31,7 @@ namespace TMServer.DataBase
 
         private static void HandleAddedEntity(string className, EntityEntry entity)
         {
+            //Уведомление юзера об обнове в бд на его айди
             if (entity.Metadata.ClrType.BaseType == typeof(DBUpdate))
             {
                 NotifyUser((DBUpdate)entity.Entity);
@@ -53,6 +54,7 @@ namespace TMServer.DataBase
                                    .Members.Select(m => m.Id)
                                    .Where(id=>id!=message.AuthorId);
 
+            //Добавление уведомлений в бд
             foreach (var member in chatMembers)
                 context.ChatUpdates.Add(new DBChatUpdate()
                 {

@@ -60,8 +60,8 @@ namespace TMApi
             var coderDecoder = await GetCoderDecoder();
             if (coderDecoder == null)
                 return null;
-            using var inputDecoder = coderDecoder.Value.Item1;
-            using var outputEncoder = coderDecoder.Value.Item2;
+            using var inputDecoder = coderDecoder.Value.decoder;
+            using var outputEncoder = coderDecoder.Value.encoder;
 
             return await Login(login, password, inputDecoder, outputEncoder);
         }
@@ -81,7 +81,7 @@ namespace TMApi
             return null;
         }
 
-        public async Task<Api?> Load(byte[] authData)
+        public async Task<Api?> DeserializeAuthData(byte[] authData)
         {
             using var ms = new MemoryStream(authData);
             using var br = new BinaryReader(ms);
@@ -114,16 +114,16 @@ namespace TMApi
                 return api;
             return null;
         }
-        private async Task<(RsaEncrypter, RsaEncrypter)?> GetCoderDecoder()
+        private async Task<(RsaEncrypter decoder, RsaEncrypter encoder)?> GetCoderDecoder()
         {
             try
             {
                 var inputDecoder = new RsaEncrypter();
 
-                var rsaKey = await GetRsaKey(inputDecoder);
-                var outputEncoder = new RsaEncrypter(rsaKey.Item1);
+                var (publicKey, id) = await GetRsaKey(inputDecoder);
+                var outputEncoder = new RsaEncrypter(publicKey);
 
-                Preferences.CtyptId= rsaKey.Item2;
+                Preferences.CtyptId= id;
 
                 return (inputDecoder, outputEncoder);
             }
@@ -133,7 +133,7 @@ namespace TMApi
             }
 
         }
-        private async Task<(string, int)> GetRsaKey(RsaEncrypter inputDecoder)
+        private async Task<(string publicKey, int id)> GetRsaKey(RsaEncrypter inputDecoder)
         {
             using var uncryptRequester = new RequestSender(true);
             var request = new RsaPublicKey(inputDecoder.PublicKey);

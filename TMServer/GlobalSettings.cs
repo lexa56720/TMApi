@@ -11,9 +11,7 @@ namespace TMServer
     internal static class GlobalSettings
     {
         public static int AuthPort { get; set; }
-
         public static int ApiPort { get; set; }
-
         public static int LongPollPort { get; set; }
 
 
@@ -22,11 +20,10 @@ namespace TMServer
         public static TimeSpan RsaLifeTime { get; set; }
 
 
-        public static string ConnectionString { get; set; }
-
-        public static string PasswordSalt { get; set; }
-
+        public static string ConnectionString { get; set; } = string.Empty;
+        public static string PasswordSalt { get; set; } = string.Empty;
         public static int Version { get; set; }
+
         static GlobalSettings()
         {
             Reload();

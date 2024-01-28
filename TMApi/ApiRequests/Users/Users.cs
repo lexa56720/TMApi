@@ -48,6 +48,9 @@ namespace TMApi.ApiRequests.Users
 
             var users = await Requester.PostAsync<SerializableArray<User>, SearchRequest>
                 (RequestHeaders.SearchByName, new SearchRequest(name));
+            if (users == null)
+                return Array.Empty<User>();
+
             return users.Items;
         }
     }

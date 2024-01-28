@@ -28,7 +28,7 @@ namespace TMApi
         private DateTime Expiration { get; set; }
   
 
-        public event EventHandler<Notification> UpdateArrived;
+        public event EventHandler<Notification>? UpdateArrived;
         private AesEncrypter Encrypter { get; set; }
 
         public UserInfo UserInfo { get; private set; }
@@ -46,12 +46,14 @@ namespace TMApi
             AccesToken = token;
             Expiration = tokenTime;
             Encrypter = new AesEncrypter(aesKey);
-
-            
-
+       
             Preferences.CtyptId = cryptId;
 
-            SetupRequester(token, userId);
+            Requester = new RequestSender(false, Encrypter, Encrypter)
+            {
+                Token = token,
+                UserId = userId,
+            };
         }
         internal async Task<bool> Init()
         {
@@ -67,14 +69,7 @@ namespace TMApi
 
             return UserInfo != null;
         }
-        private void SetupRequester(string token, int userId)
-        {
-            Requester = new RequestSender(false, Encrypter, Encrypter)
-            {
-                Token = token,
-                UserId = userId,
-            };
-        }
+
 
         public void StartLongPolling()
         {
@@ -100,9 +95,10 @@ namespace TMApi
 
         private void OnUpdateArrived(object? o, Notification e)
         {
-            UpdateArrived(this, e);
+            UpdateArrived?.Invoke(this, e);
         }
-        public byte[] GetAuthData()
+
+        public byte[] SerializeAuthData()
         {
             using var ms = new MemoryStream();
             using var bw = new BinaryWriter(ms);

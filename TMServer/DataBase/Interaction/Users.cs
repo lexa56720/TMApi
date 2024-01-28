@@ -10,7 +10,7 @@ namespace TMServer.DataBase.Interaction
             using var db = new TmdbContext();
             return db.Users
                 .Include(u => u.Chats)
-                .Include(u => u.FriendsTwo).ThenInclude(f=>f.Sender)
+                .Include(u => u.FriendsTwo).ThenInclude(f => f.Sender)
                 .Include(u => u.FriendsOne).ThenInclude(f => f.Receiver)
                 .SingleOrDefault(u => u.Id == id);
         }
@@ -59,6 +59,7 @@ namespace TMServer.DataBase.Interaction
         {
             using var db = new TmdbContext();
             var user = db.Users.Find(userId);
+            if (user == null) return;
             user.LastRequest = DateTime.UtcNow;
             db.SaveChanges();
         }
