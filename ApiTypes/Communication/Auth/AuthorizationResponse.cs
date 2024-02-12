@@ -5,14 +5,14 @@ namespace ApiTypes.Communication.Auth
 {
     public class AuthorizationResponse : ISerializable<AuthorizationResponse>
     {
-        public required bool IsSuccessful { get; init; }
+        public bool IsSuccessful { get; set; }
 
         public string AccessToken { get; set; } = string.Empty;
         public int UserId { get; set; }
         public int CryptId { get; set; }
 
         public DateTime Expiration { get; set; }
-        public byte[] AesKey { get; set; } = Array.Empty<byte>();
+        public byte[] AesKey { get; set; } = [];
 
 
         public void Serialize(BinaryWriter writer)

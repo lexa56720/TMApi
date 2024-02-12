@@ -14,14 +14,14 @@ namespace TMServer.ServerComponent.Auth
             throw new NotImplementedException();
         }
 
-        public void DisposeEncryptor(IEncrypter encryptor)
+        public void DisposeEncrypter(IEncrypter encrypter)
         {
-            encryptor.Dispose();
+            encrypter.Dispose();
         }
 
-        public IEncrypter? GetDecrypter(IPacketInfo packet)
+        public IEncrypter? GetDecrypter(ReadOnlySpan<byte> bytes)
         {
-            var keys = GetKeys(packet);
+            DBRsa? keys = null;
             if (keys == null)
                 return null;
             var rsaDecrypter = new RsaEncrypter(keys.PrivateServerKey);

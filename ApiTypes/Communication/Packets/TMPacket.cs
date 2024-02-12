@@ -3,19 +3,19 @@ using CSDTP.Packets;
 
 namespace ApiTypes.Communication.Packets
 {
-    public class TMPacket<T> : Packet<T>, ITMPacket where T : ISerializable<T>
+    public class TMPacket<T> : Packet<T>, ITMPacket where T : ISerializable<T>,new()
     {
         public IdHolder Id { get; private set; } = new IdHolder(-1);
 
-        protected override void DeserializeCustomData(BinaryReader reader)
+        public override void DeserializeUnprotectedCustomData(BinaryReader reader)
         {
-            base.DeserializeCustomData(reader);
+            base.DeserializeUnprotectedCustomData(reader);
             Id = new IdHolder(reader.ReadInt32());
         }
 
-        protected override void SerializeCustomData(BinaryWriter writer)
+        public override void SerializeUnprotectedCustomData(BinaryWriter writer)
         {
-            base.SerializeCustomData(writer);
+            base.SerializeUnprotectedCustomData(writer);
             writer.Write(IdHolder.Value);
         }
     }

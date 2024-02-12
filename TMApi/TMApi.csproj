@@ -15,9 +15,16 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Reference Include="AutoSerializer">
+      <HintPath>..\ApiTypes\Lib\AutoSerializer.dll</HintPath>
+    </Reference>
     <Reference Include="CSDTP">
       <HintPath>..\ApiTypes\Lib\CSDTP.dll</HintPath>
     </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="AutoSerializer" />
   </ItemGroup>
 
 </Project>

@@ -37,19 +37,19 @@ namespace TMApi.ApiRequests.Users
                 (RequestHeaders.GetUserMany, new IntArrayContainer(userId));
 
             if (users == null)
-                return Array.Empty<User>();
+                return [];
             return users.Items;
         }
 
         public async Task<User[]> GetByName(string name)
         {
             if (!DataConstraints.IsSearchQueryValid(name))
-                return Array.Empty<User>();
+                return [];
 
             var users = await Requester.PostAsync<SerializableArray<User>, SearchRequest>
                 (RequestHeaders.SearchByName, new SearchRequest(name));
             if (users == null)
-                return Array.Empty<User>();
+                return [];
 
             return users.Items;
         }

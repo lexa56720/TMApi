@@ -5,9 +5,9 @@ namespace ApiTypes.Communication.Auth
 {
     public class AuthorizationRequest : ISerializable<AuthorizationRequest>
     {
-        public required string Login { get; init; }
+        public string Login { get; set; }
 
-        public required string Password { get; init; }
+        public string Password { get; set; }
 
 
         [SetsRequiredMembers]
@@ -16,6 +16,7 @@ namespace ApiTypes.Communication.Auth
             Login = login;
             Password = password;
         }
+
         public AuthorizationRequest()
         {
 

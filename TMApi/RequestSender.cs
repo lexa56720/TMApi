@@ -1,5 +1,6 @@
 ﻿using ApiTypes;
 using ApiTypes.Communication.Packets;
+using AutoSerializer;
 using CSDTP;
 using CSDTP.Cryptography.Algorithms;
 using CSDTP.Cryptography.Providers;
@@ -34,36 +35,31 @@ namespace TMApi
 
         public RequestSender(bool isRsa, IEncrypter encrypter, IEncrypter decrypter)
         {
-            Requester = new Requester(new IPEndPoint(Server, GetPort(isRsa,false)),
-                                      new SimpleEncryptProvider(encrypter), 
-                                      new SimpleEncryptProvider(decrypter));
-            Requester.SetPacketType(typeof(TMPacket<>));
 
-            LongPollRequester = new Requester(new IPEndPoint(Server, GetPort(isRsa, true)),
-                                      new SimpleEncryptProvider(encrypter),
-                                      new SimpleEncryptProvider(decrypter));
-            LongPollRequester.SetPacketType(typeof(TMPacket<>));
+            Requester = RequesterFactory.Create(new IPEndPoint(Server, GetPort(isRsa, false)),
+                                                new SimpleEncryptProvider(encrypter, decrypter),
+                                                typeof(TMPacket<>));
 
+            LongPollRequester = RequesterFactory.Create(new IPEndPoint(Server, GetPort(isRsa, true)),
+                                                        new SimpleEncryptProvider(encrypter, decrypter),
+                                                        typeof(TMPacket<>));
             IsRsa = isRsa;
         }
 
         public RequestSender(bool isRsa)
         {
-            Requester = new Requester(new IPEndPoint(Server, GetPort(isRsa, false)));
-            Requester.SetPacketType(typeof(TMPacket<>));
-
-            LongPollRequester = new Requester(new IPEndPoint(Server, GetPort(isRsa, true)));
-            LongPollRequester.SetPacketType(typeof(TMPacket<>));
-
+            Requester = RequesterFactory.Create(new IPEndPoint(Server, GetPort(isRsa, false)), typeof(TMPacket<>));
+            LongPollRequester = RequesterFactory.Create(new IPEndPoint(Server, GetPort(isRsa, true)), typeof(TMPacket<>));;
             IsRsa = isRsa;
         }
 
         public void Dispose()
         {
             Requester.Dispose();
+            LongPollRequester.Dispose();
         }
 
-        private int GetPort(bool isRsa,bool isLongPoll)
+        private int GetPort(bool isRsa, bool isLongPoll)
         {
             if (isLongPoll)
                 return LongPollPort;
@@ -71,37 +67,42 @@ namespace TMApi
                 return RsaPort;
             return AesPort;
         }
-
-        public async Task<T?> PostAsync<T, U>(U data) where T : ISerializable<T> where U : ISerializable<U>
+        public async Task<TResponse?> PostAsync<TResponse, TRequest>(TRequest data) 
+            where TResponse : ISerializable<TResponse>, new()
+           where TRequest : ISerializable<TRequest>, new()
         {
-            return await Requester.PostAsync<T, U>(data, Timeout);
+            return await Requester.RequestAsync<TResponse, TRequest>(data, Timeout);
         }
-        public async Task<bool> GetAsync<T>(T data) where T : ISerializable<T>
+        public async Task<bool> GetAsync<TRequest>(TRequest data) where TRequest : ISerializable<TRequest>,new()
         {
-            return await Requester.GetAsync<T>(data);
-        }
-
-        public async Task<T?> PostAsync<T, U>(RequestHeaders header, U data) where T : ISerializable<T> where U : ISerializable<U>
-        {
-            return await Requester.PostAsync<T, ApiData<U>>(new ApiData<U>(header, Token, UserId, data, CryptId), Timeout);
-        }
-        public async Task<bool> GetAsync<T>(RequestHeaders header, T data) where T : ISerializable<T>
-        {
-            return await Requester.GetAsync(new ApiData<T>(header, Token, UserId, data, CryptId));
+            return await Requester.SendAsync(data);
         }
 
-        public async Task<T?> PostAsync<T, U>(RequestHeaders header, U data, TimeSpan timeout) 
-                                  where T : ISerializable<T> where U : ISerializable<U>
+        public async Task<TResponse?> PostAsync<TResponse, TRequest>(RequestHeaders header, TRequest data) 
+                              where TResponse : ISerializable<TResponse>,new() 
+                              where TRequest : ISerializable<TRequest>, new()
         {
-            return await Requester.PostAsync<T, ApiData<U>>
-                         (new ApiData<U>(header, Token, UserId, data, CryptId), timeout);
+            return await Requester.RequestAsync<TResponse, ApiData<TRequest>>(new ApiData<TRequest>(header, Token, UserId, data, CryptId), Timeout);
+        }
+        public async Task<bool> GetAsync<T>(RequestHeaders header, T data)where T : ISerializable<T>,new() 
+        {
+            return await Requester.SendAsync(new ApiData<T>(header, Token, UserId, data, CryptId));
         }
 
-        public async Task<T?> LongPollAsync<T, U>(RequestHeaders header, U data, TimeSpan timeout) 
-                                      where T : ISerializable<T> where U : ISerializable<U>
+        public async Task<TResponse?> PostAsync<TResponse, TRequest>(RequestHeaders header, TRequest data, TimeSpan timeout)
+                              where TResponse : ISerializable<TResponse>, new()
+                              where TRequest : ISerializable<TRequest>, new()
         {
-            return await LongPollRequester.PostAsync<T, ApiData<U>>
-                         (new ApiData<U>(header, Token, UserId, data, CryptId), timeout);
+            return await Requester.RequestAsync<TResponse, ApiData<TRequest>>
+                         (new ApiData<TRequest>(header, Token, UserId, data, CryptId), timeout);
+        }
+
+        public async Task<TResponse?> LongPollAsync<TResponse, TRequest>(RequestHeaders header, TRequest data, TimeSpan timeout)
+                              where TResponse : ISerializable<TResponse>, new()
+                              where TRequest : ISerializable<TRequest>, new()
+        {
+            return await LongPollRequester.RequestAsync<TResponse, ApiData<TRequest>>
+                         (new ApiData<TRequest>(header, Token, UserId, data, CryptId), timeout);
         }
     }
 }

@@ -6,8 +6,8 @@ namespace ApiTypes.Communication.Messages
 {
     public class MessageHistoryResponse : ISerializable<MessageHistoryResponse>
     {
-        public required int FromId { get; init; }
-        public required Message[] Messages { get; init; }
+        public int FromId { get; set; }
+        public Message[] Messages { get; set; }
 
         [SetsRequiredMembers]
         public MessageHistoryResponse(int fromId, Message[] messages)

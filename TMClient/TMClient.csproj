@@ -25,4 +25,10 @@
     <ProjectReference Include="..\TMApi\TMApi.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="AutoSerializer">
+      <HintPath>..\ApiTypes\Lib\AutoSerializer.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>

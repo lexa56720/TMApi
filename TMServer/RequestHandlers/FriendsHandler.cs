@@ -27,7 +27,7 @@ namespace TMServer.RequestHandlers
                                            .ToArray();
 
             if (!filteredRequests.Any())
-                return new SerializableArray<FriendRequest>(Array.Empty<FriendRequest>());
+                return new SerializableArray<FriendRequest>([]);
 
             return new SerializableArray<FriendRequest>(filteredRequests);
         }

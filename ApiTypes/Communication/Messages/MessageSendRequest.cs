@@ -5,9 +5,9 @@ namespace ApiTypes.Communication.Messages
 {
     public class MessageSendRequest : ISerializable<MessageSendRequest>
     {
-        public required string Text { get; init; } = string.Empty;
+        public string Text { get; set; } = string.Empty;
 
-        public required int DestinationId { get; init; }
+        public int DestinationId { get; set; }
 
 
         [SetsRequiredMembers]

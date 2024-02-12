@@ -13,14 +13,14 @@ namespace TMServer.ServerComponent.ApiResponser
             return;
         }
 
-        public void DisposeEncryptor(IEncrypter encryptor)
+        public void DisposeEncrypter(IEncrypter encrypter)
         {
-            encryptor.Dispose();
+            encrypter.Dispose();
         }
-
-        public IEncrypter? GetDecrypter(IPacketInfo packet)
+        public IEncrypter? GetDecrypter(ReadOnlySpan<byte> bytes)
         {
-            var cryptId = ((ITMPacket)packet).Id.InstanceValue;
+            var cryptId = 0;
+            //var cryptId = ((ITMPacket)packet.InfoObj).Id.InstanceValue;
             var key = Crypt.GetAesKey(cryptId);
             if (key == null)
                 return null;

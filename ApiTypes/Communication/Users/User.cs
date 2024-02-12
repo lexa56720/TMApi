@@ -5,13 +5,13 @@ namespace ApiTypes.Communication.Users
 {
     public class User : ISerializable<User>
     {
-        public required string Name { get; init; }
+        public  string Name { get; set; }
 
-        public required int Id { get; init; }
+        public  int Id { get; set; }
 
-        public required string Login { get; init; }
+        public  string Login { get; set; }
 
-        public required bool IsOnline { get; init; } = false;
+        public  bool IsOnline { get; set; } = false;
 
         [SetsRequiredMembers]
         public User(string name, int id,string login, bool isOnline)

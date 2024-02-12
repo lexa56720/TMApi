@@ -17,7 +17,7 @@ namespace TMApi.ApiRequests.Messages
                 (RequestHeaders.GetMessageByOffset, new LastMessagesRequest(chatId, offset, count));
 
             if (messages == null)
-                return Array.Empty<Message>();
+                return [];
 
             return messages.Messages;
         }
@@ -27,7 +27,7 @@ namespace TMApi.ApiRequests.Messages
                 (RequestHeaders.GetMessagesByLastId, new MessageHistoryRequest(chatId, fromMessageId));
 
             if (messages == null)
-                return Array.Empty<Message>();
+                return [];
 
             return messages.Messages;
         }
@@ -37,7 +37,7 @@ namespace TMApi.ApiRequests.Messages
                 (RequestHeaders.GetMessagesById, new IntArrayContainer(messagesId));
 
             if (messages == null)
-                return Array.Empty<Message>();
+                return [];
 
             return messages.Items;
         }

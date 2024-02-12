@@ -26,9 +26,10 @@ namespace TMServer.RequestHandlers
 
         public static void SaveToDB(int userId, IPacket packet)
         {
+            return;
             using var ms = new MemoryStream();
             using var bw = new BinaryWriter(ms);
-            packet.Serialize(bw);
+           // packet.Serialize(bw);
             bw.Write(((ITMPacket)packet).Id.InstanceValue);
             bw.WriteBytes(packet.Source.GetAddressBytes());
             LongPolling.SaveRequest(userId, ms.ToArray(), packet.GetType().AssemblyQualifiedName);
@@ -44,7 +45,7 @@ namespace TMServer.RequestHandlers
             br.ReadByteArray();
 
             var packet = Activator.CreateInstance(Type.GetType(data.DataType)) as IPacket;
-            packet = packet.Deserialize(br);
+          //  packet = packet.Deserialize(br);
             ((ITMPacket)packet).Id.InstanceValue=br.ReadInt32();
             packet.Source = new IPAddress(br.ReadByteArray());
 

@@ -14,17 +14,9 @@ namespace TMServer.ServerComponent.Basics
         protected Responder Responder { get; set; }
         protected ILogger Logger { get; }
 
-        protected Server(int port, IEncryptProvider encryptProvider, IEncryptProvider decryptProvider, ILogger logger)
-        {
-            Responder = new Responder(TimeSpan.FromSeconds(20), port, encryptProvider, decryptProvider);
-            Responder.SetPacketType(typeof(TMPacket<>));
-            Logger = logger;
-        }
-
         protected Server(int port, IEncryptProvider twoWayProvider,ILogger logger)
         {
-            Responder = new Responder(TimeSpan.FromSeconds(20), port, twoWayProvider, twoWayProvider);
-            Responder.SetPacketType(typeof(TMPacket<>));
+            Responder =ResponderFactory.Create(port, twoWayProvider, typeof(TMPacket<>));
             Logger = logger;
         }
         public virtual void Dispose()
@@ -44,7 +36,7 @@ namespace TMServer.ServerComponent.Basics
             Responder.Stop(); 
             Logger.Log($"{GetType().Name} stopped");
         }
-        protected virtual bool IsRequestLegal<T>(ApiData<T> request) where T : ISerializable<T>
+        protected virtual bool IsRequestLegal<T>(ApiData<T> request) where T : ISerializable<T>, new()
         {
             var isLegal = Security.IsTokenCorrect(request.Token, request.UserId);
             if (!isLegal)

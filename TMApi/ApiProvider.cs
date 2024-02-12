@@ -34,8 +34,8 @@ namespace TMApi
             var coderDecoder = await GetCoderDecoder();
             if (coderDecoder == null)
                 return null;
-            using var inputDecoder = coderDecoder.Value.Item1;
-            using var outputEncoder = coderDecoder.Value.Item2;
+            using var inputDecoder = coderDecoder.Value.decoder;
+            using var outputEncoder = coderDecoder.Value.encoder;
 
             RequestResponse? registerResult = null;
             using var rsaRequester = new RequestSender(true, outputEncoder, inputDecoder);

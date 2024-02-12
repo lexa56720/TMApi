@@ -18,9 +18,9 @@ namespace ApiTypes.Communication
     }
     public class MediaData : ISerializable<MediaData>
     {
-        public required byte[] Data { get; init; }
+        public  byte[] Data { get; set; }
 
-        public required MediaType Type { get; init; }
+        public  MediaType Type { get; set; }
 
         public MediaData()
         {

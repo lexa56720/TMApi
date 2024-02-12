@@ -28,7 +28,7 @@ namespace TMApi.ApiRequests.Chats
             var chats = await Requester.PostAsync<SerializableArray<Chat>, IntArrayContainer>
                 (RequestHeaders.GetChatMany, new IntArrayContainer(chatIds));
             if (chats == null)
-                return Array.Empty<Chat>();
+                return [];
             return chats.Items;
         }
 
@@ -51,7 +51,7 @@ namespace TMApi.ApiRequests.Chats
                 (RequestHeaders.GetChatInviteMany, new IntArrayContainer(inviteId));
 
             if (invites == null)
-                return Array.Empty<ChatInvite>();
+                return [];
             return invites.Items;
         }
         public async Task<int[]> GetAllInvites(int userId)
@@ -60,7 +60,7 @@ namespace TMApi.ApiRequests.Chats
                 (RequestHeaders.GetAllChatInvitesForUser, new IntContainer(userId));
 
             if (invites == null)
-                return Array.Empty<int>();
+                return [];
             return invites.Values;
         }
         public async Task<bool> SendChatInviteResponse(ChatInvite invite, bool isAccepted)
@@ -90,7 +90,7 @@ namespace TMApi.ApiRequests.Chats
                              (RequestHeaders.GetChatsByDialogue, new ChatRequest(isDialogue));
 
             if (chats == null)
-                return Array.Empty<Chat>();
+                return [];
             return chats.Items;
         }
     }

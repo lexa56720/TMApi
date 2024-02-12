@@ -8,6 +8,6 @@ namespace TMServer.Logger
         public void Log(string message);
         public void Log(string message, Exception exception);
 
-        public void Log<T>(ApiData<T> apiData) where T : ISerializable<T>;
+        public void Log<T>(ApiData<T> apiData) where T : ISerializable<T>,new();
     }
 }

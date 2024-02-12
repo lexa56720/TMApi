@@ -52,11 +52,11 @@ namespace TMServer.RequestHandlers
         public static SerializableArray<Chat> GetChats(ApiData<IntArrayContainer> request)
         {
             if (!request.Data.Values.Select(v => Security.IsHaveAccessToChat(v, request.UserId)).All(a => a))
-                return new SerializableArray<Chat>(Array.Empty<Chat>());
+                return new SerializableArray<Chat>([]);
 
             var chats = Chats.GetChat(request.Data.Values);
             if (!chats.Any())
-                return new SerializableArray<Chat>(Array.Empty<Chat>());
+                return new SerializableArray<Chat>([]);
 
             return new SerializableArray<Chat>(
                 chats.Select(c => new Chat()
@@ -88,7 +88,7 @@ namespace TMServer.RequestHandlers
         {
             var invites = Chats.GetInvite(request.Data.Values, request.UserId);
             if (!invites.Any())
-                return new SerializableArray<ChatInvite>(Array.Empty<ChatInvite>());
+                return new SerializableArray<ChatInvite>([]);
 
             return new SerializableArray<ChatInvite>(
                 invites.Select(i =>

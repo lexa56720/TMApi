@@ -1,4 +1,5 @@
 ﻿using ApiTypes;
+using AutoSerializer;
 using CSDTP;
 using System;
 using System.Collections.Generic;
@@ -20,7 +21,7 @@ namespace TMServer.Logger
             Log(message+": "+exception.StackTrace);
         }
 
-        public void Log<T>(ApiData<T> apiData) where T : ISerializable<T>
+        public void Log<T>(ApiData<T> apiData) where T : ISerializable<T>,new()
         {
             Log($"{apiData.UserId} {apiData.Header}");
         }

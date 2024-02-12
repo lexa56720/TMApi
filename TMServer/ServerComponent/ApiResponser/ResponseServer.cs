@@ -20,13 +20,13 @@ namespace TMServer.ServerComponent.ApiResponser
         {
         }
 
-        public void RegisterGetHandler<T>(Action<ApiData<T>> func, RequestHeaders header) where T : ISerializable<T>
+        public void RegisterGetHandler<T>(Action<ApiData<T>> func, RequestHeaders header) where T : ISerializable<T>, new()
         {
             var type = typeof(ApiData<T>);
             if (!GetHandlers.ContainsKey(type))
             {
                 GetHandlers.Add(type, new Dictionary<RequestHeaders, object>());
-                Responder.RegisterGetHandler(new Action<ApiData<T>>(InvokeHandler<T>));
+                Responder.RegisterDataHandler(new Action<ApiData<T>>(InvokeHandler<T>));
             }
 
             if (GetHandlers.TryGetValue(type, out var handler) && handler.ContainsKey(header))
@@ -34,13 +34,13 @@ namespace TMServer.ServerComponent.ApiResponser
 
             GetHandlers[type].Add(header, func);
         }
-        public void RegisterPostHandler<T, U>(Func<ApiData<T>, U?> func, RequestHeaders header) where T : ISerializable<T> where U : ISerializable<U>
+        public void RegisterPostHandler<T, U>(Func<ApiData<T>, U?> func, RequestHeaders header) where T : ISerializable<T>, new() where U : ISerializable<U>, new()
         {
             var type = typeof((ApiData<T>,U));
             if (!PostHandlers.ContainsKey(type))
             {
                 PostHandlers.Add(type, new Dictionary<RequestHeaders, object>());
-                Responder.RegisterPostHandler(new Func<ApiData<T>, U?>(InvokeHandler<T, U>));
+                Responder.RegisterRequestHandler(new Func<ApiData<T>, U?>(InvokeHandler<T, U>));
             }
 
             if (PostHandlers.TryGetValue(type, out var handler) && handler.ContainsKey(header))
@@ -49,7 +49,7 @@ namespace TMServer.ServerComponent.ApiResponser
             PostHandlers[type].Add(header, func);
         }
 
-        private void InvokeHandler<T>(ApiData<T> request) where T : ISerializable<T>
+        private void InvokeHandler<T>(ApiData<T> request) where T : ISerializable<T>, new()
         {
             if (IsRequestLegal(request) && GetHandlers.TryGetValue(typeof(ApiData<T>),
                 out var typeHandler) && typeHandler.TryGetValue(request.Header, out var handler))
@@ -58,7 +58,7 @@ namespace TMServer.ServerComponent.ApiResponser
                 ((Delegate)handler).Method.Invoke(handler, new object[] { request });
             }
         }
-        private U? InvokeHandler<T, U>(ApiData<T> request) where T : ISerializable<T> where U : ISerializable<U>
+        private U? InvokeHandler<T, U>(ApiData<T> request) where T : ISerializable<T>, new() where U : ISerializable<U>, new()
         {
             if (IsRequestLegal(request) && PostHandlers.TryGetValue(typeof((ApiData<T>, U)),
                 out var typeHandler) && typeHandler.TryGetValue(request.Header, out var handler))

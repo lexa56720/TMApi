@@ -5,14 +5,12 @@ namespace ApiTypes.Communication.Auth
 {
     public class RegisterRequest : ISerializable<RegisterRequest>
     {
-        public required string Username { get; init; }
+        public string Username { get; set; }
 
-        public required string Login { get; init; }
+        public string Login { get; set; }
 
-        public required string Password { get; init; }
+        public string Password { get; set; }
 
-
-        [SetsRequiredMembers]
         public RegisterRequest(string username, string login, string password)
         {
             Username = username;

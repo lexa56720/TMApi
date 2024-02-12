@@ -5,9 +5,9 @@ namespace ApiTypes.Communication.Auth
 {
     public class RsaPublicKey : ISerializable<RsaPublicKey>
     {
-        public required string Key { get; init; }
+        public string Key { get; set; }
 
-        public int Id { get; init; } = -1;
+        public int Id { get; set; } = -1;
 
         [SetsRequiredMembers]
         public RsaPublicKey(string key)
@@ -19,6 +19,11 @@ namespace ApiTypes.Communication.Auth
         {
             Key = key;
             Id = id;
+        }
+
+        public RsaPublicKey()
+        {
+
         }
 
         public void Serialize(BinaryWriter writer)

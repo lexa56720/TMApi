@@ -10,7 +10,7 @@ namespace ApiTypes.Communication.Users
 {
     public class ChangeNameRequest : ISerializable<ChangeNameRequest>
     {
-        public required string NewName { get; init; }
+        public string NewName { get; set; }
         public void Serialize(BinaryWriter writer)
         {
             writer.Write(NewName);

@@ -5,15 +5,15 @@ namespace ApiTypes.Communication.Messages
 {
     public class Message : ISerializable<Message>
     {
-        public required int Id { get; init; }
+        public int Id { get; set; }
 
-        public required int AuthorId { get; init; }
+        public int AuthorId { get; set; }
 
-        public required int DestinationId { get; init; }
+        public int DestinationId { get; set; }
 
-        public required string Text { get; init; }
+        public string Text { get; set; }
 
-        public required DateTime SendTime { get; init; }
+        public  DateTime SendTime { get; set; }
 
 
         public Message()

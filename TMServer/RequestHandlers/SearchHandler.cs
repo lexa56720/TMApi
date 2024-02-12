@@ -17,14 +17,14 @@ namespace TMServer.RequestHandlers
         public static SerializableArray<User> GetUserByName(ApiData<SearchRequest> request)
         {
             if (!DataConstraints.IsSearchQueryValid(request.Data.SearchQuery))
-                return new SerializableArray<User>(Array.Empty<User>());
+                return new SerializableArray<User>([]);
 
             var users = Users.GetUserByName(request.Data.SearchQuery)
                 .UnionBy(Users.GetUserByLogin(request.Data.SearchQuery),u=>u.Id)
                 .Where(u => u.Id != request.UserId);
 
             if (!users.Any())
-                return new SerializableArray<User>(Array.Empty<User>());
+                return new SerializableArray<User>([]);
 
             return new SerializableArray<User>(users.Select(
                 u => new User()

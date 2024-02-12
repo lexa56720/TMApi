@@ -5,7 +5,7 @@ namespace ApiTypes.Communication.Search
 {
     public class SearchRequest : ISerializable<SearchRequest>
     {
-        public required string SearchQuery { get; init; }
+        public string SearchQuery { get; set; }
 
         public SearchRequest()
         {

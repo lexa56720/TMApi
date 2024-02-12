@@ -7,12 +7,12 @@ namespace ApiTypes.Communication.Chats
 {
     public class Chat : ISerializable<Chat>
     {
-        public required int Id { get; init; }
+        public  int Id { get; set; }
 
-        public required int AdminId { get; init; }
-        public required int[] MemberIds { get; init; } = Array.Empty<int>();
+        public int AdminId { get; set; }
+        public int[] MemberIds { get; set; } = [];
 
-        public required bool IsDialogue { get; init; }
+        public  bool IsDialogue { get; set; }
         public string Name { get; set; } = string.Empty;
 
 

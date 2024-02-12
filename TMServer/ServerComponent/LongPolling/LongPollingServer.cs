@@ -23,9 +23,8 @@ namespace TMServer.ServerComponent.LongPolling
         public LongPollingServer(int port, IEncryptProvider twoWayProvider, ILogger logger) 
                               : base(port, twoWayProvider, logger)
         {
-            Responder.ResponseIfNull = false;
-            Responder.RegisterPostHandler
-                      <ApiData<LongPollingRequest>, Notification>(LongPollArrived);
+           // Responder.ResponseIfNull = false;
+            Responder.RegisterRequestHandler<ApiData<LongPollingRequest>, Notification>(LongPollArrived);
             DBChangeHandler.UpdateForUser += DBUpdateForUser;
         }
 
@@ -63,7 +62,7 @@ namespace TMServer.ServerComponent.LongPolling
             Logger.Log($"poll request from {userId} responsed");
 
             var notification = LongPollHandler.GetUpdates(userId);
-            Responder.ResponseManually(requestContainer, packet, notification);
+           // Responder.ResponseManually(requestContainer, packet, notification);
         }
     }
 }

@@ -21,7 +21,7 @@ namespace TMApi.ApiRequests.Friends
                 (RequestHeaders.GetFriendRequestMany, new IntArrayContainer(requestIds));
 
             if (requests == null)
-                return Array.Empty<FriendRequest>();
+                return [];
             return requests.Items;
         }
 
@@ -31,7 +31,7 @@ namespace TMApi.ApiRequests.Friends
                 (RequestHeaders.GetAllFriendRequestForUser, new IntContainer(userId));
 
             if (requests == null)
-                return Array.Empty<int>();
+                return [];
             return requests.Values;
         }
         public async Task<bool> ResponseFriendRequest(FriendRequest request, bool isAccepted)

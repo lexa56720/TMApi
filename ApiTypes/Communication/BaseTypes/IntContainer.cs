@@ -4,12 +4,15 @@ namespace ApiTypes.Communication.BaseTypes
 {
     public class IntContainer : ISerializable<IntContainer>
     {
-        public int Value { get; init; }
+        public int Value { get; set; }
 
 
         public IntContainer(int value)
         {
             Value = value;
+        }
+        public IntContainer()
+        {
         }
         public static IntContainer Deserialize(BinaryReader reader)
         {

@@ -6,14 +6,14 @@ namespace ApiTypes.Communication.Users
 {
     public class UserInfo : ISerializable<UserInfo>
     {
-        public required User MainInfo { get; init; }
+        public  User MainInfo { get; set; }
 
-        public required User[] Friends { get; init; } = Array.Empty<User>();
-        public required int[] FriendRequests { get; init; } = Array.Empty<int>();
+        public  User[] Friends { get; set; } = [];
+        public  int[] FriendRequests { get; set; } = [];
 
-        public required int[] Chats { get; init; } = Array.Empty<int>();
+        public  int[] Chats { get; set; } = [];
 
-        public required int[] ChatInvites { get;init; } = Array.Empty<int>();
+        public  int[] ChatInvites { get;set; } = [];
 
 
         [SetsRequiredMembers]

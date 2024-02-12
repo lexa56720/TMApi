@@ -11,9 +11,9 @@ namespace ApiTypes.Communication.Messages
 {
     public class MessageHistoryRequest :ISerializable<MessageHistoryRequest>
     {
-        public required int ChatId { get; init; }
-        public int MaxCount { get; init; } = 20;
-        public required int LastMessageId { get; init; }
+        public int ChatId { get; set; }
+        public int MaxCount { get; set; } = 20;
+        public int LastMessageId { get; set; }
 
         [SetsRequiredMembers]
         public MessageHistoryRequest(int chatId,int lastMessageId,int maxCount=20)

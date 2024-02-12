@@ -1,18 +1,18 @@
 ﻿using CSDTP;
+using AutoSerializer;
 using System.Diagnostics.CodeAnalysis;
-
 namespace ApiTypes
 {
-    public class ApiData<T> : ISerializable<ApiData<T>> where T : ISerializable<T>
+    public class ApiData<T> : ISerializable<ApiData<T>> where T : ISerializable<T>,new()
     {
-        public RequestHeaders Header { get; init; } = RequestHeaders.None;
-        public required string Token { get; init; }
+        public RequestHeaders Header { get; set; } = RequestHeaders.None;
+        public required string Token { get; set; }
 
-        public required int UserId { get; init; }
+        public required int UserId { get; set; }
 
-        public required int CryptId { get; init; }
+        public required int CryptId { get; set; }
 
-        public required T Data { get; init; }
+        public required T Data { get; set; }
 
         [SetsRequiredMembers]
         public ApiData(string token, int id, T data)
@@ -30,7 +30,7 @@ namespace ApiTypes
             UserId = id;
             CryptId = cryptId;
         }
-
+        [SetsRequiredMembers]
         public ApiData()
         {
 

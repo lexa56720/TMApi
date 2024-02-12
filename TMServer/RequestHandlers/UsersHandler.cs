@@ -42,7 +42,7 @@ namespace TMServer.RequestHandlers
         {
             var users = Users.GetUserMain(ids.Data.Values);
             if (!users.Any())
-                return new SerializableArray<User>(Array.Empty<User>());
+                return new SerializableArray<User>([]);
             return new SerializableArray<User>(users.Select(ConvertUser).ToArray());
         }
 

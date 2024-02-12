@@ -5,11 +5,11 @@ namespace ApiTypes.Communication.Chats
 {
     public class ChatInvite : ISerializable<ChatInvite>
     {
-        public int ChatId { get; init; }
+        public int ChatId { get; set; }
 
-        public int ToUserId { get; init; }
+        public int ToUserId { get; set; }
 
-        public int FromUserId { get; init; }
+        public int FromUserId { get; set; }
         public int Id { get; set; } = -1;
         public ChatInvite()
         {
