@@ -22,14 +22,5 @@ namespace ApiTypes.Communication.Chats
         { 
         }
 
-        public void Serialize(BinaryWriter writer)
-        {
-            writer.Write(IsDialogues);
-        }
-
-        public static ChatRequest Deserialize(BinaryReader reader)
-        {
-            return new ChatRequest(reader.ReadBoolean());
-        }
     }
 }

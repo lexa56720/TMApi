@@ -33,23 +33,5 @@ namespace ApiTypes.Communication.Chats
             FromUserId = fromUserId;
             Id = id;
         }
-        public void Serialize(BinaryWriter writer)
-        {
-            writer.Write(ChatId);
-            writer.Write(ToUserId);
-            writer.Write(FromUserId);
-            writer.Write(Id);
-        }
-
-        public static ChatInvite Deserialize(BinaryReader reader)
-        {
-            return new ChatInvite()
-            {
-                ChatId = reader.ReadInt32(),
-                ToUserId = reader.ReadInt32(),
-                FromUserId=reader.ReadInt32(),
-                Id =reader.ReadInt32(),
-            };
-        }
     }
 }

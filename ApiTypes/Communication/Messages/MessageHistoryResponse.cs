@@ -20,19 +20,5 @@ namespace ApiTypes.Communication.Messages
         {
         }
 
-        public static MessageHistoryResponse Deserialize(BinaryReader reader)
-        {
-            return new MessageHistoryResponse()
-            {
-                FromId = reader.ReadInt32(),
-                Messages = reader.Read<Message>()
-            };
-        }
-
-        public void Serialize(BinaryWriter writer)
-        {
-            writer.Write(FromId);
-            writer.Write(Messages);
-        }
     }
 }

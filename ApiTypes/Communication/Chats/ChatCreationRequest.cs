@@ -21,22 +21,5 @@ namespace ApiTypes.Communication.Chats
             Members = members;
         }
 
-        public void Serialize(BinaryWriter writer)
-        {
-            writer.Write(ChatName);
-            writer.Write(Members);
-        }
-
-
-        public static ChatCreationRequest Deserialize(BinaryReader reader)
-        {
-            return new ChatCreationRequest()
-            {
-                ChatName = reader.ReadString(),
-                Members = reader.ReadInt32Array(),
-            };
-
-        }
-
     }
 }

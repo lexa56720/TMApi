@@ -11,10 +11,6 @@ namespace ApiTypes.Communication.Users
     public class ChangeNameRequest : ISerializable<ChangeNameRequest>
     {
         public string NewName { get; set; }
-        public void Serialize(BinaryWriter writer)
-        {
-            writer.Write(NewName);
-        }
 
         public ChangeNameRequest()
         {
@@ -25,13 +21,6 @@ namespace ApiTypes.Communication.Users
         public ChangeNameRequest(string newName)
         {
             NewName = newName;
-        }
-        public static ChangeNameRequest Deserialize(BinaryReader reader)
-        {
-            return new ChangeNameRequest()
-            {
-                NewName = reader.ReadString()
-            };
         }
     }
 }

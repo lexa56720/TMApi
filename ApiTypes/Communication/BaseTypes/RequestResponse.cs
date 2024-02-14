@@ -26,19 +26,5 @@ namespace ApiTypes.Communication.BaseTypes
         {
         }
 
-        public void Serialize(BinaryWriter writer)
-        {
-            writer.Write(IsAccepted);
-            writer.Write(RequestId);
-        }
-
-        public static RequestResponse Deserialize(BinaryReader reader)
-        {
-            return new RequestResponse()
-            {
-                IsAccepted = reader.ReadBoolean(),
-                RequestId = reader.ReadInt32(),
-            };
-        }
     }
 }

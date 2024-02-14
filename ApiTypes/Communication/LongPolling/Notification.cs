@@ -17,27 +17,5 @@ namespace ApiTypes.Communication.LongPolling
 
         public int[] FriendsProfileChanged { get; set; } = [];
 
-        public void Serialize(BinaryWriter writer)
-        {
-            writer.Write(MessagesIds);
-            writer.Write(FriendRequestIds);
-            writer.Write(ChatInviteIds);
-            writer.Write(NewFriends);
-            writer.Write(NewChats);
-            writer.Write(FriendsProfileChanged);
-        }
-
-        public static Notification Deserialize(BinaryReader reader)
-        {
-            return new Notification()
-            {
-                MessagesIds = reader.ReadInt32Array(),
-                FriendRequestIds = reader.ReadInt32Array(),
-                ChatInviteIds = reader.ReadInt32Array(),
-                NewFriends = reader.ReadInt32Array(),
-                NewChats = reader.ReadInt32Array(),
-                FriendsProfileChanged = reader.ReadInt32Array()
-            };
-        }
     }
 }

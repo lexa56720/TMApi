@@ -31,25 +31,6 @@ namespace ApiTypes.Communication.Messages
             SendTime = sendTime;
      
         }
-        public void Serialize(BinaryWriter writer)
-        {
-            writer.Write(Id);
-            writer.Write(AuthorId);
-            writer.Write(DestinationId);
-            writer.Write(Text);
-            writer.Write(SendTime.ToBinary());
-        }
 
-        public static Message Deserialize(BinaryReader reader)
-        {
-            return new Message()
-            {
-                Id = reader.ReadInt32(),
-                AuthorId = reader.ReadInt32(),
-                DestinationId = reader.ReadInt32(),
-                Text = reader.ReadString(),
-                SendTime = DateTime.FromBinary(reader.ReadInt64())
-            };
-        }
     }
 }

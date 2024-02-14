@@ -20,14 +20,5 @@ namespace ApiTypes.Communication.BaseTypes
         {
         }
 
-        public void Serialize(BinaryWriter writer)
-        {
-            writer.Write(Values);
-        }
-
-        public static IntArrayContainer Deserialize(BinaryReader reader)
-        {
-            return new IntArrayContainer(reader.ReadInt32Array());
-        }
     }
 }

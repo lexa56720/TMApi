@@ -17,15 +17,5 @@ namespace ApiTypes.Communication.Search
         {
             SearchQuery = searchQuery;
         }
-
-        public static SearchRequest Deserialize(BinaryReader reader)
-        {
-            return new SearchRequest(reader.ReadString());
-        }
-
-        public void Serialize(BinaryWriter writer)
-        {
-            writer.Write(SearchQuery);
-        }
     }
 }

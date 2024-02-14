@@ -29,27 +29,5 @@ namespace ApiTypes.Communication.Chats
         public Chat()
         {
         }
-
-        public void Serialize(BinaryWriter writer)
-        {
-            writer.Write(Id);
-            writer.Write(AdminId);
-            writer.Write(MemberIds);
-            writer.Write(IsDialogue);
-            writer.Write(Name);
-        }
-
-        public static Chat Deserialize(BinaryReader reader)
-        {
-            var chat = new Chat()
-            {
-                Id = reader.ReadInt32(),
-                AdminId = reader.ReadInt32(),
-                MemberIds = reader.ReadInt32Array(),
-                IsDialogue = reader.ReadBoolean(),
-                Name = reader.ReadString(),
-            };
-            return chat;
-        }
     }
 }

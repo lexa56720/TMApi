@@ -22,21 +22,5 @@ namespace ApiTypes.Communication.Auth
 
         }
 
-        public void Serialize(BinaryWriter writer)
-        {
-            writer.Write(Username);
-            writer.Write(Login);
-            writer.Write(Password);
-        }
-
-        public static RegisterRequest Deserialize(BinaryReader reader)
-        {
-            return new RegisterRequest()
-            {
-                Username = reader.ReadString(),
-                Login = reader.ReadString(),
-                Password = reader.ReadString()
-            };
-        }
     }
 }

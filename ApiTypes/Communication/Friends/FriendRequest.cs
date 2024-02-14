@@ -27,21 +27,5 @@ namespace ApiTypes.Communication.Friends
 
         }
 
-        public void Serialize(BinaryWriter writer)
-        {
-            writer.Write(FromId);
-            writer.Write(ToId);
-            writer.Write(Id);
-        }
-
-        public static FriendRequest Deserialize(BinaryReader reader)
-        {
-            return new FriendRequest()
-            {
-                FromId = reader.ReadInt32(),
-                ToId = reader.ReadInt32(),
-                Id= reader.ReadInt32(),
-            };
-        }
     }
 }

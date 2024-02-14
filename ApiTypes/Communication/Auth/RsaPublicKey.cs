@@ -26,15 +26,5 @@ namespace ApiTypes.Communication.Auth
 
         }
 
-        public void Serialize(BinaryWriter writer)
-        {
-            writer.Write(Key);
-            writer.Write(Id);
-        }
-
-        public static RsaPublicKey Deserialize(BinaryReader reader)
-        {
-            return new RsaPublicKey(reader.ReadString(), reader.ReadInt32());
-        }
     }
 }

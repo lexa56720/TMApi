@@ -21,21 +21,6 @@ namespace ApiTypes.Communication.Messages
         public LastMessagesRequest()
         {
         }
-        public void Serialize(BinaryWriter writer)
-        {
-            writer.Write(ChatId);
-            writer.Write(Offset);
-            writer.Write(MaxCount);
-        }
-        public static LastMessagesRequest Deserialize(BinaryReader reader)
-        {
-            return new LastMessagesRequest()
-            {
-                ChatId = reader.ReadInt32(),
-                Offset = reader.ReadInt32(),
-                MaxCount = reader.ReadInt32(),
 
-            };
-        }
     }
 }

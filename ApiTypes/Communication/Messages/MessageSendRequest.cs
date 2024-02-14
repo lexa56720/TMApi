@@ -22,20 +22,5 @@ namespace ApiTypes.Communication.Messages
 
         }
 
-        public void Serialize(BinaryWriter writer)
-        {
-            writer.Write(Text);
-            writer.Write(DestinationId);
-        }
-
-        public static MessageSendRequest Deserialize(BinaryReader reader)
-        {
-            var message = new MessageSendRequest()
-            {
-                Text = reader.ReadString(),
-                DestinationId = reader.ReadInt32(),
-            };
-            return message;
-        }
     }
 }

@@ -28,26 +28,5 @@ namespace ApiTypes.Communication.Users
 
         }
 
-        public void Serialize(BinaryWriter writer)
-        {
-            MainInfo.Serialize(writer);
-
-            writer.Write(Friends);
-            writer.Write(FriendRequests);
-            writer.Write(Chats);
-            writer.Write(ChatInvites);
-        }
-        public static UserInfo Deserialize(BinaryReader reader)
-        {
-            return new UserInfo()
-            {
-                MainInfo = User.Deserialize(reader),
-                Friends = reader.Read<User>(),
-                FriendRequests=reader.ReadInt32Array(),
-                Chats = reader.ReadInt32Array(),
-                ChatInvites = reader.ReadInt32Array(),
-            };
-        }
-
     }
 }
