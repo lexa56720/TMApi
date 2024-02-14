@@ -2,6 +2,7 @@
 using CSDTP.Cryptography.Algorithms;
 using CSDTP.Cryptography.Providers;
 using CSDTP.Packets;
+using System.Net.Sockets;
 using TMServer.DataBase.Interaction;
 
 namespace TMServer.ServerComponent.ApiResponser
@@ -19,18 +20,19 @@ namespace TMServer.ServerComponent.ApiResponser
         }
         public IEncrypter? GetDecrypter(ReadOnlySpan<byte> bytes)
         {
-            var cryptId = 0;
-            //var cryptId = ((ITMPacket)packet.InfoObj).Id.InstanceValue;
+            var cryptId = BitConverter.ToInt32(bytes.Slice(bytes.Length-4,4));
             var key = Crypt.GetAesKey(cryptId);
             if (key == null)
                 return null;
             return new AesEncrypter(key);
         }
 
-        public IEncrypter? GetEncrypter(IPacketInfo packet)
+        public IEncrypter? GetEncrypter(IPacketInfo responsePacket, IPacketInfo? requestPacket = null)
         {
-            var cryptId = ((ITMPacket)packet.InfoObj).Id.InstanceValue;
-            var key = Crypt.GetAesKey(cryptId); 
+            if (requestPacket is not ITMPacket)
+                return null;
+            var cryptId = ((ITMPacket)requestPacket).Id.InstanceValue;
+            var key = Crypt.GetAesKey(cryptId);
             if (key == null)
                 return null;
             return new AesEncrypter(key);

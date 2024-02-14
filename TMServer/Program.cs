@@ -9,6 +9,8 @@ namespace TMServer
     {
         private static void Main(string[] args)
         {
+            Serializer.SerializerProvider = new ApiTypes.SerializerProvider();
+
             ILogger logger = new ConsoleLogger();
 
             using var db = new TmdbContext();

@@ -2,6 +2,7 @@
 using CSDTP.Cryptography.Algorithms;
 using CSDTP.Cryptography.Providers;
 using CSDTP.Packets;
+using System.Net.Sockets;
 using TMServer.DataBase.Interaction;
 using TMServer.DataBase.Tables;
 
@@ -21,18 +22,21 @@ namespace TMServer.ServerComponent.Auth
 
         public IEncrypter? GetDecrypter(ReadOnlySpan<byte> bytes)
         {
-            DBRsa? keys = null;
+            var cryptId = BitConverter.ToInt32(bytes.Slice(bytes.Length - 4, 4));
+            if (cryptId == 0)
+                return null;
+            var keys = Crypt.GetRsaKeysById(cryptId);
             if (keys == null)
                 return null;
             var rsaDecrypter = new RsaEncrypter(keys.PrivateServerKey);
             return rsaDecrypter;
         }
-        public IEncrypter? GetEncrypter(IPacketInfo packet)
+        public IEncrypter? GetEncrypter(IPacketInfo responsePacket, IPacketInfo? requestPacket)
         {
-            if (IsInitPacket(packet))
-                return new FakeEncrypter();
+            if (requestPacket == null || IsInitPacket(requestPacket))
+                return null;
 
-            var keys = GetKeys((IPacketInfo)packet.InfoObj);
+            var keys = GetKeys(requestPacket);
             if (keys == null)
                 return null;
             var rsaDecrypter = new RsaEncrypter(keys.PublicClientKey);
@@ -45,7 +49,7 @@ namespace TMServer.ServerComponent.Auth
         }
         private bool IsInitPacket(IPacketInfo packet)
         {
-            if (((ITMPacket)(IPacketInfo)packet.InfoObj).Id.InstanceValue <= 0)
+            if (packet is ITMPacket && ((ITMPacket)packet).Id.InstanceValue <= 0)
                 return true;
             return false;
         }
