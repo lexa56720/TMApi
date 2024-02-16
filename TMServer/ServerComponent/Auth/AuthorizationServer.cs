@@ -11,28 +11,20 @@ namespace TMServer.ServerComponent.Auth
         public AuthorizationServer(int port, IEncryptProvider encryptProvider, ILogger logger) : base(port, encryptProvider,logger)
         {
         }
-        public void Register<T, U>(Func<T, U> func) where T : ISerializable<T>, new() where U : ISerializable<U>,new()
+        public void Register<TRequest, TResponse>(Func<TRequest, TResponse> func)
+                    where TRequest : ISerializable<TRequest>, new()
+                    where TResponse : ISerializable<TResponse>,new()
         {
             Responder.RegisterRequestHandler(Invoke(func));
         }
-        public void Register<T, U>(Func<T, IPacketInfo, U> func) where T : ISerializable<T>, new() where U : ISerializable<U>, new()
+        private Func<TRequest, TResponse> Invoke<TRequest, TResponse>(Func<TRequest, TResponse> func) 
+                                          where TRequest : ISerializable<TRequest>, new() 
+                                          where TResponse : ISerializable<TResponse>, new()
         {
-            Responder.RegisterRequestHandler(Invoke(func));
-        }
-        private Func<T, U> Invoke<T, U>(Func<T, U> func) where T : ISerializable<T>, new() where U : ISerializable<U>, new()
-        {
-            return new Func<T, U>(o=>
+            return new Func<TRequest, TResponse>(o=>
             {
-                Logger.Log($"auth stuff");
+                Logger.Log($"auth request");
                 return func(o);
-            });
-        }
-        private Func<T, IPacketInfo, U> Invoke<T, U>(Func<T, IPacketInfo, U> func) where T : ISerializable<T>, new() where U : ISerializable<U>, new()
-        {
-            return new Func<T, IPacketInfo, U>((o, e)=>
-            {
-                Logger.Log($"{e.Source} auth stuff");
-                return func(o, e);
             });
         }
     }

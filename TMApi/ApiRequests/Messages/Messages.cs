@@ -13,7 +13,7 @@ namespace TMApi.ApiRequests.Messages
 
         public async Task<Message[]> GetMessages(int chatId, int count, int offset)
         {
-            var messages = await Requester.PostAsync<MessageHistoryResponse, LastMessagesRequest>
+            var messages = await Requester.RequestAsync<MessageHistoryResponse, LastMessagesRequest>
                 (RequestHeaders.GetMessageByOffset, new LastMessagesRequest(chatId, offset, count));
 
             if (messages == null)
@@ -23,7 +23,7 @@ namespace TMApi.ApiRequests.Messages
         }
         public async Task<Message[]> GetMessages(int chatId, int fromMessageId)
         {
-            var messages = await Requester.PostAsync<MessageHistoryResponse, MessageHistoryRequest>
+            var messages = await Requester.RequestAsync<MessageHistoryResponse, MessageHistoryRequest>
                 (RequestHeaders.GetMessagesByLastId, new MessageHistoryRequest(chatId, fromMessageId));
 
             if (messages == null)
@@ -33,7 +33,7 @@ namespace TMApi.ApiRequests.Messages
         }
         public async Task<Message[]> GetMessages(params int[] messagesId)
         {
-            var messages = await Requester.PostAsync<SerializableArray<Message>, IntArrayContainer>
+            var messages = await Requester.RequestAsync<SerializableArray<Message>, IntArrayContainer>
                 (RequestHeaders.GetMessagesById, new IntArrayContainer(messagesId));
 
             if (messages == null)
@@ -46,7 +46,7 @@ namespace TMApi.ApiRequests.Messages
             if (!DataConstraints.IsMessageLegal(text))
                 return null;
 
-            return await Requester.PostAsync< Message, MessageSendRequest>
+            return await Requester.RequestAsync< Message, MessageSendRequest>
                 (RequestHeaders.NewMessage, new MessageSendRequest(text, destinationId));
         }
     }

@@ -11,9 +11,9 @@ namespace TMServer.RequestHandlers
 {
     internal static class AuthHandler
     {
-        public static RsaPublicKey RsaKeyTrade(RsaPublicKey clientKey, IPacketInfo info)
+        public static RsaPublicKey RsaKeyTrade(RsaPublicKey clientKey)
         {
-            using RsaEncrypter encrypter = new RsaEncrypter();
+            using var encrypter = new RsaEncrypter();
             var serverKey = encrypter.PublicKey;
 
             var id = Crypt.SaveRsaKeyPair(encrypter.PrivateKey, clientKey.Key,

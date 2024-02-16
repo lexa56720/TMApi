@@ -11,22 +11,23 @@ namespace TMServer.ServerComponent.ApiResponser
 {
     internal class ResponseServer : Server
     {
-        private Dictionary<Type, Dictionary<RequestHeaders, object>> PostHandlers = new();
+        private Dictionary<Type, Dictionary<RequestHeaders, object>> PostHandlers = [];
 
 
-        private Dictionary<Type, Dictionary<RequestHeaders, object>> GetHandlers = new();
+        private Dictionary<Type, Dictionary<RequestHeaders, object>> GetHandlers = [];
 
         public ResponseServer(int port, IEncryptProvider encryptProvider, ILogger logger) : base(port, encryptProvider, logger)
         {
         }
 
-        public void RegisterGetHandler<T>(Action<ApiData<T>> func, RequestHeaders header) where T : ISerializable<T>, new()
+        public void RegisterDataHandler<TRequest>(Action<ApiData<TRequest>> func, RequestHeaders header) 
+                    where TRequest : ISerializable<TRequest>, new()
         {
-            var type = typeof(ApiData<T>);
+            var type = typeof(ApiData<TRequest>);
             if (!GetHandlers.ContainsKey(type))
             {
                 GetHandlers.Add(type, new Dictionary<RequestHeaders, object>());
-                Responder.RegisterDataHandler(new Action<ApiData<T>>(InvokeHandler<T>));
+                Responder.RegisterDataHandler(new Action<ApiData<TRequest>>(InvokeHandler<TRequest>));
             }
 
             if (GetHandlers.TryGetValue(type, out var handler) && handler.ContainsKey(header))
@@ -34,13 +35,15 @@ namespace TMServer.ServerComponent.ApiResponser
 
             GetHandlers[type].Add(header, func);
         }
-        public void RegisterPostHandler<T, U>(Func<ApiData<T>, U?> func, RequestHeaders header) where T : ISerializable<T>, new() where U : ISerializable<U>, new()
+        public void RegisterRequestHandler<TRequest, TResponse>(Func<ApiData<TRequest>, TResponse?> func, RequestHeaders header) 
+                    where TRequest : ISerializable<TRequest>, new() 
+                    where TResponse : ISerializable<TResponse>, new()
         {
-            var type = typeof((ApiData<T>,U));
+            var type = typeof((ApiData<TRequest>,TResponse));
             if (!PostHandlers.ContainsKey(type))
             {
-                PostHandlers.Add(type, new Dictionary<RequestHeaders, object>());
-                Responder.RegisterRequestHandler(new Func<ApiData<T>, U?>(InvokeHandler<T, U>));
+                PostHandlers.Add(type, []);
+                Responder.RegisterRequestHandler(new Func<ApiData<TRequest>, TResponse?>(InvokeHandler<TRequest, TResponse>));
             }
 
             if (PostHandlers.TryGetValue(type, out var handler) && handler.ContainsKey(header))
@@ -49,22 +52,24 @@ namespace TMServer.ServerComponent.ApiResponser
             PostHandlers[type].Add(header, func);
         }
 
-        private void InvokeHandler<T>(ApiData<T> request) where T : ISerializable<T>, new()
+        private void InvokeHandler<TRequest>(ApiData<TRequest> request) where TRequest : ISerializable<TRequest>, new()
         {
-            if (IsRequestLegal(request) && GetHandlers.TryGetValue(typeof(ApiData<T>),
+            if (IsRequestLegal(request) && GetHandlers.TryGetValue(typeof(ApiData<TRequest>),
                 out var typeHandler) && typeHandler.TryGetValue(request.Header, out var handler))
             {
                 Logger.Log(request);
                 ((Delegate)handler).Method.Invoke(handler, new object[] { request });
             }
         }
-        private U? InvokeHandler<T, U>(ApiData<T> request) where T : ISerializable<T>, new() where U : ISerializable<U>, new()
+        private TResponse? InvokeHandler<TRequest, TResponse>(ApiData<TRequest> request) 
+                           where TRequest : ISerializable<TRequest>, new() 
+                           where TResponse : ISerializable<TResponse>, new()
         {
-            if (IsRequestLegal(request) && PostHandlers.TryGetValue(typeof((ApiData<T>, U)),
+            if (IsRequestLegal(request) && PostHandlers.TryGetValue(typeof((ApiData<TRequest>, TResponse)),
                 out var typeHandler) && typeHandler.TryGetValue(request.Header, out var handler))
             {
                 Logger.Log(request);
-                return (U?)((Delegate)handler).Method.Invoke(handler, new object[] { request });
+                return (TResponse?)((Delegate)handler).Method.Invoke(handler, new object[] { request });
             }
 
             return default;

@@ -19,8 +19,9 @@ namespace TMServer
             db.SaveChanges();
 
             using var server = new Servers.TMServer(GlobalSettings.AuthPort,
-                                              GlobalSettings.ApiPort,
-                                              GlobalSettings.LongPollPort,logger);
+                                                    GlobalSettings.ApiPort,
+                                                    GlobalSettings.LongPollPort,
+                                                    logger);
             server.Start();
 
             var longPollCleaner = new LongPollCleaner(GlobalSettings.LongPollLifeTime, TimeSpan.FromMinutes(3), logger);

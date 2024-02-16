@@ -22,7 +22,7 @@ namespace TMServer.ServerComponent.Auth
 
         public IEncrypter? GetDecrypter(ReadOnlySpan<byte> bytes)
         {
-            var cryptId = BitConverter.ToInt32(bytes.Slice(bytes.Length - 4, 4));
+            var cryptId = BitConverter.ToInt32(bytes.Slice(bytes.Length - sizeof(int), sizeof(int)));
             if (cryptId == 0)
                 return null;
             var keys = Crypt.GetRsaKeysById(cryptId);
