@@ -22,30 +22,6 @@ namespace TMServer.DataBase.Interaction
             db.SaveChanges();
             return result;
         }
-        public static void SaveRequest(int userId, byte[] data, string dataType)
-        {
-            using var db = new TmdbContext();
-            db.LongPollRequests.Where(r => r.UserId == userId).ExecuteDelete();
-            db.LongPollRequests.Add(new DBLongPollRequest()
-            {
-                RequestPacket = data,
-                CreateDate = DateTime.UtcNow,
-                UserId = userId,
-                DataType = dataType
-            });
-            db.SaveChanges();
-        }
-        public static DBLongPollRequest? LoadRequest(int userId)
-        {
-            using var db = new TmdbContext();
-            var result = db.LongPollRequests
-                           .Where(r => r.UserId == userId).ToArray()
-                           .MaxBy(r => r.CreateDate);
-                           
-            if (result != null)
-                db.LongPollRequests.Remove(result);
-            return result;
-        }
 
         public static void ClearUpdates(int userId)
         {

@@ -17,7 +17,7 @@ namespace TMClient
             var authPort = config.GetValue<int>("auth-port");
             var apiPort = config.GetValue<int>("api-port");
 
-            ApiProvider apiProvider = new ApiProvider(ip, authPort, apiPort, 6667);
+            ApiProvider apiProvider = new ApiProvider(ip, authPort, apiPort, 6667,TimeSpan.FromMinutes(3));
            var api = await apiProvider.GetApiLogin("fuckusfd", "fuckusfd");
            // var api = await apiProvider.GetApiRegistration("fuckusfd", "fuckusfd", "fuckusfd");
             // var api = await apiProvider.GetApiLogin("fucku", "fucku");

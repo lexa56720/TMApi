@@ -8,6 +8,8 @@ namespace TMServer.DataBase;
 
 public partial class TmdbContext : DbContext
 {
+    public static DBChangeHandler ChangeHandler { get; private set; } = new DBChangeHandler();
+
     public TmdbContext()
     {
     }
@@ -15,7 +17,6 @@ public partial class TmdbContext : DbContext
     public TmdbContext(DbContextOptions<TmdbContext> options)
         : base(options)
     {
-
     }
 
     public virtual DbSet<DBAes> AesCrypts { get; set; }
@@ -277,7 +278,7 @@ public partial class TmdbContext : DbContext
                   .WithMany()
                   .HasForeignKey(u => u.UserId);
 
-            entity.HasOne(e=>e.Message)
+            entity.HasOne(e => e.Message)
                   .WithMany()
                   .HasForeignKey(u => u.MessageId);
         });
@@ -338,17 +339,16 @@ public partial class TmdbContext : DbContext
 
     public override int SaveChanges()
     {
-        var isHasChanges = ChangeTracker.HasChanges();
+        if (!ChangeHandler.IsUpdateTracked|| !ChangeTracker.HasChanges())
+            return base.SaveChanges();
 
-        var changes = GetChangedEntities(isHasChanges);
-
+        var changes = GetChangedEntities();
         var value = base.SaveChanges();
-        if (isHasChanges)
-            DBChangeHandler.HandleChanges(changes);
+        ChangeHandler.HandleChanges(changes);
         return value;
     }
 
-    private (EntityEntry entity, EntityState state)[] GetChangedEntities(bool isHasChanges)
+    private (EntityEntry entity, EntityState state)[] GetChangedEntities()
     {
         var entries = ChangeTracker.Entries();
         return entries.Select(e => (e, e.State)).ToArray();

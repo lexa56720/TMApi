@@ -8,7 +8,6 @@
         {
             if (IsRunning)
                 return;
-
             IsRunning = true;
         }
         public virtual void Stop()

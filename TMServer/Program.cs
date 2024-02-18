@@ -18,14 +18,12 @@ namespace TMServer
             db.Database.EnsureCreated();
             db.SaveChanges();
 
-            using var server = new Servers.TMServer(GlobalSettings.AuthPort,
+            using var server = new Servers.TMServer(TimeSpan.FromMinutes(3), 
+                                                    GlobalSettings.AuthPort,
                                                     GlobalSettings.ApiPort,
                                                     GlobalSettings.LongPollPort,
                                                     logger);
             server.Start();
-
-            var longPollCleaner = new LongPollCleaner(GlobalSettings.LongPollLifeTime, TimeSpan.FromMinutes(3), logger);
-            longPollCleaner.Start();
 
             var tokenCleaner = new TokenCleaner(TimeSpan.FromMinutes(15),logger);
             tokenCleaner.Start();

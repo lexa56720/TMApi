@@ -27,6 +27,9 @@
     <Reference Include="CSDTP">
       <HintPath>..\ApiTypes\Lib\CSDTP.dll</HintPath>
     </Reference>
+    <Reference Include="PerformanceUtils">
+      <HintPath>..\ApiTypes\Lib\PerformanceUtils.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
   <ItemGroup>

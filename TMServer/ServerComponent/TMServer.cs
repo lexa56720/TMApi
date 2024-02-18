@@ -25,15 +25,15 @@ namespace TMServer.Servers
 
         private ResponseServer ApiServer { get; set; }
 
-        private LongPollingServer LongPollServer { get; set; }
+        private LongPollServer LongPollServer { get; set; }
 
         private ILogger Logger { get; }
 
-        public TMServer(int authPort, int responsePort, int longPollPort, ILogger logger)
+        public TMServer(TimeSpan longPollLifetime,int authPort, int responsePort, int longPollPort, ILogger logger)
         {
             AuthServer = new AuthorizationServer(authPort, new AuthEncryptProvider(), logger);
             ApiServer = new ResponseServer(responsePort, new ApiEncryptProvider(), logger);
-            LongPollServer = new LongPollingServer(longPollPort, new ApiEncryptProvider(), logger);
+            LongPollServer = new LongPollServer(longPollLifetime,longPollPort, new ApiEncryptProvider(), logger);
 
             RegisterAuthMethods();
             RegisterApiMethods();
@@ -66,13 +66,13 @@ namespace TMServer.Servers
         private void RegisterMessageMethods()
         {
             ApiServer.RegisterRequestHandler<LastMessagesRequest, MessageHistoryResponse>
-                (MessagesHandler.GetMessagesByOffset, RequestHeaders.GetMessageByOffset);
+              (MessagesHandler.GetMessagesByOffset, RequestHeaders.GetMessageByOffset);
 
             ApiServer.RegisterRequestHandler<MessageSendRequest, Message>
               (MessagesHandler.NewMessage, RequestHeaders.NewMessage);
 
             ApiServer.RegisterRequestHandler<MessageHistoryRequest, MessageHistoryResponse>
-                (MessagesHandler.GetMessagesByLastId, RequestHeaders.GetMessagesByLastId);
+              (MessagesHandler.GetMessagesByLastId, RequestHeaders.GetMessagesByLastId);
 
             ApiServer.RegisterRequestHandler<IntArrayContainer, SerializableArray<Message>>
               (MessagesHandler.GetMessagesById, RequestHeaders.GetMessagesById);

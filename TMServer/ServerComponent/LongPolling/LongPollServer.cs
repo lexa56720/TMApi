@@ -5,6 +5,7 @@ using CSDTP.Cryptography.Providers;
 using CSDTP.Packets;
 using CSDTP.Requests;
 using CSDTP.Requests.RequestHeaders;
+using PerformanceUtils.Collections;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,20 +19,27 @@ using TMServer.ServerComponent.Basics;
 
 namespace TMServer.ServerComponent.LongPolling
 {
-    internal class LongPollingServer : Server
+    internal class LongPollServer : Server
     {
-        public LongPollingServer(int port, IEncryptProvider twoWayProvider, ILogger logger) 
-                              : base(port, twoWayProvider, logger)
+
+        private LifeTimeDictionary<int, IPacket<IRequestContainer>> Requests = new();
+
+        private TimeSpan LongPollLifetime { get; }
+
+        public LongPollServer(TimeSpan longPollLifetime, int port, IEncryptProvider encryptProvider, ILogger logger)
+                                : base(port, encryptProvider, logger)
         {
-           // Responder.ResponseIfNull = false;
+
+            TmdbContext.ChangeHandler.UpdateForUser += DBUpdateForUser;
             Responder.RegisterRequestHandler<ApiData<LongPollingRequest>, Notification>(LongPollArrived);
-            DBChangeHandler.UpdateForUser += DBUpdateForUser;
+            LongPollLifetime = longPollLifetime;
         }
 
         public override void Dispose()
         {
             base.Dispose();
-            DBChangeHandler.UpdateForUser -= DBUpdateForUser;
+            TmdbContext.ChangeHandler.UpdateForUser -= DBUpdateForUser;
+            Requests.Clear();
         }
         private void DBUpdateForUser(object? sender, int userId)
         {
@@ -40,29 +48,26 @@ namespace TMServer.ServerComponent.LongPolling
 
         private Notification? LongPollArrived(ApiData<LongPollingRequest> request, IPacketInfo info)
         {
-            Logger.Log($"poll request from {request.UserId} arrived");
-
             if (!IsRequestLegal(request))
                 return null;
+
+            Logger.Log($"poll request from {request.UserId} arrived");
 
             if (LongPollHandler.IsHaveNotifications(request.UserId))
                 return LongPollHandler.GetUpdates(request.UserId);
 
-            LongPollHandler.SaveToDB(request.UserId, (IPacket)info);
+            Requests.TryRemove(request.UserId, out _);
+            Requests.TryAdd(request.UserId, (IPacket<IRequestContainer>)info, LongPollLifetime);
             return null;
         }
 
         public void RespondOnSaved(int userId)
-        {      
-            var packet = LongPollHandler.LoadFromDB(userId);         
-            if (packet == null)
+        {
+            if (!Requests.TryGetValue(userId, out var packet))
                 return;
-            var requestContainer = packet.DataObj as IRequestContainer;
-
-            Logger.Log($"poll request from {userId} responsed");
 
             var notification = LongPollHandler.GetUpdates(userId);
-           // Responder.ResponseManually(requestContainer, packet, notification);
+            Responder.ResponseManually(packet, notification);
         }
     }
 }

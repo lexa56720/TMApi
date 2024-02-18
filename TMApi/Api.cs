@@ -3,6 +3,7 @@ using ApiTypes.Communication.LongPolling;
 using ApiTypes.Communication.Packets;
 using ApiTypes.Communication.Users;
 using CSDTP.Cryptography.Algorithms;
+using System.Net;
 using TMApi.ApiRequests;
 using TMApi.ApiRequests.Chats;
 using TMApi.ApiRequests.Friends;
@@ -40,7 +41,8 @@ namespace TMApi
         private RequestSender Requester { get; set; }
         private LongPolling LongPolling { get; set; }
 
-        internal Api(string token, DateTime tokenTime, int userId, int cryptId, byte[] aesKey)
+        internal Api(string token, DateTime tokenTime, int userId, int cryptId, byte[] aesKey,
+                     IPAddress server, int authPort, int apiPort, int longPollPort)
         {
             Id = userId;
             AccesToken = token;
@@ -49,20 +51,24 @@ namespace TMApi
        
             Preferences.CtyptId = cryptId;
 
-            Requester = new RequestSender(false, Encrypter, Encrypter)
+            Requester = new RequestSender(RequestKind.Request, Encrypter, Encrypter)
             {
                 Token = token,
                 UserId = userId,
+                Server = server,
+                AuthPort = authPort,
+                ApiPort = apiPort,
+                LongPollPort = longPollPort,
             };
         }
-        internal async Task<bool> Init()
+        internal async Task<bool> Init(TimeSpan longPollPeriod)
         {
             Users = new Users(Requester, this);
             Messages = new Messages(Requester, this);
             Chats = new Chats(Requester, this);
             Friends = new Friends(Requester, this);
             Auth = new Auth(Requester, this);
-            LongPolling = new LongPolling(Requester, this);
+            LongPolling = new LongPolling(longPollPeriod,Requester, this);
             LongPolling.StateUpdated += OnUpdateArrived;
 
             UserInfo = await Users.GetUserInfo(Id);

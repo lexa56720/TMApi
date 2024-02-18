@@ -12,47 +12,53 @@ using TMServer.DataBase.Interaction;
 
 namespace TMServer.DataBase
 {
-    internal static class DBChangeHandler
+    public class DBChangeHandler
     {
-        public static event EventHandler<int>? UpdateForUser;
-        public static void HandleChanges((EntityEntry entity, EntityState state)[] entities)
+        public event EventHandler<int>? UpdateForUser;
+        public bool IsUpdateTracked => UpdateForUser != null;
+
+        public void HandleChanges((EntityEntry entity, EntityState state)[] entities)
         {
+            if (!IsUpdateTracked)
+                return;
+
+            var userIds = GetAffectedUsers(entities);
+            foreach (var userId in userIds)
+                NotifyUser(userId);
+        }
+
+        private int[] GetAffectedUsers((EntityEntry entity, EntityState state)[] entities)
+        {
+            using var context = new TmdbContext();
+            var notifyList = new List<int>();
             foreach (var entity in entities)
-            {
                 switch (entity.state)
                 {
                     case EntityState.Added:
                         var name = entity.entity.Metadata.ClrType.Name;
-                        HandleAddedEntity(name, entity.entity);
+                        notifyList.AddRange(HandleAddedEntity(name, entity.entity, context));
                         break;
                 }
-            }
+            context.SaveChanges();
+            return notifyList.Distinct().ToArray();
         }
 
-        private static void HandleAddedEntity(string className, EntityEntry entity)
-        {
-            //Уведомление юзера об обнове в бд на его айди
-            if (entity.Metadata.ClrType.BaseType == typeof(DBUpdate))
-            {
-                NotifyUser((DBUpdate)entity.Entity);
-                return;
-            }
 
-            switch (className)
+        private IEnumerable<int> HandleAddedEntity(string className, EntityEntry entity, TmdbContext context)
+        {
+            return className switch
             {
-                case nameof(DBMessage):
-                    HandleNewMessage((DBMessage)entity.Entity);
-                    break;
-            }
+                nameof(DBMessage) => HandleNewMessage((DBMessage)entity.Entity, context),
+                _ => [],
+            };
         }
 
-        private static void HandleNewMessage(DBMessage message)
+        private IEnumerable<int> HandleNewMessage(DBMessage message, TmdbContext context)
         {
-            using var context = new TmdbContext();
 
-            var chatMembers = Chats.GetChat(message.DestinationId)
+            var chatMembers = context.Chats.First(c => c.Id == message.DestinationId)
                                    .Members.Select(m => m.Id)
-                                   .Where(id=>id!=message.AuthorId);
+                                   .Where(id => id != message.AuthorId);
 
             //Добавление уведомлений в бд
             foreach (var member in chatMembers)
@@ -61,14 +67,13 @@ namespace TMServer.DataBase
                     MessageId = message.Id,
                     UserId = member
                 });
-            context.SaveChanges();
+
+            return chatMembers;
         }
 
-
-        private static void NotifyUser(DBUpdate update)
+        private void NotifyUser(int id)
         {
-            UpdateForUser?.Invoke(null, update.UserId);
+            UpdateForUser?.Invoke(null, id);
         }
-
     }
 }

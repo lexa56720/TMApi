@@ -14,9 +14,9 @@ namespace TMServer.ServerComponent.Basics
         protected Responder Responder { get; set; }
         protected ILogger Logger { get; }
 
-        protected Server(int port, IEncryptProvider twoWayProvider,ILogger logger)
+        protected Server(int port, IEncryptProvider encryptProvider,ILogger logger)
         {
-            Responder =ResponderFactory.Create(port, twoWayProvider, typeof(TMPacket<>));
+            Responder =ResponderFactory.Create(port, encryptProvider, typeof(TMPacket<>));
             Logger = logger;
         }
         public virtual void Dispose()

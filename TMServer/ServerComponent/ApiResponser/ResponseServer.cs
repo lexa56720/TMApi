@@ -13,7 +13,6 @@ namespace TMServer.ServerComponent.ApiResponser
     {
         private Dictionary<Type, Dictionary<RequestHeaders, object>> PostHandlers = [];
 
-
         private Dictionary<Type, Dictionary<RequestHeaders, object>> GetHandlers = [];
 
         public ResponseServer(int port, IEncryptProvider encryptProvider, ILogger logger) : base(port, encryptProvider, logger)
@@ -65,8 +64,9 @@ namespace TMServer.ServerComponent.ApiResponser
                            where TRequest : ISerializable<TRequest>, new() 
                            where TResponse : ISerializable<TResponse>, new()
         {
-            if (IsRequestLegal(request) && PostHandlers.TryGetValue(typeof((ApiData<TRequest>, TResponse)),
-                out var typeHandler) && typeHandler.TryGetValue(request.Header, out var handler))
+            if (IsRequestLegal(request) && 
+                PostHandlers.TryGetValue(typeof((ApiData<TRequest>, TResponse)),out var typeHandler) &&
+                typeHandler.TryGetValue(request.Header, out var handler))
             {
                 Logger.Log(request);
                 return (TResponse?)((Delegate)handler).Method.Invoke(handler, new object[] { request });

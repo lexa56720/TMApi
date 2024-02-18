@@ -4,24 +4,45 @@ using ApiTypes.Communication.Info;
 using ApiTypes.Communication.Packets;
 using ApiTypes.Shared;
 using CSDTP.Cryptography.Algorithms;
+using System.Diagnostics.CodeAnalysis;
 using System.Net;
 
 namespace TMApi
 {
     public class ApiProvider
     {
-        public ApiProvider(IPAddress server, int authPort, int apiPort,int longPollPort)
+        public required IPAddress Server { get; init; }
+        public required int AuthPort { get; init; }
+        public required int ApiPort { get; init; }
+        public required int LongPollPort { get; init; }
+        public required TimeSpan LongPollPeriod { get; init; }
+
+        [SetsRequiredMembers]
+        public ApiProvider(IPAddress server, int authPort, int apiPort, int longPollPort, TimeSpan longPollPeriod)
         {
-            RequestSender.Server = server;
-            RequestSender.RsaPort = authPort;
-            RequestSender.AesPort = apiPort;
-            RequestSender.LongPollPort = longPollPort;
+            Serializer.SerializerProvider = new ApiTypes.SerializerProvider();
+            Server = server;
+            AuthPort = authPort;
+            ApiPort = apiPort;
+            LongPollPort = longPollPort;
+            LongPollPeriod = longPollPeriod;
+        }
+    
+        public ApiProvider()
+        {
+            Serializer.SerializerProvider = new ApiTypes.SerializerProvider();
         }
 
         public async Task<int> GetVersion()
         {
-            using var uncryptRequester = new RequestSender(true);
-            var version = await uncryptRequester.PostAsync<IntContainer, VersionRequest>
+            using var uncryptRequester = new RequestSender(RequestKind.Auth)
+            {
+                Server = Server,
+                AuthPort = AuthPort,
+                ApiPort = ApiPort,
+                LongPollPort = LongPollPort,
+            };
+            var version = await uncryptRequester.RequestAsync<IntContainer, VersionRequest>
                 (new VersionRequest());
 
             if (version == null)
@@ -38,9 +59,16 @@ namespace TMApi
             using var outputEncoder = coderDecoder.Value.encoder;
 
             RequestResponse? registerResult = null;
-            using var rsaRequester = new RequestSender(true, outputEncoder, inputDecoder);
+            using var rsaRequester = new RequestSender(RequestKind.Auth, outputEncoder, inputDecoder)
+            {
+                Server = Server,
+                AuthPort = AuthPort,
+                ApiPort = ApiPort,
+                LongPollPort = LongPollPort,
+            };
 
-            registerResult = await rsaRequester.PostAsync<RequestResponse, RegisterRequest>(new RegisterRequest()
+
+            registerResult = await rsaRequester.RequestAsync<RequestResponse, RegisterRequest>(new RegisterRequest()
             {
                 Username = username,
                 Login = login,
@@ -48,7 +76,7 @@ namespace TMApi
             });
 
 
-            if (registerResult !=null && registerResult.IsAccepted)
+            if (registerResult != null && registerResult.IsAccepted)
                 return await Login(login, password, inputDecoder, outputEncoder);
 
             return null;
@@ -70,10 +98,15 @@ namespace TMApi
         {
             password = GetPasswordHash(password);
             AuthorizationResponse? authResult = null;
-            using (var rsaRequester = new RequestSender(true, outputEncoder, inputDecoder))
+            var rsaRequester = new RequestSender(RequestKind.Auth, outputEncoder, inputDecoder)
             {
-                authResult = await rsaRequester.PostAsync<AuthorizationResponse, AuthorizationRequest>(new AuthorizationRequest(login, password));
-            }
+                Server = Server,
+                AuthPort = AuthPort,
+                ApiPort = ApiPort,
+                LongPollPort = LongPollPort
+            };
+            authResult = await rsaRequester.RequestAsync<AuthorizationResponse, AuthorizationRequest>(new AuthorizationRequest(login, password));
+            rsaRequester.Dispose();
 
             if (authResult != null && authResult.IsSuccessful)
                 return await GetApi(authResult.AccessToken, authResult.Expiration,
@@ -109,8 +142,8 @@ namespace TMApi
 
         private async Task<Api?> GetApi(string token, DateTime expiration, int userId, int cryptId, byte[] aesKey)
         {
-            var api = new Api(token, expiration, userId, cryptId, aesKey);
-            if (await api.Init())
+            var api = new Api(token, expiration, userId, cryptId, aesKey, Server, AuthPort, ApiPort, LongPollPort);
+            if (await api.Init(LongPollPeriod))
                 return api;
             return null;
         }
@@ -123,7 +156,7 @@ namespace TMApi
                 var (publicKey, id) = await GetRsaKey(inputDecoder);
                 var outputEncoder = new RsaEncrypter(publicKey);
 
-                Preferences.CtyptId= id;
+                Preferences.CtyptId = id;
 
                 return (inputDecoder, outputEncoder);
             }
@@ -135,9 +168,15 @@ namespace TMApi
         }
         private async Task<(string publicKey, int id)> GetRsaKey(RsaEncrypter inputDecoder)
         {
-            using var uncryptRequester = new RequestSender(true);
+            using var uncryptRequester = new RequestSender(RequestKind.Auth)
+            {
+                Server = Server,
+                AuthPort = AuthPort,
+                ApiPort = ApiPort,
+                LongPollPort = LongPollPort,
+            };
             var request = new RsaPublicKey(inputDecoder.PublicKey);
-            var response = await uncryptRequester.PostAsync<RsaPublicKey, RsaPublicKey>(request)
+            var response = await uncryptRequester.RequestAsync<RsaPublicKey, RsaPublicKey>(request)
                 ?? throw new Exception("no response");
 
             string serverRsaPublicKey = response.Key;
