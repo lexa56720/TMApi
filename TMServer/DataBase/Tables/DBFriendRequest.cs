@@ -3,11 +3,11 @@
     public class DBFriendRequest
     {
         public int Id { get; set; }
-        public required int UserOneId { get; set; }
-        public required int UserTwoId { get; set; }
+        public required int SenderId { get; set; }
+        public required int ReceiverId { get; set; }
 
-        public virtual DBUser UserOne { get; set; } = null!;
+        public virtual DBUser Sender { get; set; } = null!;
 
-        public virtual DBUser UserTwo { get; set; } = null!;
+        public virtual DBUser Receiver { get; set; } = null!;
     }
 }

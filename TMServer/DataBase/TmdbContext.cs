@@ -30,12 +30,11 @@ public partial class TmdbContext : DbContext
     public virtual DbSet<DBFriendRequest> FriendRequests { get; set; }
     public virtual DbSet<DBMessageMedia> MessageMedias { get; set; }
 
-
-    public virtual DbSet<DBLongPollRequest> LongPollRequests { get; set; }
     public virtual DbSet<DBChatInviteUpdate> ChatInviteUpdates { get; set; }
     public virtual DbSet<DBChatUpdate> ChatUpdates { get; set; }
     public virtual DbSet<DBFriendRequestUpdate> FriendRequestUpdates { get; set; }
     public virtual DbSet<DBFriendProfileUpdate> FriendProfileUpdates { get; set; }
+    public virtual DbSet<DBFriendListUpdate> FriendListUpdate { get; set; }
 
 
 
@@ -223,19 +222,19 @@ public partial class TmdbContext : DbContext
             entity.ToTable("friend_requests");
             entity.Property(e => e.Id).HasColumnName("id");
 
-            entity.Property(e => e.UserOneId)
+            entity.Property(e => e.SenderId)
                 .ValueGeneratedNever()
                 .HasColumnName("user_id_one");
 
-            entity.Property(e => e.UserTwoId)
+            entity.Property(e => e.ReceiverId)
               .ValueGeneratedNever()
               .HasColumnName("user_id_two");
 
-            entity.HasOne(e => e.UserOne)
-            .WithOne().HasForeignKey<DBFriendRequest>(r => r.UserOneId);
+            entity.HasOne(e => e.Sender)
+            .WithOne().HasForeignKey<DBFriendRequest>(r => r.SenderId);
 
-            entity.HasOne(e => e.UserTwo)
-           .WithOne().HasForeignKey<DBFriendRequest>(r => r.UserTwoId);
+            entity.HasOne(e => e.Receiver)
+           .WithOne().HasForeignKey<DBFriendRequest>(r => r.ReceiverId);
         });
         modelBuilder.Entity<DBMessageMedia>(entity =>
         {
@@ -250,21 +249,6 @@ public partial class TmdbContext : DbContext
         });
 
 
-        modelBuilder.Entity<DBLongPollRequest>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("longpoll_requests_pkey");
-            entity.ToTable("longpoll_requests");
-
-            entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.CreateDate).HasColumnName("create_date");
-            entity.Property(e => e.DataType).HasColumnName("data_type");
-            entity.Property(e => e.RequestPacket).HasColumnName("request_packet");
-            entity.Property(e => e.UserId).HasColumnName("user_id");
-
-            entity.HasOne(e => e.User)
-                  .WithOne()
-                  .HasForeignKey<DBLongPollRequest>(u => u.UserId);
-        });
         modelBuilder.Entity<DBChatUpdate>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("chat_updates_pkey");
@@ -332,6 +316,23 @@ public partial class TmdbContext : DbContext
             entity.HasOne(e => e.FriendRequest)
                   .WithOne()
                   .HasForeignKey<DBFriendRequestUpdate>(u => u.RequestId);
+        });
+        modelBuilder.Entity<DBFriendListUpdate>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("friend_list_updates_pkey");
+            entity.ToTable("friend_list_updates");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.FriendId).HasColumnName("friend_id");
+            entity.Property(e => e.UserId).HasColumnName("user_id");
+
+            entity.HasOne(e => e.User)
+                  .WithOne()
+                  .HasForeignKey<DBUser>(u => u.Id);
+
+            entity.HasOne(e => e.Friend)
+                  .WithOne()
+                  .HasForeignKey<DBUser>(u => u.Id);
         });
 
         OnModelCreatingPartial(modelBuilder);

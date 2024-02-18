@@ -15,7 +15,7 @@ namespace TMServer.RequestHandlers
         {
             var request = Friends.GetFriendRequest(data.Data.Value);
             if (request != null && IsHaveAccess(request, data.UserId))
-                return new FriendRequest(request.UserOneId, request.UserTwoId, request.Id);
+                return new FriendRequest(request.SenderId, request.ReceiverId, request.Id);
             return null;
         }
         public static SerializableArray<FriendRequest> GetFriendRequests(ApiData<IntArrayContainer> data)
@@ -23,7 +23,7 @@ namespace TMServer.RequestHandlers
             var requests = Friends.GetFriendRequest(data.Data.Values);
 
             var filteredRequests = requests.Where(r => IsHaveAccess(r, data.UserId))
-                                           .Select(r => new FriendRequest(r.UserOneId, r.UserTwoId, r.Id))
+                                           .Select(r => new FriendRequest(r.SenderId, r.ReceiverId, r.Id))
                                            .ToArray();
 
             if (!filteredRequests.Any())
@@ -50,7 +50,7 @@ namespace TMServer.RequestHandlers
         }
         private static bool IsHaveAccess(DBFriendRequest request, int userId)
         {
-            return request.UserOneId == userId || request.UserTwoId == userId;
+            return request.SenderId == userId || request.ReceiverId == userId;
         }
     }
 }

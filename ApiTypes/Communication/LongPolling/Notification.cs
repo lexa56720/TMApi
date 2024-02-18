@@ -13,6 +13,8 @@ namespace ApiTypes.Communication.LongPolling
 
         public int[] NewFriends { get; set; } = [];
 
+        public int[] RemovedFriends { get; set; } = [];
+
         public int[] NewChats { get; set; } = [];
 
         public int[] FriendsProfileChanged { get; set; } = [];

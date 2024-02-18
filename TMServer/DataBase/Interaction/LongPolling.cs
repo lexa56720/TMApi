@@ -22,7 +22,42 @@ namespace TMServer.DataBase.Interaction
             db.SaveChanges();
             return result;
         }
+        public static int[] GetFriendRequestUpdate(int userId)
+        {
+            using var db = new TmdbContext();
+            var result = db.FriendRequestUpdates
+                            .Where(r => r.UserId == userId)
+                            .Select(r => r.RequestId)
+                            .ToArray();
 
+            db.FriendRequestUpdates.Where(r => r.UserId == userId).ExecuteDelete();
+            db.SaveChanges();
+            return result;
+        }
+        public static int[] GetNewFriends(int userId)
+        {
+            using var db = new TmdbContext();
+            var result = db.FriendListUpdate
+                .Where(fl => fl.UserId == userId && fl.IsAdded)
+                .Select(fl => fl.FriendId)
+                .ToArray();
+
+            db.FriendListUpdate.Where(fl => fl.UserId == userId && fl.IsAdded).ExecuteDelete();
+            db.SaveChanges();
+            return result;
+        }
+        public static int[] GetRemovedFriends(int userId)
+        {
+            using var db = new TmdbContext();
+            var result = db.FriendListUpdate
+                .Where(fl => fl.UserId == userId && !fl.IsAdded)
+                .Select(fl => fl.FriendId)
+                .ToArray();
+
+            db.FriendListUpdate.Where(fl => fl.UserId == userId && !fl.IsAdded).ExecuteDelete();
+            db.SaveChanges();
+            return result;
+        }
         public static void ClearUpdates(int userId)
         {
             using var db = new TmdbContext();

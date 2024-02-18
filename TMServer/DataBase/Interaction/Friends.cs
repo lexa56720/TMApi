@@ -35,7 +35,7 @@ namespace TMServer.DataBase.Interaction
             {
                 db.FriendRequests.Remove(request);
                 if (isAccepted)
-                    RegisterFriends(request.UserOneId, request.UserTwoId);
+                    RegisterFriends(request.SenderId, request.ReceiverId);
 
                 db.SaveChanges();
                 return;
@@ -48,8 +48,8 @@ namespace TMServer.DataBase.Interaction
             {
                 db.FriendRequests.Add(new DBFriendRequest()
                 {
-                    UserOneId = fromId,
-                    UserTwoId = toId,
+                    SenderId = fromId,
+                    ReceiverId = toId,
                 });
                 db.SaveChanges();
             }
@@ -73,14 +73,14 @@ namespace TMServer.DataBase.Interaction
         public static int[] GetAllForUser(int userId)
         {
             using var db = new TmdbContext();
-            return db.FriendRequests.Where(i => i.UserTwoId == userId)
+            return db.FriendRequests.Where(i => i.ReceiverId == userId)
                                     .Select(i => i.Id).ToArray();
         }
         private static bool IsAlreadyRequested(int idOne, int idTwo)
         {
             using var db = new TmdbContext();
-            return db.FriendRequests.Any(r => (r.UserOneId == idOne && r.UserTwoId == idTwo)
-                                           || (r.UserOneId == idTwo && r.UserTwoId == idOne));
+            return db.FriendRequests.Any(r => (r.SenderId == idOne && r.ReceiverId == idTwo)
+                                           || (r.SenderId == idTwo && r.ReceiverId == idOne));
         }
         private static bool IsAlreadyFriends(int idOne, int idTwo)
         {
