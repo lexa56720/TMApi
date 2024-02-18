@@ -18,13 +18,13 @@ namespace TMApi
 
     internal class RequestSender : IDisposable
     {
-        public int AuthPort { get; init; }
+        public  int AuthPort { get; init; }
 
-        public int ApiPort { get; init; }
+        public  int ApiPort { get; init; }
 
-        public int LongPollPort { get; init; }
+        public  int LongPollPort { get; init; }
 
-        public required IPAddress Server { get; init; }
+        public IPAddress Server { get; init; }
 
         public string Token { get; internal set; } = string.Empty;
 
@@ -35,9 +35,12 @@ namespace TMApi
 
         private TimeSpan Timeout => TimeSpan.FromSeconds(15);
 
-        public RequestSender(RequestKind kind, IEncrypter encrypter, IEncrypter decrypter)
+        public RequestSender(IPAddress server,int authPort,int apiPort,int longPollPort,RequestKind kind, IEncrypter encrypter, IEncrypter decrypter)
         {
-
+            Server=server;
+            AuthPort = authPort;
+            ApiPort = apiPort;
+            LongPollPort = longPollPort;
             Requester = RequesterFactory.Create(new IPEndPoint(Server, GetPort(kind)),
                                                 new SimpleEncryptProvider(encrypter, decrypter),
                                                 typeof(TMPacket<>));
@@ -47,8 +50,12 @@ namespace TMApi
                                                         typeof(TMPacket<>));
         }
 
-        public RequestSender(RequestKind kind)
+        public RequestSender(IPAddress server, int authPort, int apiPort, int longPollPort, RequestKind kind)
         {
+            Server = server;
+            AuthPort = authPort;
+            ApiPort = apiPort;
+            LongPollPort = longPollPort;
             Requester = RequesterFactory.Create(new IPEndPoint(Server, GetPort(kind)), typeof(TMPacket<>));
             LongPollRequester = RequesterFactory.Create(new IPEndPoint(Server, GetPort(kind)), typeof(TMPacket<>));
         }

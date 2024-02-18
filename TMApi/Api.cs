@@ -49,14 +49,10 @@ namespace TMApi
 
             IdHolder.Value = cryptId;
 
-            Requester = new RequestSender(RequestKind.Request, Encrypter, Encrypter)
+            Requester = new RequestSender(server, authPort, apiPort, longPollPort, RequestKind.Request, Encrypter, Encrypter)
             {
                 Token = token,
                 UserId = userId,
-                Server = server,
-                AuthPort = authPort,
-                ApiPort = apiPort,
-                LongPollPort = longPollPort,
             };
         }
         internal async Task<bool> Init(TimeSpan longPollPeriod)

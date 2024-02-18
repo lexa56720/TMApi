@@ -328,11 +328,11 @@ public partial class TmdbContext : DbContext
 
             entity.HasOne(e => e.User)
                   .WithOne()
-                  .HasForeignKey<DBUser>(u => u.Id);
+                  .HasForeignKey<DBFriendListUpdate>(u => u.UserId);
 
             entity.HasOne(e => e.Friend)
                   .WithOne()
-                  .HasForeignKey<DBUser>(u => u.Id);
+                  .HasForeignKey<DBFriendListUpdate>(u => u.FriendId);
         });
 
         OnModelCreatingPartial(modelBuilder);
