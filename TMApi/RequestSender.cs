@@ -75,11 +75,11 @@ namespace TMApi
                                       where TResponse : ISerializable<TResponse>, new()
                                       where TRequest : ISerializable<TRequest>, new()
         {
-            return await Requester.RequestAsync<TResponse, ApiData<TRequest>>(new ApiData<TRequest>(header, Token, UserId, data, Preferences.CtyptId), Timeout);
+            return await Requester.RequestAsync<TResponse, ApiData<TRequest>>(new ApiData<TRequest>(header, Token, UserId, data, IdHolder.Value), Timeout);
         }
         public async Task<bool> SendAsync<T>(RequestHeaders header, T data) where T : ISerializable<T>, new()
         {
-            return await Requester.SendAsync(new ApiData<T>(header, Token, UserId, data, Preferences.CtyptId));
+            return await Requester.SendAsync(new ApiData<T>(header, Token, UserId, data, IdHolder.Value));
         }
 
         public async Task<TResponse?> RequestAsync<TResponse, TRequest>(RequestHeaders header, TRequest data, TimeSpan timeout)
@@ -87,7 +87,7 @@ namespace TMApi
                                       where TRequest : ISerializable<TRequest>, new()
         {
             return await Requester.RequestAsync<TResponse, ApiData<TRequest>>
-                         (new ApiData<TRequest>(header, Token, UserId, data, Preferences.CtyptId), timeout);
+                         (new ApiData<TRequest>(header, Token, UserId, data, IdHolder.Value), timeout);
         }
 
         public async Task<TResponse?> LongPollAsync<TResponse, TRequest>(RequestHeaders header, TRequest data, TimeSpan timeout)
@@ -95,7 +95,7 @@ namespace TMApi
                                       where TRequest : ISerializable<TRequest>, new()
         {
             return await LongPollRequester.RequestAsync<TResponse, ApiData<TRequest>>
-                         (new ApiData<TRequest>(header, Token, UserId, data, Preferences.CtyptId), timeout);
+                         (new ApiData<TRequest>(header, Token, UserId, data, IdHolder.Value), timeout);
         }
 
         private int GetPort(RequestKind kind)

@@ -51,7 +51,7 @@ namespace TMApi
         }
         public async Task<Api?> GetApiRegistration(string username, string login, string password)
         {
-            Preferences.CtyptId = 0;
+            IdHolder.Value = 0;
             var coderDecoder = await GetCoderDecoder();
             if (coderDecoder == null)
                 return null;
@@ -84,7 +84,7 @@ namespace TMApi
 
         public async Task<Api?> GetApiLogin(string login, string password)
         {
-            Preferences.CtyptId = 0;
+            IdHolder.Value = 0;
             var coderDecoder = await GetCoderDecoder();
             if (coderDecoder == null)
                 return null;
@@ -156,7 +156,7 @@ namespace TMApi
                 var (publicKey, id) = await GetRsaKey(inputDecoder);
                 var outputEncoder = new RsaEncrypter(publicKey);
 
-                Preferences.CtyptId = id;
+                IdHolder.Value = id;
 
                 return (inputDecoder, outputEncoder);
             }

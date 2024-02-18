@@ -27,9 +27,7 @@ namespace TMApi
         }
         private string accesToken = string.Empty;
         private DateTime Expiration { get; set; }
-  
 
-        public event EventHandler<Notification>? UpdateArrived;
         private AesEncrypter Encrypter { get; set; }
 
         public UserInfo UserInfo { get; private set; }
@@ -38,8 +36,8 @@ namespace TMApi
         public Auth Auth { get; set; }
         public Chats Chats { get; private set; }
         public Friends Friends { get; private set; }
+        public LongPolling LongPolling { get; private set; }
         private RequestSender Requester { get; set; }
-        private LongPolling LongPolling { get; set; }
 
         internal Api(string token, DateTime tokenTime, int userId, int cryptId, byte[] aesKey,
                      IPAddress server, int authPort, int apiPort, int longPollPort)
@@ -48,8 +46,8 @@ namespace TMApi
             AccesToken = token;
             Expiration = tokenTime;
             Encrypter = new AesEncrypter(aesKey);
-       
-            Preferences.CtyptId = cryptId;
+
+            IdHolder.Value = cryptId;
 
             Requester = new RequestSender(RequestKind.Request, Encrypter, Encrypter)
             {
@@ -68,23 +66,13 @@ namespace TMApi
             Chats = new Chats(Requester, this);
             Friends = new Friends(Requester, this);
             Auth = new Auth(Requester, this);
-            LongPolling = new LongPolling(longPollPeriod,Requester, this);
-            LongPolling.StateUpdated += OnUpdateArrived;
+            LongPolling = new LongPolling(longPollPeriod, Requester, this);
 
             UserInfo = await Users.GetUserInfo(Id);
 
             return UserInfo != null;
         }
 
-
-        public void StartLongPolling()
-        {
-            LongPolling.Start();
-        }
-        public void StopLongPolling()
-        {
-            LongPolling.Stop();
-        }
         public void Dispose()
         {
             Encrypter.Dispose();
@@ -95,13 +83,7 @@ namespace TMApi
             Friends.Dispose();
             Auth.Dispose();
 
-            LongPolling.StateUpdated -= OnUpdateArrived;
             LongPolling.Dispose();
-        }
-
-        private void OnUpdateArrived(object? o, Notification e)
-        {
-            UpdateArrived?.Invoke(this, e);
         }
 
         public byte[] SerializeAuthData()
@@ -112,16 +94,15 @@ namespace TMApi
             bw.Write(AccesToken);
             bw.Write(Expiration.ToBinary());
             bw.Write(Encrypter.Key);
-            bw.Write(Preferences.CtyptId);
+            bw.Write(IdHolder.Value);
             bw.Write(Id);
             bw.Flush();
 
             return ms.ToArray();
         }
-
         public void UpdateApiData(AuthorizationResponse response)
         {
-            Preferences.CtyptId = response.CryptId;
+            IdHolder.Value = response.CryptId;
 
             Encrypter.Key = response.AesKey;
             Requester.Token = response.AccessToken;
