@@ -39,7 +39,6 @@ namespace TMApi.ApiRequests.Chats
             return await Requester.SendAsync
                 (RequestHeaders.SendChatInvite, new ChatInvite(chatId, toUserId, Api.Id));
         }
-
         public async Task<ChatInvite?> GetChatInvite(int inviteId)
         {
             return await Requester.RequestAsync<ChatInvite, IntContainer>
@@ -70,24 +69,14 @@ namespace TMApi.ApiRequests.Chats
             return await Requester.SendAsync(RequestHeaders.ChatInviteRespose, response);
         }
 
-
-        public async Task<Chat[]> GetAllDialogues()
+        public async Task<int[]> GetAllChats()
         {
-            return await GetByDialogue(true);
-        }
-        public async Task<Chat[]> GetAllNonDialogues()
-        {
-            return await GetByDialogue(false);
-        }
-
-        private async Task<Chat[]> GetByDialogue(bool isDialogue)
-        {
-            var chats = await Requester.RequestAsync<SerializableArray<Chat>, ChatRequest>
-                             (RequestHeaders.GetChatsByDialogue, new ChatRequest(isDialogue));
+            var chats = await Requester.RequestAsync<IntArrayContainer, Request>
+                                     (RequestHeaders.GetAllChats, new Request());
 
             if (chats == null)
                 return [];
-            return chats.Items;
+            return chats.Values;
         }
     }
 }

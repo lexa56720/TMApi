@@ -114,20 +114,12 @@ namespace TMServer.RequestHandlers
             return new IntArrayContainer(Chats.GetAllChatInvites(userId.UserId));
         }
 
-
-        public static SerializableArray<Chat> GetAllByDialogue(ApiData<ChatRequest> request)
+        public static IntArrayContainer? GetAllChats(ApiData<Request> request)
         {
-            var chats = Chats.GetAllChatByDialogue(request.UserId, request.Data.IsDialogues);
-
-            return new SerializableArray<Chat>(chats.Select(c => new Chat()
-            {
-                Id = c.Id,
-                AdminId = c.AdminId,
-                MemberIds = c.Members.Select(m => m.Id).ToArray(),
-                IsDialogue = c.IsDialogue,
-                Name = c.Name,
-            }).ToArray());
+            var chats = Chats.GetAllChats(request.UserId);
+            if (chats.Length == 0)
+                return null;
+            return new IntArrayContainer(chats.Select(c => c.Id).ToArray());
         }
-
     }
 }

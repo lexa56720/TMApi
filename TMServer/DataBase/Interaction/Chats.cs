@@ -62,13 +62,13 @@ namespace TMServer.DataBase.Interaction
             return chats;
         }
 
-        public static DBChat[] GetAllChatByDialogue(int userId, bool isDialogue)
+        public static DBChat[] GetAllChats(int userId)
         {
             using var db = new TmdbContext();
 
             var chats = db.Chats
                 .Include(c => c.Members)
-                .Where(c => c.IsDialogue == isDialogue && c.Members.Any(m => m.Id == userId))
+                .Where(c => c.Members.Any(m => m.Id == userId))
                 .ToArray();
             return chats;
         }

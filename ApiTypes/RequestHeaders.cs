@@ -28,7 +28,7 @@
         CreateChat,
         GetChat,
         GetChatMany,
-        GetChatsByDialogue,
+        GetAllChats,
 
         GetAllChatInvitesForUser,
         SendChatInvite,
