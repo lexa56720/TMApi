@@ -8,11 +8,8 @@ namespace TMServer.RequestHandlers
 {
     internal static class UsersHandler
     {
-        public static UserInfo? GetUserInfo(ApiData<IntContainer> id)
+        public static UserInfo? GetUserInfo(ApiData<Request> id)
         {
-            if (id.UserId != id.Data.Value)
-                return null;
-
             var user = Users.GetUserFull(id.UserId);
             if (user == null)
                 return null;

@@ -64,7 +64,7 @@ namespace TMApi
             Auth = new Auth(Requester, this);
             LongPolling = new LongPolling(longPollPeriod, Requester, this);
 
-            UserInfo = await Users.GetUserInfo(Id);
+            UserInfo = await Users.GetUserInfo();
 
             return UserInfo != null;
         }

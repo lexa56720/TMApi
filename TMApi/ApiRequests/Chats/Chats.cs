@@ -13,10 +13,11 @@ namespace TMApi.ApiRequests.Chats
 
         public async Task<Chat?> CreateChat(string name, int[] membersId)
         {
-            if (DataConstraints.IsNameLegal(name))
-                return await Requester.RequestAsync<Chat, ChatCreationRequest>
-                                (RequestHeaders.CreateChat, new ChatCreationRequest(name, membersId));
-            return null;
+            if (!DataConstraints.IsNameLegal(name))
+                return null;
+
+            return await Requester.RequestAsync<Chat, ChatCreationRequest>
+                         (RequestHeaders.CreateChat, new ChatCreationRequest(name, membersId));
         }
         public async Task<Chat?> GetChat(int chatId)
         {
@@ -46,26 +47,21 @@ namespace TMApi.ApiRequests.Chats
         }
         public async Task<ChatInvite[]> GetChatInvite(int[] inviteId)
         {
-            var invites = await Requester
-                .RequestAsync<SerializableArray<ChatInvite>, IntArrayContainer>
-                (RequestHeaders.GetChatInviteMany, new IntArrayContainer(inviteId));
+            var invites = await Requester.RequestAsync<SerializableArray<ChatInvite>, IntArrayContainer>
+                                     (RequestHeaders.GetChatInviteMany, new IntArrayContainer(inviteId));
 
             if (invites == null)
                 return [];
             return invites.Items;
         }
-        public async Task<int[]> GetAllInvites(int userId)
+        public async Task<int[]> GetAllInvites()
         {
-            var invites = await Requester.RequestAsync<IntArrayContainer, IntContainer>
-                (RequestHeaders.GetAllChatInvitesForUser, new IntContainer(userId));
+            var invites = await Requester.RequestAsync<IntArrayContainer, Request>
+                           (RequestHeaders.GetAllChatInvitesForUser, new Request());
 
             if (invites == null)
                 return [];
             return invites.Values;
-        }
-        public async Task<bool> SendChatInviteResponse(ChatInvite invite, bool isAccepted)
-        {
-            return await SendChatInviteResponse(invite.Id, isAccepted);
         }
         public async Task<bool> SendChatInviteResponse(int inviteId, bool isAccepted)
         {

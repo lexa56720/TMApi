@@ -20,10 +20,10 @@ namespace TMApi.ApiRequests.Users
             return false;
         }
 
-        public async Task<UserInfo?> GetUserInfo(int userId)
+        public async Task<UserInfo?> GetUserInfo()
         {
-            return await Requester.RequestAsync<UserInfo, IntContainer>
-                (RequestHeaders.GetUserInfo, new IntContainer(userId));
+            return await Requester.RequestAsync<UserInfo, Request>
+                        (RequestHeaders.GetUserInfo, new Request());
         }
 
         public async Task<User?> GetUser(int userId)

@@ -79,7 +79,7 @@ namespace TMServer.Servers
         }
         private void RegisterUserMethods()
         {
-            ApiServer.RegisterRequestHandler<IntContainer, UserInfo>
+            ApiServer.RegisterRequestHandler<Request, UserInfo>
                 (UsersHandler.GetUserInfo, RequestHeaders.GetUserInfo);
 
             ApiServer.RegisterRequestHandler<IntContainer, User>
@@ -109,7 +109,7 @@ namespace TMServer.Servers
             ApiServer.RegisterDataHandler<RequestResponse>
                 (FriendsHandler.FriendRequestResponse, RequestHeaders.ResponseFriendRequest);
 
-            ApiServer.RegisterRequestHandler<IntContainer, IntArrayContainer>
+            ApiServer.RegisterRequestHandler<Request, IntArrayContainer>
                 (FriendsHandler.GetAllFriendRequests, RequestHeaders.GetAllFriendRequestForUser);
         }
         private void RegisterChatMethods()
