@@ -65,6 +65,8 @@ namespace TMServer.DataBase
                 nameof(DBMessage) => HandleNewMessage((DBMessage)entity.Entity, context),
                 nameof(DBFriendRequest) => HandleNewFriendRequest((DBFriendRequest)entity.Entity, context),
                 nameof(DBFriend) => HandleNewFriend((DBFriend)entity.Entity, context),
+                nameof(DBChat) => HandleNewChat((DBChat)entity.Entity, context),
+
                 _ => [],
             };
         }
@@ -112,13 +114,26 @@ namespace TMServer.DataBase
 
             //Добавление уведомлений в бд
             foreach (var member in chatMembers)
-                context.ChatUpdates.Add(new DBChatUpdate()
+                context.MessageUpdates.Add(new DBMessageUpdate()
                 {
                     MessageId = message.Id,
                     UserId = member
                 });
 
             return chatMembers;
+        }
+
+        private IEnumerable<int> HandleNewChat(DBChat chat, TmdbContext context)
+        {
+            var members = chat.Members;
+            foreach (var member in members)
+                context.ChatUpdates.Add(new DBChatUpdate()
+                {
+                    ChatId = chat.Id,
+                    UserId = member.Id,
+                    IsAdded = true
+                });
+            return members.Select(m => m.Id);
         }
 
         private void NotifyUser(int id)

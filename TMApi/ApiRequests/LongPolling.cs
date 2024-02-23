@@ -10,6 +10,7 @@ namespace TMApi.ApiRequests
 
         public event EventHandler<int[]>? NewMessages;
         public event EventHandler<int[]>? NewFriendRequests;
+        public event EventHandler<int[]>? NewChats;
         public event EventHandler<int[]>? FriendsAdded;
         public event EventHandler<int[]>? FriendsRemoved;
 
@@ -58,12 +59,15 @@ namespace TMApi.ApiRequests
         }
 
         private void HandleNotification(Notification notification)
-        {
-            if (notification.MessagesIds.Length > 0)
-                NewMessages?.Invoke(this, notification.MessagesIds);
-
+        {     
             if (notification.FriendRequestIds.Length > 0)
                 NewFriendRequests?.Invoke(this, notification.FriendRequestIds);
+
+            if(notification.NewChats.Length>0)
+                NewChats?.Invoke(this, notification.NewChats);
+
+            if (notification.MessagesIds.Length > 0)
+                NewMessages?.Invoke(this, notification.MessagesIds);
 
             if (notification.NewFriends.Length > 0)
                 FriendsAdded?.Invoke(this, notification.NewFriends);

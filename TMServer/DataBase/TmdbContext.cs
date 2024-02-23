@@ -31,10 +31,11 @@ public partial class TmdbContext : DbContext
     public virtual DbSet<DBMessageMedia> MessageMedias { get; set; }
 
     public virtual DbSet<DBChatInviteUpdate> ChatInviteUpdates { get; set; }
-    public virtual DbSet<DBChatUpdate> ChatUpdates { get; set; }
+    public virtual DbSet<DBMessageUpdate> MessageUpdates { get; set; }
     public virtual DbSet<DBFriendRequestUpdate> FriendRequestUpdates { get; set; }
     public virtual DbSet<DBFriendProfileUpdate> FriendProfileUpdates { get; set; }
     public virtual DbSet<DBFriendListUpdate> FriendListUpdate { get; set; }
+    public virtual DbSet<DBChatUpdate> ChatUpdates { get; set; }
 
 
 
@@ -72,8 +73,8 @@ public partial class TmdbContext : DbContext
 
             entity.Property(e => e.IsDialogue).HasColumnName("is_dialogue");
 
-            entity.HasOne(e => e.Admin).WithOne()
-            .HasForeignKey<DBChat>(c => c.AdminId);
+            entity.HasOne(e => e.Admin).WithMany()
+            .HasForeignKey(c => c.AdminId);
 
             entity.HasMany(d => d.Members).WithMany(p => p.Chats);
 
@@ -245,14 +246,13 @@ public partial class TmdbContext : DbContext
             entity.Property(e => e.MediaType).HasColumnName("type");
 
             entity.Property(e => e.Data).HasColumnName("data");
-
         });
 
 
-        modelBuilder.Entity<DBChatUpdate>(entity =>
+        modelBuilder.Entity<DBMessageUpdate>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("chat_updates_pkey");
-            entity.ToTable("chat_updates");
+            entity.HasKey(e => e.Id).HasName("message_updates_pkey");
+            entity.ToTable("message_updates");
 
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.MessageId).HasColumnName("message_id");
@@ -276,12 +276,12 @@ public partial class TmdbContext : DbContext
             entity.Property(e => e.UserId).HasColumnName("user_id");
 
             entity.HasOne(e => e.User)
-                  .WithOne()
-                  .HasForeignKey<DBChatInviteUpdate>(u => u.UserId);
+                  .WithMany()
+                  .HasForeignKey(u => u.UserId);
 
             entity.HasOne(e => e.Invite)
-                  .WithOne()
-                  .HasForeignKey<DBChatInviteUpdate>(u => u.ChatInviteId);
+                  .WithMany()
+                  .HasForeignKey(u => u.ChatInviteId);
         });
         modelBuilder.Entity<DBFriendProfileUpdate>(entity =>
         {
@@ -293,12 +293,12 @@ public partial class TmdbContext : DbContext
             entity.Property(e => e.UserId).HasColumnName("user_id");
 
             entity.HasOne(e => e.User)
-                  .WithOne()
-                  .HasForeignKey<DBFriendProfileUpdate>(u => u.UserId);
+                  .WithMany()
+                  .HasForeignKey(u => u.UserId);
 
             entity.HasOne(e => e.Friend)
-                  .WithOne()
-                  .HasForeignKey<DBFriendProfileUpdate>(u => u.FriendId);
+                  .WithMany()
+                  .HasForeignKey(u => u.FriendId);
         });
         modelBuilder.Entity<DBFriendRequestUpdate>(entity =>
         {
@@ -310,12 +310,12 @@ public partial class TmdbContext : DbContext
             entity.Property(e => e.UserId).HasColumnName("user_id");
 
             entity.HasOne(e => e.User)
-                  .WithOne()
-                  .HasForeignKey<DBFriendRequestUpdate>(u => u.UserId);
+                  .WithMany()
+                  .HasForeignKey(u => u.UserId);
 
             entity.HasOne(e => e.FriendRequest)
-                  .WithOne()
-                  .HasForeignKey<DBFriendRequestUpdate>(u => u.RequestId);
+                  .WithMany()
+                  .HasForeignKey(u => u.RequestId);
         });
         modelBuilder.Entity<DBFriendListUpdate>(entity =>
         {
@@ -327,14 +327,31 @@ public partial class TmdbContext : DbContext
             entity.Property(e => e.UserId).HasColumnName("user_id");
 
             entity.HasOne(e => e.User)
-                  .WithOne()
-                  .HasForeignKey<DBFriendListUpdate>(u => u.UserId);
+                  .WithMany()
+                  .HasForeignKey(u => u.UserId);
 
             entity.HasOne(e => e.Friend)
-                  .WithOne()
-                  .HasForeignKey<DBFriendListUpdate>(u => u.FriendId);
+                  .WithMany()
+                  .HasForeignKey(u => u.FriendId);
         });
 
+        modelBuilder.Entity < DBChatUpdate>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("chat_updates_pkey");
+            entity.ToTable("chat_updates");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.ChatId).HasColumnName("chat_id");
+            entity.Property(e => e.UserId).HasColumnName("user_id");
+
+            entity.HasOne(e => e.User)
+                  .WithMany()
+                  .HasForeignKey(u => u.UserId);
+
+            entity.HasOne(e => e.Chat)
+                  .WithMany()
+                  .HasForeignKey(u => u.ChatId);
+        });
         OnModelCreatingPartial(modelBuilder);
     }
 

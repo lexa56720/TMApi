@@ -11,14 +11,15 @@ namespace TMServer.DataBase.Interaction
 {
     internal static class LongPolling
     {
-        public static int[] GetChatUpdate(int userId)
+        public static int[] GetMessageUpdate(int userId)
         {
             using var db = new TmdbContext();
-            var result = db.ChatUpdates
+            var result = db.MessageUpdates
                            .Where(c => c.UserId == userId)
                            .Select(m => m.MessageId)
                            .ToArray();
-            db.ChatUpdates.Where(u => u.UserId == userId).ExecuteDelete();
+            db.MessageUpdates.Where(u => u.UserId == userId)
+                             .ExecuteDelete();
             db.SaveChanges();
             return result;
         }
@@ -30,7 +31,8 @@ namespace TMServer.DataBase.Interaction
                             .Select(r => r.RequestId)
                             .ToArray();
 
-            db.FriendRequestUpdates.Where(r => r.UserId == userId).ExecuteDelete();
+            db.FriendRequestUpdates.Where(r => r.UserId == userId)
+                                   .ExecuteDelete();
             db.SaveChanges();
             return result;
         }
@@ -42,7 +44,8 @@ namespace TMServer.DataBase.Interaction
                 .Select(fl => fl.FriendId)
                 .ToArray();
 
-            db.FriendListUpdate.Where(fl => fl.UserId == userId && fl.IsAdded).ExecuteDelete();
+            db.FriendListUpdate.Where(fl => fl.UserId == userId && fl.IsAdded)
+                               .ExecuteDelete();
             db.SaveChanges();
             return result;
         }
@@ -54,21 +57,36 @@ namespace TMServer.DataBase.Interaction
                 .Select(fl => fl.FriendId)
                 .ToArray();
 
-            db.FriendListUpdate.Where(fl => fl.UserId == userId && !fl.IsAdded).ExecuteDelete();
+            db.FriendListUpdate.Where(fl => fl.UserId == userId && !fl.IsAdded)
+                               .ExecuteDelete();
+            db.SaveChanges();
+            return result;
+        }
+
+        public static int[] GetNewChats(int userId)
+        {
+            using var db = new TmdbContext();
+            var result = db.ChatUpdates
+                .Where(cu => cu.UserId == userId && cu.IsAdded)
+                .Select(fl => fl.ChatId)
+                .ToArray();
+
+            db.ChatUpdates.Where(cu => cu.UserId == userId && cu.IsAdded)
+                          .ExecuteDelete();
             db.SaveChanges();
             return result;
         }
         public static void ClearUpdates(int userId)
         {
             using var db = new TmdbContext();
-            db.ChatUpdates.Where(u => u.UserId == userId).ExecuteDelete();
+            db.MessageUpdates.Where(u => u.UserId == userId).ExecuteDelete();
             db.SaveChanges();
         }
         public static bool IsHaveUpdates(int userId)
         {
             using var db = new TmdbContext();
 
-            return db.ChatUpdates.Any(u => u.UserId == userId);
+            return db.MessageUpdates.Any(u => u.UserId == userId);
         }
     }
 }

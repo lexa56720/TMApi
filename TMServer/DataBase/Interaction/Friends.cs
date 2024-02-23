@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TMServer.DataBase.Tables;
+using System.Xml.Linq;
 
 namespace TMServer.DataBase.Interaction
 {
@@ -68,8 +69,18 @@ namespace TMServer.DataBase.Interaction
                     SenderId = idOne,
                     DestId = idTwo
                 });
-                db.SaveChanges();
-                Chats.CreateChat(string.Empty, true, idOne, idTwo);
+
+                var admin = db.Users.Find(idOne);
+                var chat = new DBChat()
+                {
+                    AdminId=idOne,
+                    IsDialogue = true,
+                    Name = string.Empty,
+                };
+                db.Chats.Add(chat);
+                chat.Members.Add(admin);
+                chat.Members.Add(db.Users.Find(idTwo));
+                db.SaveChanges();          
             }
         }
 

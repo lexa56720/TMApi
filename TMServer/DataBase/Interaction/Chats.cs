@@ -49,14 +49,17 @@ namespace TMServer.DataBase.Interaction
         {
             using var db = new TmdbContext();
 
-            var chat = db.Chats.Include(c => c.Members).SingleOrDefault(c => c.Id == chatId);
+            var chat = db.Chats.Include(c => c.Admin)
+                               .Include(c => c.Members)
+                               .SingleOrDefault(c => c.Id == chatId);
             return chat;
         }
         public static DBChat[] GetChat(int[] chatIds)
         {
             using var db = new TmdbContext();
 
-            var chats = db.Chats.Include(c => c.Members)
+            var chats = db.Chats.Include(c=>c.Admin)
+                                .Include(c => c.Members)
                                 .Where(c => chatIds.Contains(c.Id))
                                 .ToArray();
             return chats;
@@ -66,10 +69,10 @@ namespace TMServer.DataBase.Interaction
         {
             using var db = new TmdbContext();
 
-            var chats = db.Chats
-                .Include(c => c.Members)
-                .Where(c => c.Members.Any(m => m.Id == userId))
-                .ToArray();
+            var chats = db.Chats.Include(c => c.Admin)
+                                .Include(c => c.Members)
+                                .Where(c => c.Members.Any(m => m.Id == userId))
+                                .ToArray();
             return chats;
         }
 

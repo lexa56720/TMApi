@@ -6,11 +6,12 @@ using System.Threading.Tasks;
 
 namespace TMServer.DataBase.Tables.LongPolling
 {
-    public class DBChatUpdate : DBUpdate
+    public partial class DBMessageUpdate : DBUpdate
     {
         public int Id { get; set; }
-        public required bool IsAdded { get; set; }
-        public required int ChatId { get; set; }
-        public virtual DBChat Chat { get; set; } = null!;
+
+        public required int MessageId {  get; set; }
+
+        public virtual DBMessage Message { get; set; } = null!;
     }
 }
