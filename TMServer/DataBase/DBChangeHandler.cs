@@ -71,12 +71,12 @@ namespace TMServer.DataBase
         private IEnumerable<int> HandleRemovedFriend(DBFriend entity, TmdbContext context)
         {
             UpdateFriendList(false, entity.SenderId, entity.DestId, context);
-            return new[] { entity.DestId, entity.SenderId };
+            return [entity.DestId, entity.SenderId];
         }
         private IEnumerable<int> HandleNewFriend(DBFriend entity, TmdbContext context)
         {
             UpdateFriendList(true, entity.SenderId, entity.DestId, context);
-            return new[] { entity.DestId, entity.SenderId };
+            return [entity.DestId, entity.SenderId];
         }
         private void UpdateFriendList(bool isAdded, int userId, int friendId, TmdbContext context)
         {
@@ -84,14 +84,14 @@ namespace TMServer.DataBase
             {
                 FriendId = userId,
                 UserId = friendId,
-                IsAdded = true,
+                IsAdded = isAdded,
             });
 
             context.FriendListUpdate.Add(new DBFriendListUpdate()
             {
                 FriendId = friendId,
                 UserId = userId,
-                IsAdded = true,
+                IsAdded = isAdded,
             });
         }
 
@@ -102,7 +102,7 @@ namespace TMServer.DataBase
                 RequestId = entity.Id,
                 UserId = entity.ReceiverId
             });
-            return new[] { entity.ReceiverId };
+            return [entity.ReceiverId];
         }
         private IEnumerable<int> HandleNewMessage(DBMessage message, TmdbContext context)
         {

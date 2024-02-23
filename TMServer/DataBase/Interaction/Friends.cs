@@ -29,7 +29,7 @@ namespace TMServer.DataBase.Interaction
         {
             using var db = new TmdbContext();
             var request = db.FriendRequests.SingleOrDefault
-                (r => r.Id== responseId);
+                (r => r.Id == responseId);
 
             if (request != null)
             {
@@ -44,15 +44,18 @@ namespace TMServer.DataBase.Interaction
         public static void RegisterFriendRequest(int fromId, int toId)
         {
             using var db = new TmdbContext();
-            if (!IsAlreadyRequested(fromId, toId) && !IsAlreadyFriends(fromId,toId))
+            if (IsAlreadyRequested(fromId, toId) || IsAlreadyFriends(fromId, toId))
             {
-                db.FriendRequests.Add(new DBFriendRequest()
-                {
-                    SenderId = fromId,
-                    ReceiverId = toId,
-                });
-                db.SaveChanges();
+                RegisterFriends(fromId, toId);
+                return;
             }
+
+            db.FriendRequests.Add(new DBFriendRequest()
+            {
+                SenderId = fromId,
+                ReceiverId = toId,
+            });
+            db.SaveChanges();
         }
 
         private static void RegisterFriends(int idOne, int idTwo)
@@ -66,10 +69,10 @@ namespace TMServer.DataBase.Interaction
                     DestId = idTwo
                 });
                 db.SaveChanges();
-                Chats.CreateChat(string.Empty,true ,idOne, idTwo);
+                Chats.CreateChat(string.Empty, true, idOne, idTwo);
             }
         }
-              
+
         public static int[] GetAllForUser(int userId)
         {
             using var db = new TmdbContext();

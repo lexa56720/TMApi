@@ -138,8 +138,8 @@ namespace TMServer.Servers
             ApiServer.RegisterRequestHandler<IntContainer, IntArrayContainer>
                 (ChatsHandler.GetAllChatInvites, RequestHeaders.GetAllChatInvitesForUser);
 
-            ApiServer.RegisterRequestHandler<ChatRequest, SerializableArray<Chat>>
-                (ChatsHandler.GetAllByDialogue, RequestHeaders.GetChatsByDialogue);
+            ApiServer.RegisterRequestHandler<Request, IntArrayContainer>
+                (ChatsHandler.GetAllChats, RequestHeaders.GetAllChats);
         }
 
         public override void Start()
