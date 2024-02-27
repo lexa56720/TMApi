@@ -3,6 +3,7 @@ using ApiTypes.Communication.BaseTypes;
 using ApiTypes.Communication.Search;
 using ApiTypes.Communication.Users;
 using ApiTypes.Shared;
+using TMApi.ApiRequests.Messages;
 
 namespace TMApi.ApiRequests.Users
 {
@@ -31,10 +32,12 @@ namespace TMApi.ApiRequests.Users
             return await Requester.RequestAsync<User, IntContainer>
                 (RequestHeaders.GetUser, new IntContainer(userId));
         }
-        public async Task<User[]> GetUser(int[] userId)
+        public async Task<User[]> GetUser(int[] userIds)
         {
+            if (userIds.Length == 0)
+                return [];
             var users = await Requester.RequestAsync<SerializableArray<User>, IntArrayContainer>
-                (RequestHeaders.GetUserMany, new IntArrayContainer(userId));
+                (RequestHeaders.GetUserMany, new IntArrayContainer(userIds));
 
             if (users == null)
                 return [];
