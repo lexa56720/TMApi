@@ -108,9 +108,10 @@ namespace TMServer.DataBase
         }
         private IEnumerable<int> HandleNewMessage(DBMessage message, TmdbContext context)
         {
-            var chatMembers = context.Chats.First(c => c.Id == message.DestinationId)
-                                   .Members.Select(m => m.Id)
-                                   .Where(id => id != message.AuthorId);
+            var chatMembers = context.Chats.Include(c => c.Members)
+                                           .First(c => c.Id == message.DestinationId)                               
+                                           .Members.Select(m => m.Id)
+                                           .Where(id => id != message.AuthorId);
 
             //Добавление уведомлений в бд
             foreach (var member in chatMembers)
