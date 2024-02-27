@@ -26,9 +26,6 @@ namespace TMApi.ApiRequests.Chats
         }
         public async Task<Chat[]> GetChat(int[] chatIds)
         {
-            if (chatIds.Length == 0)
-                return [];
-
             var chats = await Requester.RequestAsync<SerializableArray<Chat>, IntArrayContainer>
                 (RequestHeaders.GetChatMany, new IntArrayContainer(chatIds));
             if (chats == null)
@@ -49,9 +46,6 @@ namespace TMApi.ApiRequests.Chats
         }
         public async Task<ChatInvite[]> GetChatInvite(int[] inviteId)
         {
-            if (inviteId.Length == 0)
-                return [];
-
             var invites = await Requester.RequestAsync<SerializableArray<ChatInvite>, IntArrayContainer>
                                      (RequestHeaders.GetChatInviteMany, new IntArrayContainer(inviteId));
 

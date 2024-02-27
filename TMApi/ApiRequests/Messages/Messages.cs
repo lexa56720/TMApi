@@ -33,8 +33,6 @@ namespace TMApi.ApiRequests.Messages
         }
         public async Task<Message[]> GetMessages(params int[] messagesId)
         {
-            if(messagesId.Length == 0)
-                return [];
             var messages = await Requester.RequestAsync<SerializableArray<Message>, IntArrayContainer>
                 (RequestHeaders.GetMessagesById, new IntArrayContainer(messagesId));
 

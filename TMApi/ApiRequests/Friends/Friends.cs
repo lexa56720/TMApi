@@ -16,8 +16,6 @@ namespace TMApi.ApiRequests.Friends
         }
         public async Task<FriendRequest[]> GetFriendRequest(int[] requestIds)
         {
-            if (requestIds.Length == 0)
-                return [];
             var requests = await Requester
                 .RequestAsync<SerializableArray<FriendRequest>, IntArrayContainer>
                 (RequestHeaders.GetFriendRequestMany, new IntArrayContainer(requestIds));
