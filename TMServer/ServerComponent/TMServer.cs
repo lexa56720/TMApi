@@ -4,11 +4,13 @@ using ApiTypes.Communication.BaseTypes;
 using ApiTypes.Communication.Chats;
 using ApiTypes.Communication.Friends;
 using ApiTypes.Communication.Info;
+using ApiTypes.Communication.LongPolling;
 using ApiTypes.Communication.Messages;
 using ApiTypes.Communication.Search;
 using ApiTypes.Communication.Users;
 using CSDTP.Cryptography.Algorithms;
 using CSDTP.Cryptography.Providers;
+using CSDTP.Requests;
 using TMServer.DataBase;
 using TMServer.Logger;
 using TMServer.RequestHandlers;
@@ -21,13 +23,13 @@ namespace TMServer.Servers
 {
     internal class TMServer : Startable, IDisposable
     {
-        private AuthorizationServer AuthServer { get; set; }
+        private readonly AuthorizationServer AuthServer;
 
-        private ResponseServer ApiServer { get; set; }
+        private readonly ResponseServer ApiServer;
 
-        private LongPollServer LongPollServer { get; set; }
+        private readonly LongPollServer LongPollServer;
 
-        private ILogger Logger { get; }
+        private readonly ILogger Logger;
 
         public TMServer(TimeSpan longPollLifetime, int authPort, int responsePort, int longPollPort, ILogger logger)
         {
@@ -37,6 +39,8 @@ namespace TMServer.Servers
 
             RegisterAuthMethods();
             RegisterApiMethods();
+            RegisterLongPollMethods();
+
             Logger = logger;
         }
         public void Dispose()
@@ -53,6 +57,7 @@ namespace TMServer.Servers
             AuthServer.Register<RegisterRequest, RequestResponse>(AuthHandler.Register);
             AuthServer.Register<VersionRequest, IntContainer>(e => AuthHandler.GetVersion());
         }
+
         private void RegisterApiMethods()
         {
             ApiServer.RegisterRequestHandler<AuthUpdateRequest, AuthorizationResponse>(AuthHandler.UpdateAuth);
@@ -94,6 +99,11 @@ namespace TMServer.Servers
             ApiServer.RegisterRequestHandler<ChatRequestAll, IntArrayContainer>(ChatsHandler.GetAllChats);
         }
 
+        private void RegisterLongPollMethods()
+        {
+            LongPollServer.RegisterRequestHandler<LongPollingRequest, Notification>(LongPollServer.LongPollArrived);
+        }
+
         public override void Start()
         {
             if (IsRunning)
@@ -107,7 +117,6 @@ namespace TMServer.Servers
 
             Logger.Log("\nServer is ready\n");
         }
-
         public override void Stop()
         {
             if (!IsRunning)

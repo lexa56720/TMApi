@@ -30,8 +30,6 @@ namespace TMServer.RequestHandlers
                 {
                     IsSuccessful = false
                 };
-            else
-                LongPolling.ClearUpdates(id);
 
             return GetAuthData(id);
         }

@@ -50,8 +50,7 @@ namespace TMApi.ApiRequests
             {
                 while (IsPolling)
                 {
-                    var notification = await Requester.LongPollAsync<Notification, LongPollingRequest>
-                               (RequestHeaders.LongPoll, new LongPollingRequest(), LongPollPeriod);
+                    var notification = await Requester.LongPollAsync<Notification, LongPollingRequest>(new LongPollingRequest(), LongPollPeriod);
                     if (notification != null)
                         HandleNotification(notification);
                 }

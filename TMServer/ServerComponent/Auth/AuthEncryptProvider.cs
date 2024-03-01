@@ -49,7 +49,7 @@ namespace TMServer.ServerComponent.Auth
         }
         private bool IsInitPacket(IPacketInfo packet)
         {
-            if (packet is ITMPacket && ((ITMPacket)packet).Id.InstanceValue <= 0)
+            if (packet is ITMPacket castedPacket && castedPacket.Id.InstanceValue <= 0)
                 return true;
             return false;
         }

@@ -36,6 +36,9 @@ namespace TMServer.ServerComponent.Basics
             Responder.Stop(); 
             Logger.Log($"{GetType().Name} stopped");
         }
+
+
+
         protected virtual bool IsRequestLegal<T>(ApiData<T> request) where T : ISerializable<T>, new()
         {
             var isLegal = Security.IsTokenCorrect(request.Token, request.UserId);

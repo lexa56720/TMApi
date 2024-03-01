@@ -1,4 +1,5 @@
 ﻿using ApiTypes;
+using ApiTypes.Communication.BaseTypes;
 using ApiTypes.Communication.LongPolling;
 using CSDTP;
 using CSDTP.Cryptography.Providers;
@@ -22,16 +23,14 @@ namespace TMServer.ServerComponent.LongPolling
     internal class LongPollServer : Server
     {
 
-        private LifeTimeDictionary<int, IPacket<IRequestContainer>> Requests = new();
+        private readonly LifeTimeDictionary<int, IPacket<IRequestContainer>> Requests = new();
 
-        private TimeSpan LongPollLifetime { get; }
+        private readonly TimeSpan LongPollLifetime;
 
-        public LongPollServer(TimeSpan longPollLifetime, int port, IEncryptProvider encryptProvider, ILogger logger)
-                                : base(port, encryptProvider, logger)
+        public LongPollServer(TimeSpan longPollLifetime, int port, IEncryptProvider encryptProvider, ILogger logger) : base(port, encryptProvider, logger)
         {
 
             TmdbContext.ChangeHandler.UpdateForUser += DBUpdateForUser;
-            Responder.RegisterRequestHandler<ApiData<LongPollingRequest>, Notification>(LongPollArrived);
             LongPollLifetime = longPollLifetime;
         }
 
@@ -46,12 +45,11 @@ namespace TMServer.ServerComponent.LongPolling
             RespondOnSaved(userId);
         }
 
-        private Notification? LongPollArrived(ApiData<LongPollingRequest> request, IPacketInfo info)
+        public Notification? LongPollArrived(ApiData<LongPollingRequest> request, IPacketInfo info)
         {
             if (!IsRequestLegal(request))
                 return null;
 
-            Logger.Log($"poll request from {request.UserId} arrived");
 
             if (LongPollHandler.IsHaveNotifications(request.UserId))
                 return LongPollHandler.GetUpdates(request.UserId);
@@ -60,7 +58,6 @@ namespace TMServer.ServerComponent.LongPolling
             Requests.TryAdd(request.UserId, (IPacket<IRequestContainer>)info, LongPollLifetime);
             return null;
         }
-
         public void RespondOnSaved(int userId)
         {
             if (!Requests.TryGetValue(userId, out var packet))
@@ -68,6 +65,29 @@ namespace TMServer.ServerComponent.LongPolling
 
             var notification = LongPollHandler.GetUpdates(userId);
             Responder.ResponseManually(packet, notification);
+        }
+
+
+        public void RegisterRequestHandler<TRequest, TResponse>(Func<ApiData<TRequest>, IPacketInfo, TResponse?> func)
+            where TRequest : ISerializable<TRequest>, new()
+            where TResponse : ISerializable<TResponse>, new()
+        {
+            Responder.RegisterRequestHandler(Invoke(func));
+        }
+
+        private Func<ApiData<TRequest>, IPacketInfo, TResponse?> Invoke<TRequest, TResponse>(Func<ApiData<TRequest>, IPacketInfo, TResponse?> func)
+                                                         where TRequest : ISerializable<TRequest>, new()
+                                                         where TResponse : ISerializable<TResponse>, new()
+        {
+            return new Func<ApiData<TRequest>, IPacketInfo, TResponse?>((request, info) =>
+            {
+                if (IsRequestLegal(request))
+                {
+                    Logger.Log(request);
+                    return func(request, info);
+                }
+                return default;
+            });
         }
     }
 }

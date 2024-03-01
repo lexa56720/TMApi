@@ -23,7 +23,7 @@ namespace TMServer.Logger
 
         public void Log<T>(ApiData<T> apiData) where T : ISerializable<T>,new()
         {
-            Log($"{apiData.UserId} {apiData.Header}");
+            Log($"{apiData.UserId} {apiData.Data.GetType().Name}");
         }
     }
 }
