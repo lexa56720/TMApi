@@ -14,11 +14,6 @@ namespace TMServer.DataBase.Interaction
                 .Include(u => u.FriendsOne).ThenInclude(f => f.Receiver)
                 .SingleOrDefault(u => u.Id == id);
         }
-        public static DBUser? GetUserMain(int id)
-        {
-            using var db = new TmdbContext();
-            return db.Users.SingleOrDefault(u => u.Id == id);
-        }
         public static DBUser[] GetUserMain(int[] ids)
         {
             using var db = new TmdbContext();

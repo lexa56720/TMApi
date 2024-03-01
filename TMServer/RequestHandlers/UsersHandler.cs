@@ -26,15 +26,6 @@ namespace TMServer.RequestHandlers
             };
         }
 
-        public static User? GetUser(ApiData<IntContainer> id)
-        {
-            var user = Users.GetUserMain(id.Data.Value);
-            if (user == null)
-                return null;
-
-            return ConvertUser(user);
-        }
-
         public static SerializableArray<User> GetUsers(ApiData<IntArrayContainer> ids)
         {
             var users = Users.GetUserMain(ids.Data.Values);

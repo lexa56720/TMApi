@@ -82,11 +82,8 @@ namespace TMServer.Servers
             ApiServer.RegisterRequestHandler<Request, UserInfo>
                 (UsersHandler.GetUserInfo, RequestHeaders.GetUserInfo);
 
-            ApiServer.RegisterRequestHandler<IntContainer, User>
-                (UsersHandler.GetUser, RequestHeaders.GetUser);
-
             ApiServer.RegisterRequestHandler<IntArrayContainer, SerializableArray<User>>
-                (UsersHandler.GetUsers, RequestHeaders.GetUserMany);
+                (UsersHandler.GetUsers, RequestHeaders.GetUser);
 
             ApiServer.RegisterDataHandler<ChangeNameRequest>
                 (UsersHandler.ChangeUserName, RequestHeaders.ChangeName);
@@ -97,11 +94,8 @@ namespace TMServer.Servers
         }
         private void RegisterFriendMethods()
         {
-            ApiServer.RegisterRequestHandler<IntContainer, FriendRequest>
-                (FriendsHandler.GetFriendRequest, RequestHeaders.GetFriendRequest);
-
             ApiServer.RegisterRequestHandler<IntArrayContainer, SerializableArray<FriendRequest>>
-                (FriendsHandler.GetFriendRequests, RequestHeaders.GetFriendRequestMany);
+                (FriendsHandler.GetFriendRequests, RequestHeaders.GetFriendRequest);
 
             ApiServer.RegisterDataHandler<FriendRequest>
                 (FriendsHandler.AddFriendRequest, RequestHeaders.SendFriendRequest);
@@ -110,33 +104,27 @@ namespace TMServer.Servers
                 (FriendsHandler.FriendRequestResponse, RequestHeaders.ResponseFriendRequest);
 
             ApiServer.RegisterRequestHandler<Request, IntArrayContainer>
-                (FriendsHandler.GetAllFriendRequests, RequestHeaders.GetAllFriendRequestForUser);
+                (FriendsHandler.GetAllFriendRequests, RequestHeaders.GetAllFriendRequests);
         }
         private void RegisterChatMethods()
         {
             ApiServer.RegisterRequestHandler<ChatCreationRequest, Chat>
                 (ChatsHandler.CreateChat, RequestHeaders.CreateChat);
 
-            ApiServer.RegisterRequestHandler<IntContainer, Chat>
-                (ChatsHandler.GetChat, RequestHeaders.GetChat);
-
             ApiServer.RegisterRequestHandler<IntArrayContainer, SerializableArray<Chat>>
-               (ChatsHandler.GetChats, RequestHeaders.GetChatMany);
+               (ChatsHandler.GetChats, RequestHeaders.GetChat);
 
             ApiServer.RegisterDataHandler<ChatInvite>
                 (ChatsHandler.SendChatInvite, RequestHeaders.SendChatInvite);
 
-            ApiServer.RegisterRequestHandler<IntContainer, ChatInvite>
-                (ChatsHandler.GetChatInvite, RequestHeaders.GetChatInvite);
-
             ApiServer.RegisterRequestHandler<IntArrayContainer, SerializableArray<ChatInvite>>
-                (ChatsHandler.GetChatInvites, RequestHeaders.GetChatInviteMany);
+                (ChatsHandler.GetChatInvites, RequestHeaders.GetChatInvite);
 
             ApiServer.RegisterDataHandler<RequestResponse>
                 (ChatsHandler.ChatInviteResponse, RequestHeaders.ChatInviteRespose);
 
-            ApiServer.RegisterRequestHandler<IntContainer, IntArrayContainer>
-                (ChatsHandler.GetAllChatInvites, RequestHeaders.GetAllChatInvitesForUser);
+            ApiServer.RegisterRequestHandler<Request, IntArrayContainer>
+                (ChatsHandler.GetAllChatInvites, RequestHeaders.GetAllChatInvites);
 
             ApiServer.RegisterRequestHandler<Request, IntArrayContainer>
                 (ChatsHandler.GetAllChats, RequestHeaders.GetAllChats);

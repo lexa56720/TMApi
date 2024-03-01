@@ -19,48 +19,44 @@ namespace TMApi.ApiRequests.Chats
             return await Requester.RequestAsync<Chat, ChatCreationRequest>
                          (RequestHeaders.CreateChat, new ChatCreationRequest(name, membersId));
         }
+
         public async Task<Chat?> GetChat(int chatId)
         {
-            return await Requester.RequestAsync<Chat, IntContainer>
-                (RequestHeaders.GetChat, new IntContainer(chatId));
+            var result = await GetChat([chatId]);
+            if (result.Length == 0)
+                return null;
+            return result[0];
         }
         public async Task<Chat[]> GetChat(int[] chatIds)
         {
             var chats = await Requester.RequestAsync<SerializableArray<Chat>, IntArrayContainer>
-                (RequestHeaders.GetChatMany, new IntArrayContainer(chatIds));
+                (RequestHeaders.GetChat, new IntArrayContainer(chatIds));
             if (chats == null)
                 return [];
             return chats.Items;
         }
 
-
-        public async Task<bool> SendChatInvite(int chatId, int toUserId)
-        {
-            return await Requester.SendAsync
-                (RequestHeaders.SendChatInvite, new ChatInvite(chatId, toUserId, Api.Id));
-        }
         public async Task<ChatInvite?> GetChatInvite(int inviteId)
         {
-            return await Requester.RequestAsync<ChatInvite, IntContainer>
-                (RequestHeaders.GetChatInvite, new IntContainer(inviteId));
+            var result = await GetChatInvite([inviteId]);
+            if (result.Length == 0)
+                return null;
+            return result[0];
         }
         public async Task<ChatInvite[]> GetChatInvite(int[] inviteId)
         {
             var invites = await Requester.RequestAsync<SerializableArray<ChatInvite>, IntArrayContainer>
-                                     (RequestHeaders.GetChatInviteMany, new IntArrayContainer(inviteId));
+                                     (RequestHeaders.GetChatInvite, new IntArrayContainer(inviteId));
 
             if (invites == null)
                 return [];
             return invites.Items;
         }
-        public async Task<int[]> GetAllInvites()
-        {
-            var invites = await Requester.RequestAsync<IntArrayContainer, Request>
-                           (RequestHeaders.GetAllChatInvitesForUser, new Request());
 
-            if (invites == null)
-                return [];
-            return invites.Values;
+        public async Task<bool> SendChatInvite(int chatId, int toUserId)
+        {
+            return await Requester.SendAsync
+                (RequestHeaders.SendChatInvite, new ChatInvite(chatId, toUserId, Api.Id));
         }
         public async Task<bool> SendChatInviteResponse(int inviteId, bool isAccepted)
         {
@@ -68,7 +64,15 @@ namespace TMApi.ApiRequests.Chats
 
             return await Requester.SendAsync(RequestHeaders.ChatInviteRespose, response);
         }
+        public async Task<int[]> GetAllInvites()
+        {
+            var invites = await Requester.RequestAsync<IntArrayContainer, Request>
+                           (RequestHeaders.GetAllChatInvites, new Request());
 
+            if (invites == null)
+                return [];
+            return invites.Values;
+        }
         public async Task<int[]> GetAllChats()
         {
             var chats = await Requester.RequestAsync<IntArrayContainer, Request>

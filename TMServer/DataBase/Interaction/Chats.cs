@@ -45,15 +45,6 @@ namespace TMServer.DataBase.Interaction
             db.SaveChanges();
         }
 
-        public static DBChat? GetChat(int chatId)
-        {
-            using var db = new TmdbContext();
-
-            var chat = db.Chats.Include(c => c.Admin)
-                               .Include(c => c.Members)
-                               .SingleOrDefault(c => c.Id == chatId);
-            return chat;
-        }
         public static DBChat[] GetChat(int[] chatIds)
         {
             using var db = new TmdbContext();

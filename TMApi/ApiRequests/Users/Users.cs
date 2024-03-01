@@ -28,13 +28,15 @@ namespace TMApi.ApiRequests.Users
 
         public async Task<User?> GetUser(int userId)
         {
-            return await Requester.RequestAsync<User, IntContainer>
-                (RequestHeaders.GetUser, new IntContainer(userId));
+            var result = await GetUser([userId]);
+            if (result.Length == 0)
+                return null;
+            return result[0];
         }
         public async Task<User[]> GetUser(int[] userId)
         {
             var users = await Requester.RequestAsync<SerializableArray<User>, IntArrayContainer>
-                (RequestHeaders.GetUserMany, new IntArrayContainer(userId));
+                (RequestHeaders.GetUser, new IntArrayContainer(userId));
 
             if (users == null)
                 return [];

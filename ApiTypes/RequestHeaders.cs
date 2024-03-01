@@ -10,7 +10,6 @@
 
         GetUserInfo,
         GetUser,
-        GetUserMany,
         ChangeName,
         SearchByName,
 
@@ -20,20 +19,17 @@
         NewMessage,
 
         GetFriendRequest,
-        GetFriendRequestMany,
         ResponseFriendRequest, 
-        GetAllFriendRequestForUser,
+        GetAllFriendRequests,
         SendFriendRequest,
 
         CreateChat,
         GetChat,
-        GetChatMany,
         GetAllChats,
 
-        GetAllChatInvitesForUser,
+        GetAllChatInvites,
         SendChatInvite,
         GetChatInvite,
-        GetChatInviteMany,
         ChatInviteRespose,
         
     }

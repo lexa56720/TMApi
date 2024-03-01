@@ -13,11 +13,6 @@ namespace TMServer.DataBase.Interaction
 {
     internal static class Friends
     {
-        public static DBFriendRequest? GetFriendRequest(int id)
-        {
-            using var db = new TmdbContext();
-            return db.FriendRequests.Find(id);
-        }
         public static DBFriendRequest[] GetFriendRequest(int[] ids)
         {
             using var db = new TmdbContext();

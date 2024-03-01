@@ -11,13 +11,6 @@ namespace TMServer.RequestHandlers
 {
     internal class FriendsHandler
     {
-        public static FriendRequest? GetFriendRequest(ApiData<IntContainer> data)
-        {
-            var request = Friends.GetFriendRequest(data.Data.Value);
-            if (request != null && IsHaveAccess(request, data.UserId))
-                return new FriendRequest(request.SenderId, request.ReceiverId, request.Id);
-            return null;
-        }
         public static SerializableArray<FriendRequest> GetFriendRequests(ApiData<IntArrayContainer> data)
         {
             var requests = Friends.GetFriendRequest(data.Data.Values);
