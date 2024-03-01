@@ -47,9 +47,9 @@ namespace TMServer.RequestHandlers
                 Messages = dbMessages.Select(ConvertMessages).ToArray()
             };
         }
-        public static SerializableArray<Message>? GetMessagesById(ApiData<IntArrayContainer> request)
+        public static SerializableArray<Message>? GetMessagesById(ApiData<MessageRequest> request)
         {
-            var dbMessages = Messages.GetMessages(request.Data.Values);
+            var dbMessages = Messages.GetMessages(request.Data.Ids);
 
             if (dbMessages.Any(m => !Security.IsMemberOfChat(request.UserId, m.DestinationId)))
                 return null;

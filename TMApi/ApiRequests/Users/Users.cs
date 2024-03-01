@@ -15,15 +15,13 @@ namespace TMApi.ApiRequests.Users
         public async Task<bool> ChangeName(string name)
         {
             if (DataConstraints.IsNameLegal(name))
-                return await Requester.SendAsync
-                    (RequestHeaders.ChangeName, new ChangeNameRequest(name));
+                return await Requester.ApiSendAsync(new ChangeNameRequest(name));
             return false;
         }
 
         public async Task<UserInfo?> GetUserInfo()
         {
-            return await Requester.RequestAsync<UserInfo, Request>
-                        (RequestHeaders.GetUserInfo, new Request());
+            return await Requester.ApiRequestAsync<UserInfo, UserFullRequest>(new UserFullRequest());
         }
 
         public async Task<User?> GetUser(int userId)
@@ -31,15 +29,15 @@ namespace TMApi.ApiRequests.Users
             var result = await GetUser([userId]);
             if (result.Length == 0)
                 return null;
+
             return result[0];
         }
-        public async Task<User[]> GetUser(int[] userId)
+        public async Task<User[]> GetUser(int[] userIds)
         {
-            var users = await Requester.RequestAsync<SerializableArray<User>, IntArrayContainer>
-                (RequestHeaders.GetUser, new IntArrayContainer(userId));
-
+            var users = await Requester.ApiRequestAsync<SerializableArray<User>, UserRequest>(new UserRequest(userIds));
             if (users == null)
                 return [];
+
             return users.Items;
         }
 
@@ -48,8 +46,7 @@ namespace TMApi.ApiRequests.Users
             if (!DataConstraints.IsSearchQueryValid(name))
                 return [];
 
-            var users = await Requester.RequestAsync<SerializableArray<User>, SearchRequest>
-                (RequestHeaders.SearchByName, new SearchRequest(name));
+            var users = await Requester.ApiRequestAsync<SerializableArray<User>, SearchRequest>(new SearchRequest(name));
             if (users == null)
                 return [];
 

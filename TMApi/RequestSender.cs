@@ -78,31 +78,24 @@ namespace TMApi
             return await Requester.SendAsync(data);
         }
 
-        public async Task<TResponse?> RequestAsync<TResponse, TRequest>(RequestHeaders header, TRequest data)
-                                      where TResponse : ISerializable<TResponse>, new()
-                                      where TRequest : ISerializable<TRequest>, new()
-        {
-            return await Requester.RequestAsync<TResponse, ApiData<TRequest>>(new ApiData<TRequest>(header, Token, UserId, data, IdHolder.Value), Timeout);
-        }
-        public async Task<bool> SendAsync<T>(RequestHeaders header, T data) where T : ISerializable<T>, new()
-        {
-            return await Requester.SendAsync(new ApiData<T>(header, Token, UserId, data, IdHolder.Value));
-        }
-
-        public async Task<TResponse?> RequestAsync<TResponse, TRequest>(RequestHeaders header, TRequest data, TimeSpan timeout)
+        public async Task<TResponse?> ApiRequestAsync<TResponse, TRequest>(TRequest data)
                                       where TResponse : ISerializable<TResponse>, new()
                                       where TRequest : ISerializable<TRequest>, new()
         {
             return await Requester.RequestAsync<TResponse, ApiData<TRequest>>
-                         (new ApiData<TRequest>(header, Token, UserId, data, IdHolder.Value), timeout);
+                         (new ApiData<TRequest>(Token, UserId, data, IdHolder.Value), Timeout);
+        }
+        public async Task<bool> ApiSendAsync<T>(T data) where T : ISerializable<T>, new()
+        {
+            return await Requester.SendAsync(new ApiData<T>(Token, UserId, data, IdHolder.Value));
         }
 
-        public async Task<TResponse?> LongPollAsync<TResponse, TRequest>(RequestHeaders header, TRequest data, TimeSpan timeout)
+        public async Task<TResponse?> LongPollAsync<TResponse, TRequest>(TRequest data, TimeSpan timeout)
                                       where TResponse : ISerializable<TResponse>, new()
                                       where TRequest : ISerializable<TRequest>, new()
         {
             return await LongPollRequester.RequestAsync<TResponse, ApiData<TRequest>>
-                         (new ApiData<TRequest>(header, Token, UserId, data, IdHolder.Value), timeout);
+                         (new ApiData<TRequest>( Token, UserId, data, IdHolder.Value), timeout);
         }
 
         private int GetPort(RequestKind kind)

@@ -8,7 +8,7 @@ namespace TMServer.RequestHandlers
 {
     internal static class UsersHandler
     {
-        public static UserInfo? GetUserInfo(ApiData<Request> id)
+        public static UserInfo? GetUserInfo(ApiData<UserFullRequest> id)
         {
             var user = Users.GetUserFull(id.UserId);
             if (user == null)
@@ -26,10 +26,10 @@ namespace TMServer.RequestHandlers
             };
         }
 
-        public static SerializableArray<User> GetUsers(ApiData<IntArrayContainer> ids)
+        public static SerializableArray<User> GetUsers(ApiData<UserRequest> ids)
         {
-            var users = Users.GetUserMain(ids.Data.Values);
-            if (!users.Any())
+            var users = Users.GetUserMain(ids.Data.Ids);
+            if (users.Length == 0)
                 return new SerializableArray<User>([]);
             return new SerializableArray<User>(users.Select(ConvertUser).ToArray());
         }

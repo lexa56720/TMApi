@@ -1,26 +1,25 @@
-﻿using CSDTP;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ApiTypes.Communication.Chats
+namespace ApiTypes.Communication.Friends
 {
-    public class ChatRequest:ISerializable<ChatRequest>
+    public class GetFriendRequests:ISerializable<GetFriendRequests>
     {
         public required int[] Ids { get; set; }
 
         [SetsRequiredMembers]
-        public ChatRequest(int[] ids)
+        public GetFriendRequests(int[] ids)
         {
             Ids = ids;
         }
 
         [SetsRequiredMembers]
-        public ChatRequest() 
-        { 
+        public GetFriendRequests()
+        {
         }
     }
 }

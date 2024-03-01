@@ -5,7 +5,6 @@ namespace ApiTypes
 {
     public class ApiData<T> : ISerializable<ApiData<T>> where T : ISerializable<T>,new()
     {
-        public RequestHeaders Header { get; set; } = RequestHeaders.None;
         public required string Token { get; set; }
 
         public required int UserId { get; set; }
@@ -22,9 +21,8 @@ namespace ApiTypes
             UserId = id;
         }
         [SetsRequiredMembers]
-        public ApiData(RequestHeaders header, string token, int id, T data, int cryptId)
+        public ApiData(string token, int id, T data, int cryptId)
         {
-            Header = header;
             Token = token;
             Data = data;
             UserId = id;
@@ -38,7 +36,6 @@ namespace ApiTypes
 
         public void Serialize(BinaryWriter writer)
         {
-            writer.Write((byte)Header);
             writer.Write(Token);
             writer.Write(UserId);
             writer.Write(CryptId);
@@ -48,7 +45,6 @@ namespace ApiTypes
         {
             return new ApiData<T>()
             {
-                Header = (RequestHeaders)reader.ReadByte(),
                 Token = reader.ReadString(),
                 UserId = reader.ReadInt32(),
                 CryptId = reader.ReadInt32(),

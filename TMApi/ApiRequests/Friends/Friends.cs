@@ -18,9 +18,7 @@ namespace TMApi.ApiRequests.Friends
         }
         public async Task<FriendRequest[]> GetFriendRequest(int[] requestIds)
         {
-            var requests = await Requester.RequestAsync<SerializableArray<FriendRequest>, IntArrayContainer>
-                                    (RequestHeaders.GetFriendRequest, new IntArrayContainer(requestIds));
-
+            var requests = await Requester.ApiRequestAsync<SerializableArray<FriendRequest>, GetFriendRequests>(new GetFriendRequests(requestIds));
             if (requests == null)
                 return [];
             return requests.Items;
@@ -28,8 +26,7 @@ namespace TMApi.ApiRequests.Friends
 
         public async Task<int[]> GetAllRequests()
         {
-            var requests = await Requester.RequestAsync<IntArrayContainer, Request>
-                (RequestHeaders.GetAllFriendRequests, new Request());
+            var requests = await Requester.ApiRequestAsync<IntArrayContainer, GetAllFriendRequests>(new GetAllFriendRequests());
 
             if (requests == null)
                 return [];
@@ -37,13 +34,11 @@ namespace TMApi.ApiRequests.Friends
         }
         public async Task<bool> ResponseFriendRequest(int requestId, bool isAccepted)
         {
-            return await Requester.SendAsync
-                (RequestHeaders.ResponseFriendRequest, new RequestResponse(requestId, isAccepted));
+            return await Requester.ApiSendAsync(new RequestResponse(requestId, isAccepted));
         }
         public async Task<bool> SendFriendRequest(int toId)
         {
-            return await Requester.SendAsync
-                (RequestHeaders.SendFriendRequest, new FriendRequest(Api.Id, toId));
+            return await Requester.ApiSendAsync(new FriendRequest(Api.Id, toId));
         }
     }
 }

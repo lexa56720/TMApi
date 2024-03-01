@@ -31,13 +31,13 @@ namespace TMServer.RequestHandlers
             };
         }
 
-        public static SerializableArray<Chat> GetChats(ApiData<IntArrayContainer> request)
+        public static SerializableArray<Chat> GetChats(ApiData<ChatRequest> request)
         {
-            if (!request.Data.Values.Select(v => Security.IsHaveAccessToChat(v, request.UserId)).All(a => a))
+            if (!request.Data.Ids.Select(v => Security.IsHaveAccessToChat(v, request.UserId)).All(a => a))
                 return new SerializableArray<Chat>([]);
 
-            var chats = Chats.GetChat(request.Data.Values);
-            if (!chats.Any())
+            var chats = Chats.GetChat(request.Data.Ids);
+            if (chats.Length == 0)
                 return new SerializableArray<Chat>([]);
 
             return new SerializableArray<Chat>(
@@ -51,20 +51,17 @@ namespace TMServer.RequestHandlers
                 }).ToArray());
         }
 
-        public static SerializableArray<ChatInvite> GetChatInvites(ApiData<IntArrayContainer> request)
+        public static SerializableArray<ChatInvite> GetChatInvites(ApiData<InviteRequest> request)
         {
-            var invites = Chats.GetInvite(request.Data.Values, request.UserId);
-            if (!invites.Any())
+            var invites = Chats.GetInvite(request.Data.Ids, request.UserId);
+            if (invites.Length == 0)
                 return new SerializableArray<ChatInvite>([]);
 
             return new SerializableArray<ChatInvite>(
-                invites.Select(i =>
-                    new ChatInvite(
-                        i.ChatId,
-                        i.ToUserId,
-                        i.InviterId)
-                ).ToArray()
-            );
+                invites.Select(i => new ChatInvite(
+                                i.ChatId,
+                                i.ToUserId,
+                                i.InviterId)).ToArray());
         }
 
 
@@ -74,7 +71,7 @@ namespace TMServer.RequestHandlers
                 Chats.InviteResponse(request.Data.RequestId, request.UserId, request.Data.IsAccepted);
         }
 
-        public static IntArrayContainer? GetAllChatInvites(ApiData<Request> request)
+        public static IntArrayContainer? GetAllChatInvites(ApiData<InviteRequestAll> request)
         {
             return new IntArrayContainer(Chats.GetAllChatInvites(request.UserId));
         }
@@ -86,7 +83,7 @@ namespace TMServer.RequestHandlers
             Chats.InviteToChat(request.UserId, request.Data.ToUserId, request.Data.ChatId);
         }
 
-        public static IntArrayContainer? GetAllChats(ApiData<Request> request)
+        public static IntArrayContainer? GetAllChats(ApiData<ChatRequestAll> request)
         {
             var chats = Chats.GetAllChats(request.UserId);
             if (chats.Length == 0)

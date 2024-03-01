@@ -29,11 +29,11 @@ namespace TMServer.Servers
 
         private ILogger Logger { get; }
 
-        public TMServer(TimeSpan longPollLifetime,int authPort, int responsePort, int longPollPort, ILogger logger)
+        public TMServer(TimeSpan longPollLifetime, int authPort, int responsePort, int longPollPort, ILogger logger)
         {
             AuthServer = new AuthorizationServer(authPort, new AuthEncryptProvider(), logger);
             ApiServer = new ResponseServer(responsePort, new ApiEncryptProvider(), logger);
-            LongPollServer = new LongPollServer(longPollLifetime,longPollPort, new ApiEncryptProvider(), logger);
+            LongPollServer = new LongPollServer(longPollLifetime, longPollPort, new ApiEncryptProvider(), logger);
 
             RegisterAuthMethods();
             RegisterApiMethods();
@@ -55,8 +55,7 @@ namespace TMServer.Servers
         }
         private void RegisterApiMethods()
         {
-            ApiServer.RegisterRequestHandler<AuthUpdateRequest, AuthorizationResponse>
-                (AuthHandler.UpdateAuth, RequestHeaders.UpdateAuth);
+            ApiServer.RegisterRequestHandler<AuthUpdateRequest, AuthorizationResponse>(AuthHandler.UpdateAuth);
 
             RegisterMessageMethods();
             RegisterUserMethods();
@@ -65,69 +64,34 @@ namespace TMServer.Servers
         }
         private void RegisterMessageMethods()
         {
-            ApiServer.RegisterRequestHandler<LastMessagesRequest, MessageHistoryResponse>
-              (MessagesHandler.GetMessagesByOffset, RequestHeaders.GetMessageByOffset);
-
-            ApiServer.RegisterRequestHandler<MessageSendRequest, Message>
-              (MessagesHandler.NewMessage, RequestHeaders.NewMessage);
-
-            ApiServer.RegisterRequestHandler<MessageHistoryRequest, MessageHistoryResponse>
-              (MessagesHandler.GetMessagesByLastId, RequestHeaders.GetMessagesByLastId);
-
-            ApiServer.RegisterRequestHandler<IntArrayContainer, SerializableArray<Message>>
-              (MessagesHandler.GetMessagesById, RequestHeaders.GetMessagesById);
+            ApiServer.RegisterRequestHandler<LastMessagesRequest, MessageHistoryResponse>(MessagesHandler.GetMessagesByOffset);
+            ApiServer.RegisterRequestHandler<MessageSendRequest, Message>(MessagesHandler.NewMessage);
+            ApiServer.RegisterRequestHandler<MessageHistoryRequest, MessageHistoryResponse>(MessagesHandler.GetMessagesByLastId);
+            ApiServer.RegisterRequestHandler<MessageRequest, SerializableArray<Message>>(MessagesHandler.GetMessagesById);
         }
         private void RegisterUserMethods()
         {
-            ApiServer.RegisterRequestHandler<Request, UserInfo>
-                (UsersHandler.GetUserInfo, RequestHeaders.GetUserInfo);
-
-            ApiServer.RegisterRequestHandler<IntArrayContainer, SerializableArray<User>>
-                (UsersHandler.GetUsers, RequestHeaders.GetUser);
-
-            ApiServer.RegisterDataHandler<ChangeNameRequest>
-                (UsersHandler.ChangeUserName, RequestHeaders.ChangeName);
-
-            ApiServer.RegisterRequestHandler<SearchRequest, SerializableArray<User>>
-                (SearchHandler.GetUserByName, RequestHeaders.SearchByName);
-
+            ApiServer.RegisterRequestHandler<UserFullRequest, UserInfo>(UsersHandler.GetUserInfo);
+            ApiServer.RegisterRequestHandler<UserRequest, SerializableArray<User>>(UsersHandler.GetUsers);
+            ApiServer.RegisterDataHandler<ChangeNameRequest>(UsersHandler.ChangeUserName);
+            ApiServer.RegisterRequestHandler<SearchRequest, SerializableArray<User>>(SearchHandler.GetUserByName);
         }
         private void RegisterFriendMethods()
         {
-            ApiServer.RegisterRequestHandler<IntArrayContainer, SerializableArray<FriendRequest>>
-                (FriendsHandler.GetFriendRequests, RequestHeaders.GetFriendRequest);
-
-            ApiServer.RegisterDataHandler<FriendRequest>
-                (FriendsHandler.AddFriendRequest, RequestHeaders.SendFriendRequest);
-
-            ApiServer.RegisterDataHandler<RequestResponse>
-                (FriendsHandler.FriendRequestResponse, RequestHeaders.ResponseFriendRequest);
-
-            ApiServer.RegisterRequestHandler<Request, IntArrayContainer>
-                (FriendsHandler.GetAllFriendRequests, RequestHeaders.GetAllFriendRequests);
+            ApiServer.RegisterRequestHandler<GetFriendRequests, SerializableArray<FriendRequest>>(FriendsHandler.GetFriendRequests);
+            ApiServer.RegisterDataHandler<FriendRequest>(FriendsHandler.AddFriendRequest);
+            ApiServer.RegisterDataHandler<RequestResponse>(FriendsHandler.FriendRequestResponse);
+            ApiServer.RegisterRequestHandler<GetAllFriendRequests, IntArrayContainer>(FriendsHandler.GetAllFriendRequests);
         }
         private void RegisterChatMethods()
         {
-            ApiServer.RegisterRequestHandler<ChatCreationRequest, Chat>
-                (ChatsHandler.CreateChat, RequestHeaders.CreateChat);
-
-            ApiServer.RegisterRequestHandler<IntArrayContainer, SerializableArray<Chat>>
-               (ChatsHandler.GetChats, RequestHeaders.GetChat);
-
-            ApiServer.RegisterDataHandler<ChatInvite>
-                (ChatsHandler.SendChatInvite, RequestHeaders.SendChatInvite);
-
-            ApiServer.RegisterRequestHandler<IntArrayContainer, SerializableArray<ChatInvite>>
-                (ChatsHandler.GetChatInvites, RequestHeaders.GetChatInvite);
-
-            ApiServer.RegisterDataHandler<RequestResponse>
-                (ChatsHandler.ChatInviteResponse, RequestHeaders.ChatInviteRespose);
-
-            ApiServer.RegisterRequestHandler<Request, IntArrayContainer>
-                (ChatsHandler.GetAllChatInvites, RequestHeaders.GetAllChatInvites);
-
-            ApiServer.RegisterRequestHandler<Request, IntArrayContainer>
-                (ChatsHandler.GetAllChats, RequestHeaders.GetAllChats);
+            ApiServer.RegisterRequestHandler<ChatCreationRequest, Chat>(ChatsHandler.CreateChat);
+            ApiServer.RegisterRequestHandler<ChatRequest, SerializableArray<Chat>>(ChatsHandler.GetChats);
+            ApiServer.RegisterDataHandler<ChatInvite>(ChatsHandler.SendChatInvite);
+            ApiServer.RegisterRequestHandler<InviteRequest, SerializableArray<ChatInvite>>(ChatsHandler.GetChatInvites);
+            ApiServer.RegisterDataHandler<RequestResponse>(ChatsHandler.ChatInviteResponse);
+            ApiServer.RegisterRequestHandler<InviteRequestAll, IntArrayContainer>(ChatsHandler.GetAllChatInvites);
+            ApiServer.RegisterRequestHandler<ChatRequestAll, IntArrayContainer>(ChatsHandler.GetAllChats);
         }
 
         public override void Start()

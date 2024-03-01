@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace ApiTypes.Communication.Chats
 {
-    internal class InviteRequest
+    public class InviteRequest:ISerializable<InviteRequest>
     {
-        public int[] Ids { get; set; }
+        public required int[] Ids { get; set; }
 
 
         [SetsRequiredMembers]
@@ -18,6 +18,7 @@ namespace ApiTypes.Communication.Chats
             Ids = ids;
         }
 
+        [SetsRequiredMembers]
         public InviteRequest()
         {
         }

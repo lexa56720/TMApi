@@ -11,15 +11,15 @@ namespace TMServer.RequestHandlers
 {
     internal class FriendsHandler
     {
-        public static SerializableArray<FriendRequest> GetFriendRequests(ApiData<IntArrayContainer> data)
+        public static SerializableArray<FriendRequest> GetFriendRequests(ApiData<GetFriendRequests> data)
         {
-            var requests = Friends.GetFriendRequest(data.Data.Values);
+            var requests = Friends.GetFriendRequest(data.Data.Ids);
 
             var filteredRequests = requests.Where(r => IsHaveAccess(r, data.UserId))
                                            .Select(r => new FriendRequest(r.SenderId, r.ReceiverId, r.Id))
                                            .ToArray();
 
-            if (!filteredRequests.Any())
+            if (filteredRequests.Length == 0)
                 return new SerializableArray<FriendRequest>([]);
 
             return new SerializableArray<FriendRequest>(filteredRequests);
@@ -27,14 +27,14 @@ namespace TMServer.RequestHandlers
 
         public static void AddFriendRequest(ApiData<FriendRequest> data)
         {
-            Friends.RegisterFriendRequest(data.Data.FromId, data.Data.ToId);
+            Friends.RegisterFriendRequest(data.UserId, data.Data.ToId);
         }
         public static void FriendRequestResponse(ApiData<RequestResponse> data)
         {
             Friends.FriendRequestResponse(data.Data.RequestId, data.Data.IsAccepted);
         }
 
-        public static IntArrayContainer? GetAllFriendRequests(ApiData<Request> userId)
+        public static IntArrayContainer? GetAllFriendRequests(ApiData<GetAllFriendRequests> userId)
         {
             return new IntArrayContainer(Friends.GetAllForUser(userId.UserId));
         }
