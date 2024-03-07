@@ -14,7 +14,7 @@ namespace TMApi.ApiRequests
         public event EventHandler<int[]>? FriendsAdded;
         public event EventHandler<int[]>? FriendsRemoved;
 
-
+        private readonly CancellationTokenSource TokenSource = new();
         internal LongPolling(TimeSpan longPollPeriod, RequestSender requester, Api api) : base(requester, api)
         {
             LongPollPeriod = longPollPeriod;
@@ -25,8 +25,11 @@ namespace TMApi.ApiRequests
             Stop();
             NewMessages = null;
             NewFriendRequests = null;
+            NewChats = null;
             FriendsAdded = null;
             FriendsRemoved = null;
+            TokenSource.Cancel();
+            TokenSource.Dispose();
             base.Dispose();
         }
         public void Start()
@@ -50,7 +53,9 @@ namespace TMApi.ApiRequests
             {
                 while (IsPolling)
                 {
-                    var notification = await Requester.LongPollAsync<Notification, LongPollingRequest>(new LongPollingRequest(), LongPollPeriod);
+                    var notification = await Requester.LongPollAsync<Notification, LongPollingRequest>(new LongPollingRequest(),
+                                                                                                       LongPollPeriod, 
+                                                                                                       TokenSource.Token);
                     if (notification != null)
                         HandleNotification(notification);
                 }
@@ -58,11 +63,11 @@ namespace TMApi.ApiRequests
         }
 
         private void HandleNotification(Notification notification)
-        {     
+        {
             if (notification.FriendRequestIds.Length > 0)
                 NewFriendRequests?.Invoke(this, notification.FriendRequestIds);
 
-            if(notification.NewChats.Length>0)
+            if (notification.NewChats.Length > 0)
                 NewChats?.Invoke(this, notification.NewChats);
 
             if (notification.MessagesIds.Length > 0)

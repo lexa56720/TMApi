@@ -85,17 +85,17 @@ namespace TMApi
             return await Requester.RequestAsync<TResponse, ApiData<TRequest>>
                          (new ApiData<TRequest>(Token, UserId, data, IdHolder.Value), Timeout);
         }
-        public async Task<bool> ApiSendAsync<T>(T data) where T : ISerializable<T>, new()
+        public async Task<bool> ApiSendAsync<TData>(TData data) where TData : ISerializable<TData>, new()
         {
-            return await Requester.SendAsync(new ApiData<T>(Token, UserId, data, IdHolder.Value));
+            return await Requester.SendAsync(new ApiData<TData>(Token, UserId, data, IdHolder.Value));
         }
 
-        public async Task<TResponse?> LongPollAsync<TResponse, TRequest>(TRequest data, TimeSpan timeout)
+        public async Task<TResponse?> LongPollAsync<TResponse, TRequest>(TRequest data, TimeSpan timeout,CancellationToken token)
                                       where TResponse : ISerializable<TResponse>, new()
                                       where TRequest : ISerializable<TRequest>, new()
         {
             return await LongPollRequester.RequestAsync<TResponse, ApiData<TRequest>>
-                         (new ApiData<TRequest>( Token, UserId, data, IdHolder.Value), timeout);
+                         (new ApiData<TRequest>(Token, UserId, data, IdHolder.Value), timeout,token);
         }
 
         private int GetPort(RequestKind kind)
