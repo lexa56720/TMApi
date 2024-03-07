@@ -30,20 +30,18 @@ namespace TMServer
         }
 
         public static void Reload()
-        {
-            Configurator configurator = new Configurator("config.cfg", false);
+        {      
+            AuthPort = ServerConfig.Default.AuthPort;
+            ApiPort = ServerConfig.Default.ApiPort;
+            LongPollPort = ServerConfig.Default.LongPollPort;
+        
+            LongPollLifeTime = TimeSpan.FromSeconds(ServerConfig.Default.LongPollLifeTimeSeconds);
+            TokenLifeTime = TimeSpan.FromHours(ServerConfig.Default.TokenLifetimeHours);
+            RsaLifeTime = TimeSpan.FromHours(ServerConfig.Default.RsaKeyLifetimeHours);
 
-            AuthPort = configurator.GetValue<int>("auth-port");
-            ApiPort = configurator.GetValue<int>("api-port");
-            LongPollPort = configurator.GetValue<int>("long-poll-port");
-
-            LongPollLifeTime = TimeSpan.FromSeconds(configurator.GetValue<int>("long-poll-lifetime-seconds"));
-            TokenLifeTime = TimeSpan.FromHours(configurator.GetValue<int>("token-lifetime-hours"));
-            RsaLifeTime = TimeSpan.FromHours(configurator.GetValue<int>("rsa-key-lifetime-hours"));
-
-            ConnectionString = configurator["connection-string"];
-            PasswordSalt = configurator["password-salt"];
-            Version = GetVersion(configurator["version"]);
+            ConnectionString = ServerConfig.Default.DbConnectionString;
+            PasswordSalt = ServerConfig.Default.PasswordSalt;
+            Version = GetVersion(ServerConfig.Default.Version);
         }
         private static int GetVersion(string ver)
         {

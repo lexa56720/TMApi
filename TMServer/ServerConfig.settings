@@ -1,0 +1,33 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="TMServer" GeneratedClassName="ServerConfig">
+  <Profiles />
+  <Settings>
+    <Setting Name="AuthPort" Type="System.UInt16" Scope="User">
+      <Value Profile="(Default)">6665</Value>
+    </Setting>
+    <Setting Name="ApiPort" Type="System.UInt16" Scope="User">
+      <Value Profile="(Default)">6666</Value>
+    </Setting>
+    <Setting Name="LongPollPort" Type="System.UInt16" Scope="User">
+      <Value Profile="(Default)">6667</Value>
+    </Setting>
+    <Setting Name="LongPollLifeTimeSeconds" Type="System.UInt16" Scope="User">
+      <Value Profile="(Default)">120</Value>
+    </Setting>
+    <Setting Name="TokenLifetimeHours" Type="System.UInt16" Scope="User">
+      <Value Profile="(Default)">48</Value>
+    </Setting>
+    <Setting Name="RsaKeyLifetimeHours" Type="System.UInt16" Scope="User">
+      <Value Profile="(Default)">48</Value>
+    </Setting>
+    <Setting Name="PasswordSalt" Type="System.String" Scope="User">
+      <Value Profile="(Default)">NySzq6hatK</Value>
+    </Setting>
+    <Setting Name="Version" Type="System.String" Scope="User">
+      <Value Profile="(Default)">0.0.1</Value>
+    </Setting>
+    <Setting Name="DbConnectionString" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Host=localhost;Port=5432;Database=tmdb;Username=tmadmin;Password=1234;Include Error Detail=True;</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>
