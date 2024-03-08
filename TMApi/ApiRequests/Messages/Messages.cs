@@ -29,7 +29,7 @@ namespace TMApi.ApiRequests.Messages
         }
         public async Task<Message[]> GetMessages(params int[] messagesId)
         {
-            var messages = await Requester.ApiRequestAsync<SerializableArray<Message>, MessageRequest>(new MessageRequest(messagesId));
+            var messages = await Requester.ApiRequestAsync<SerializableArray<Message>, MessagesRequest>(new MessagesRequest(messagesId));
             if (messages == null)
                 return [];
 

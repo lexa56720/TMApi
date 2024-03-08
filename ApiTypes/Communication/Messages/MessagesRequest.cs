@@ -7,18 +7,18 @@ using System.Threading.Tasks;
 
 namespace ApiTypes.Communication.Messages
 {
-    public class MessageRequest : ISerializable<MessageRequest>
+    public class MessagesRequest : ISerializable<MessagesRequest>
     {
         public required int[] Ids { get; set; }
 
         [SetsRequiredMembers]
-        public MessageRequest(int[] ids)
+        public MessagesRequest(int[] ids)
         {
             Ids = ids;
         }
 
         [SetsRequiredMembers]
-        public MessageRequest()
+        public MessagesRequest()
         {
         }
     }

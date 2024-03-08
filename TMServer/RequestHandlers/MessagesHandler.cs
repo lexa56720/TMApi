@@ -13,7 +13,7 @@ namespace TMServer.RequestHandlers
         public static Message? NewMessage(ApiData<MessageSendRequest> message)
         {
             if (DataConstraints.IsMessageLegal(message.Data.Text) &&
-               Security.IsMemberOfChat(message.UserId, message.Data.DestinationId))
+                Security.IsMemberOfChat(message.UserId, message.Data.DestinationId))
             {
                 var dbMessage = Messages.AddMessage(message.UserId, message.Data.Text, message.Data.DestinationId);
                 var isReaded = Messages.IsMessageReaded(dbMessage.Id);
@@ -39,8 +39,8 @@ namespace TMServer.RequestHandlers
             if (!Security.IsMemberOfChat(request.UserId, request.Data.ChatId))
                 return null;
 
-            var dbMessages = Messages.GetMessages
-                             (request.Data.ChatId, 0, request.Data.MaxCount, request.Data.LastMessageId);
+            var dbMessages = Messages.GetMessages(request.Data.ChatId, 0, request.Data.MaxCount, request.Data.LastMessageId);
+
             var isReaded = Messages.IsMessageReaded(dbMessages.Select(m => m.Id));
 
             return new MessageHistoryResponse()
@@ -49,11 +49,12 @@ namespace TMServer.RequestHandlers
                 Messages = ConvertMessages(dbMessages, isReaded)
             };
         }
-        public static SerializableArray<Message>? GetMessagesById(ApiData<MessageRequest> request)
+        public static SerializableArray<Message>? GetMessagesById(ApiData<MessagesRequest> request)
         {
-            var dbMessages = Messages.GetMessages(request.Data.Ids);
-            if (dbMessages.Any(m => !Security.IsMemberOfChat(request.UserId, m.DestinationId)))
+            if (Security.IsHaveAccessToMessages(request.UserId, request.Data.Ids))
                 return null;
+
+            var dbMessages = Messages.GetMessages(request.Data.Ids);
             var isReaded = Messages.IsMessageReaded(dbMessages.Select(m => m.Id));
 
             return new SerializableArray<Message>(ConvertMessages(dbMessages, isReaded));
@@ -67,7 +68,7 @@ namespace TMServer.RequestHandlers
         public static void MarkAsReaded(ApiData<MarkAsReaded> messages)
         {
             if (Security.IsHaveAccessToMessages(messages.UserId, messages.Data.MessageIds))
-                 Messages.MarkAsReaded(messages.Data.MessageIds);
+                Messages.MarkAsReaded(messages.Data.MessageIds);
         }
 
         private static Message[] ConvertMessages(DBMessage[] dbMessages, bool[] isReaded)
