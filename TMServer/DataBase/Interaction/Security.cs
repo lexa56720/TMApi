@@ -30,7 +30,7 @@ namespace TMServer.DataBase.Interaction
             using var db = new TmdbContext();
 
             return db.Chats.Include(c => c.Members)
-                .Any(c => c.Id == chatId && c.Members.Any(m => m.Id == userId));
+                           .Any(c => c.Id == chatId && c.Members.Any(m => m.Id == userId));
         }
 
         public static bool IsCanInviteToChat(int inviterId, int userId, int chatId)
@@ -51,10 +51,9 @@ namespace TMServer.DataBase.Interaction
         public static bool IsCanCreateChat(int userId, int[] memberIds)
         {
             using var db = new TmdbContext();
-            var user = db.Users
-                  .Include(u => u.FriendsOne)
-                  .Include(u => u.FriendsTwo)
-                  .SingleOrDefault(u => u.Id == userId);
+            var user = db.Users.Include(u => u.FriendsOne)
+                               .Include(u => u.FriendsTwo)
+                               .SingleOrDefault(u => u.Id == userId);
 
             if (user == null)
                 return false;
@@ -66,5 +65,16 @@ namespace TMServer.DataBase.Interaction
             return true;
         }
 
+
+        public static bool IsHaveAccessToMessages(int userId, params int[] messagesIds)
+        {
+            using var db = new TmdbContext();
+
+            var chats = db.Messages.Where(m => messagesIds.Contains(m.Id))
+                                   .Include(m => m.Destination)
+                                   .ThenInclude(c => c.Members)
+                                   .Select(m => m.Destination);
+            return chats.All(c => c.Members.Any(m => m.Id == userId));
+        }
     }
 }

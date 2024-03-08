@@ -42,5 +42,10 @@ namespace TMApi.ApiRequests.Messages
 
             return await Requester.ApiRequestAsync<Message, MessageSendRequest>(new MessageSendRequest(text, destinationId));
         }
+
+        public async Task<bool> MarkAsReaded(params int[] messageIds)
+        {
+            return await Requester.ApiSendAsync(new MarkAsReaded(messageIds));
+        }
     }
 }

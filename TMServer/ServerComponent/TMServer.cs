@@ -53,7 +53,7 @@ namespace TMServer.Servers
         private void RegisterAuthMethods()
         {
             AuthServer.Register<RsaPublicKey, RsaPublicKey>(AuthHandler.RsaKeyTrade);
-            AuthServer.Register<AuthorizationRequest, AuthorizationResponse>(AuthHandler.Auth);
+            AuthServer.Register<AuthorizationRequest, AuthorizationResponse>(AuthHandler.Login);
             AuthServer.Register<RegisterRequest, RequestResponse>(AuthHandler.Register);
             AuthServer.Register<VersionRequest, IntContainer>(e => AuthHandler.GetVersion());
         }
@@ -73,6 +73,7 @@ namespace TMServer.Servers
             ApiServer.RegisterRequestHandler<MessageSendRequest, Message>(MessagesHandler.NewMessage);
             ApiServer.RegisterRequestHandler<MessageHistoryRequest, MessageHistoryResponse>(MessagesHandler.GetMessagesByLastId);
             ApiServer.RegisterRequestHandler<MessageRequest, SerializableArray<Message>>(MessagesHandler.GetMessagesById);
+            ApiServer.RegisterDataHandler<MarkAsReaded>(MessagesHandler.MarkAsReaded);
         }
         private void RegisterUserMethods()
         {

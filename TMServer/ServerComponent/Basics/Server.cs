@@ -11,7 +11,7 @@ namespace TMServer.ServerComponent.Basics
 {
     internal abstract class Server : Startable, IDisposable
     {
-        protected Responder Responder { get; set; }
+        protected Responder Responder { get; }
         protected ILogger Logger { get; }
 
         protected Server(int port, IEncryptProvider encryptProvider,ILogger logger)
@@ -36,7 +36,6 @@ namespace TMServer.ServerComponent.Basics
             Responder.Stop(); 
             Logger.Log($"{GetType().Name} stopped");
         }
-
 
 
         protected virtual bool IsRequestLegal<T>(ApiData<T> request) where T : ISerializable<T>, new()

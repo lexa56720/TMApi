@@ -1,4 +1,5 @@
-﻿using TMServer.DataBase.Tables;
+﻿using Microsoft.EntityFrameworkCore;
+using TMServer.DataBase.Tables;
 
 namespace TMServer.DataBase.Interaction
 {
@@ -17,10 +18,9 @@ namespace TMServer.DataBase.Interaction
             };
             db.Messages.Add(message);
 
-            db.SaveChanges();
+            db.SaveChanges(true);
             return message;
         }
-
         public static DBMessage[] GetMessages(int chatId, int offset, int count)
         {
             using var db = new TmdbContext();
@@ -50,11 +50,30 @@ namespace TMServer.DataBase.Interaction
         {
             using var db = new TmdbContext();
 
-            return db.Messages    
+            return db.Messages
                 .OrderByDescending(m => m.SendTime)
                 .ThenByDescending(m => m.Id)
-                .Where(m =>ids.Contains( m.Id) )
+                .Where(m => ids.Contains(m.Id))
                 .ToArray();
+        }
+
+        public static bool MarkAsReaded(int[] ids)
+        {
+            using var db = new TmdbContext();
+
+            db.UnreadedMessages.Where(um => ids.Contains(um.MessageId)).ExecuteDelete();
+            return db.SaveChanges() > 0;
+        }
+        public static bool IsMessageReaded(int messageId)
+        {
+            using var db = new TmdbContext();
+            return db.UnreadedMessages.Any(m => m.MessageId == messageId);
+        }
+        public static bool[] IsMessageReaded(IEnumerable<int> messageIds)
+        {
+            using var db = new TmdbContext();
+            return messageIds.Select(id => db.UnreadedMessages.Any(um => um.MessageId == id))
+                             .ToArray();
         }
     }
 }

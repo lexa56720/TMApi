@@ -64,7 +64,6 @@ namespace TMServer.RequestHandlers
                                 i.InviterId)).ToArray());
         }
 
-
         public static void ChatInviteResponse(ApiData<RequestResponse> request)
         {
             if (Chats.GetInvite(request.Data.RequestId, request.UserId) != null)

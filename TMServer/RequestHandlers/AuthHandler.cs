@@ -22,7 +22,7 @@ namespace TMServer.RequestHandlers
             return new RsaPublicKey(serverKey, id);
         }
 
-        public static AuthorizationResponse Auth(AuthorizationRequest request)
+        public static AuthorizationResponse Login(AuthorizationRequest request)
         {
             var id = Authentication.GetUserId(request.Login, request.Password);
             if (id < 0)
@@ -30,7 +30,7 @@ namespace TMServer.RequestHandlers
                 {
                     IsSuccessful = false
                 };
-
+            LongPolling.ClearUpdates(id);
             return GetAuthData(id);
         }
         private static AuthorizationResponse GetAuthData(int userId)

@@ -25,7 +25,7 @@ namespace TMServer.DataBase.Interaction
                     chat.Members.Add(user);
                 }
             }
-            db.SaveChanges();
+            db.SaveChanges(true);
             chat.Admin = db.Users.SingleOrDefault(u => u.Id == usersId[0]);
             return chat;
         }
@@ -42,7 +42,7 @@ namespace TMServer.DataBase.Interaction
                 InviterId = inviterId,
                 ToUserId = userId,
             });
-            db.SaveChanges();
+            db.SaveChanges(true);
         }
 
         public static DBChat[] GetChat(int[] chatIds)
@@ -72,7 +72,7 @@ namespace TMServer.DataBase.Interaction
             using var db = new TmdbContext();
 
             return db.ChatInvites
-                .SingleOrDefault(i => (i.ToUserId == userId || i.InviterId == userId) && i.Id == inviteId);
+                     .SingleOrDefault(i => (i.ToUserId == userId || i.InviterId == userId) && i.Id == inviteId);
         }
 
         public static DBChatInvite[] GetInvite(int[] inviteIds, int userId)
@@ -81,7 +81,6 @@ namespace TMServer.DataBase.Interaction
             return db.ChatInvites
                   .Where(i => (i.ToUserId == userId || i.InviterId == userId) && inviteIds.Contains(i.Id))
                   .ToArray();
-
         }
         public static void InviteResponse(int inviteId, int userId, bool isAccepted)
         {
@@ -105,7 +104,8 @@ namespace TMServer.DataBase.Interaction
         {
             using var db = new TmdbContext();
             return db.ChatInvites.Where(i => i.ToUserId == userId)
-                                 .Select(i => i.Id).ToArray();
+                                 .Select(i => i.Id)
+                                 .ToArray();
         }
     }
 }

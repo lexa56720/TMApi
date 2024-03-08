@@ -13,24 +13,23 @@ namespace ApiTypes.Communication.Messages
 
         public string Text { get; set; }
 
-        public  DateTime SendTime { get; set; }
+        public DateTime SendTime { get; set; }
 
+        public bool IsReaded { get; set; }
 
         public Message()
         {
 
         }
 
-        [SetsRequiredMembers]
-        public Message(int id, int authorId, int destinationId, string text, DateTime sendTime)
+        public Message(int id, int authorId, int destinationId, string text, DateTime sendTime,bool isReaded)
         {
             Id = id;
             AuthorId = authorId;
             DestinationId = destinationId;
             Text = text;
             SendTime = sendTime;
-     
+            IsReaded = isReaded;
         }
-
     }
 }

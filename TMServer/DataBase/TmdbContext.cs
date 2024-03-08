@@ -29,14 +29,16 @@ public partial class TmdbContext : DbContext
     public virtual DbSet<DBChatInvite> ChatInvites { get; set; }
     public virtual DbSet<DBFriendRequest> FriendRequests { get; set; }
     public virtual DbSet<DBMessageMedia> MessageMedias { get; set; }
+    public virtual DbSet<DBUnreadedMessages> UnreadedMessages { get; set; }
+
 
     public virtual DbSet<DBChatInviteUpdate> ChatInviteUpdates { get; set; }
-    public virtual DbSet<DBMessageUpdate> MessageUpdates { get; set; }
     public virtual DbSet<DBFriendRequestUpdate> FriendRequestUpdates { get; set; }
     public virtual DbSet<DBFriendProfileUpdate> FriendProfileUpdates { get; set; }
-    public virtual DbSet<DBFriendListUpdate> FriendListUpdate { get; set; }
+    public virtual DbSet<DBFriendListUpdate> FriendListUpdates { get; set; }
     public virtual DbSet<DBChatUpdate> ChatUpdates { get; set; }
 
+    public virtual DbSet<DBMessageUpdate> MessageUpdates { get; set; }
 
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -247,6 +249,18 @@ public partial class TmdbContext : DbContext
 
             entity.Property(e => e.Data).HasColumnName("data");
         });
+        modelBuilder.Entity<DBUnreadedMessages>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("unreaded_messages_pkey");
+            entity.ToTable("unreaded_messages");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.MessageId).HasColumnName("message_id");
+
+            entity.HasOne(e => e.Message)
+                  .WithMany()
+                  .HasForeignKey(u => u.MessageId);
+        });
 
 
         modelBuilder.Entity<DBMessageUpdate>(entity =>
@@ -335,7 +349,7 @@ public partial class TmdbContext : DbContext
                   .HasForeignKey(u => u.FriendId);
         });
 
-        modelBuilder.Entity < DBChatUpdate>(entity =>
+        modelBuilder.Entity<DBChatUpdate>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("chat_updates_pkey");
             entity.ToTable("chat_updates");
@@ -355,9 +369,9 @@ public partial class TmdbContext : DbContext
         OnModelCreatingPartial(modelBuilder);
     }
 
-    public override int SaveChanges()
+    public new int SaveChanges(bool trackChanges)
     {
-        if (!ChangeHandler.IsUpdateTracked|| !ChangeTracker.HasChanges())
+        if (!trackChanges || !ChangeHandler.IsUpdateTracked || !ChangeTracker.HasChanges())
             return base.SaveChanges();
 
         var changes = GetChangedEntities();
@@ -365,7 +379,10 @@ public partial class TmdbContext : DbContext
         ChangeHandler.HandleChanges(changes);
         return value;
     }
-
+    public override int SaveChanges()
+    {
+        return base.SaveChanges();
+    }
     private (EntityEntry entity, EntityState state)[] GetChangedEntities()
     {
         var entries = ChangeTracker.Entries();

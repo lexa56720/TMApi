@@ -82,14 +82,14 @@ namespace TMServer.DataBase
         }
         private void UpdateFriendList(bool isAdded, int userId, int friendId, TmdbContext context)
         {
-            context.FriendListUpdate.Add(new DBFriendListUpdate()
+            context.FriendListUpdates.Add(new DBFriendListUpdate()
             {
                 FriendId = userId,
                 UserId = friendId,
                 IsAdded = isAdded,
             });
 
-            context.FriendListUpdate.Add(new DBFriendListUpdate()
+            context.FriendListUpdates.Add(new DBFriendListUpdate()
             {
                 FriendId = friendId,
                 UserId = userId,
@@ -115,12 +115,18 @@ namespace TMServer.DataBase
 
             //Добавление уведомлений в бд
             foreach (var member in chatMembers)
+            {
+
                 context.MessageUpdates.Add(new DBMessageUpdate()
                 {
                     MessageId = message.Id,
                     UserId = member
                 });
-
+            }
+            context.UnreadedMessages.Add(new DBUnreadedMessages()
+            {
+                MessageId = message.Id,
+            });
             return chatMembers;
         }
 

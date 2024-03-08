@@ -51,7 +51,7 @@ namespace TMServer.DataBase.Interaction
                 SenderId = fromId,
                 ReceiverId = toId,
             });
-            db.SaveChanges();
+            db.SaveChanges(true);
         }
 
         private static void RegisterFriends(int idOne, int idTwo)
@@ -65,17 +65,16 @@ namespace TMServer.DataBase.Interaction
                     DestId = idTwo
                 });
 
-                var admin = db.Users.Find(idOne);
                 var chat = new DBChat()
                 {
-                    AdminId=idOne,
+                    AdminId = idOne,
                     IsDialogue = true,
                     Name = string.Empty,
                 };
                 db.Chats.Add(chat);
-                chat.Members.Add(admin);
+                chat.Members.Add(db.Users.Find(idOne));
                 chat.Members.Add(db.Users.Find(idTwo));
-                db.SaveChanges();          
+                db.SaveChanges(true);
             }
         }
 
@@ -83,7 +82,8 @@ namespace TMServer.DataBase.Interaction
         {
             using var db = new TmdbContext();
             return db.FriendRequests.Where(i => i.ReceiverId == userId)
-                                    .Select(i => i.Id).ToArray();
+                                    .Select(i => i.Id)
+                                    .ToArray();
         }
         private static bool IsAlreadyRequested(int idOne, int idTwo)
         {
