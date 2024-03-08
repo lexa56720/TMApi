@@ -3,15 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TMServer.DataBase.Tables.LongPolling;
 
-namespace TMServer.DataBase.Tables
+namespace TMServer.DataBase.Tables.LongPolling
 {
-    public partial class DBUnreadedMessages
+    public class DBNewMessages:DBUpdate
     {
         public int Id { get; set; }
         public required int MessageId { get; set; }
-
         public virtual DBMessage Message { get; set; } = null!;
     }
 }

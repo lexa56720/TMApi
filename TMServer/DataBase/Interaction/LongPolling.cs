@@ -1,7 +1,6 @@
 ﻿using ApiTypes.Communication.LongPolling;
 using Microsoft.EntityFrameworkCore;
 
-
 namespace TMServer.DataBase.Interaction
 {
     internal static class LongPolling
@@ -9,12 +8,26 @@ namespace TMServer.DataBase.Interaction
         public static int[] GetMessageUpdate(int userId)
         {
             using var db = new TmdbContext();
-            var result = db.MessageUpdates
+            var result = db.NewMessages
                            .Where(c => c.UserId == userId)
                            .Select(m => m.MessageId)
                            .ToArray();
-            db.MessageUpdates.Where(u => u.UserId == userId)
+            db.NewMessages.Where(u => u.UserId == userId)
                              .ExecuteDelete();
+            db.SaveChanges();
+            return result;
+        }
+
+        public static int[] GetMessagesWithUpdatedStatus(int userId)
+        {
+            using var db = new TmdbContext();
+            var result = db.MessageStatusUpdates
+                           .Where(c => c.UserId == userId)
+                           .Select(m => m.MessageId)
+                           .ToArray();
+
+            db.MessageStatusUpdates.Where(u => u.UserId == userId)
+                                   .ExecuteDelete();
             db.SaveChanges();
             return result;
         }
@@ -77,19 +90,21 @@ namespace TMServer.DataBase.Interaction
             db.FriendRequestUpdates.Where(fr => fr.UserId == userId).ExecuteDelete();
             db.ChatUpdates.Where(c => c.UserId == userId).ExecuteDelete();
             db.FriendListUpdates.Where(fl => fl.UserId == userId).ExecuteDelete();
-            db.MessageUpdates.Where(u => u.UserId == userId).ExecuteDelete();
+            db.NewMessages.Where(u => u.UserId == userId).ExecuteDelete();
             db.SaveChanges();
         }
 
         public static bool IsHaveUpdates(int userId)
         {
             using var db = new TmdbContext();
-            return db.MessageUpdates.Any(u => u.UserId == userId) ||
+            return db.NewMessages.Any(u => u.UserId == userId) ||
                    db.FriendRequestUpdates.Any(u => u.UserId == userId) ||
                    db.ChatInviteUpdates.Any(u => u.UserId == userId) ||
                    db.ChatUpdates.Any(u => u.UserId == userId) ||
                    db.FriendProfileUpdates.Any(u => u.UserId == userId) ||
                    db.FriendListUpdates.Any(u => u.UserId == userId);
         }
+
+
     }
 }

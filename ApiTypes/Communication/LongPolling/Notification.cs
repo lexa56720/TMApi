@@ -5,7 +5,9 @@ namespace ApiTypes.Communication.LongPolling
 {
     public class Notification : ISerializable<Notification>
     {
-        public int[] MessagesIds { get; set; } = [];
+        public int[] NewMessagesIds { get; set; } = [];
+
+        public int[] MessagesReadedIds { get; set; } = [];
 
         public int[] FriendRequestIds { get; set; } = [];
 

@@ -29,7 +29,7 @@ public partial class TmdbContext : DbContext
     public virtual DbSet<DBChatInvite> ChatInvites { get; set; }
     public virtual DbSet<DBFriendRequest> FriendRequests { get; set; }
     public virtual DbSet<DBMessageMedia> MessageMedias { get; set; }
-    public virtual DbSet<DBUnreadedMessages> UnreadedMessages { get; set; }
+    public virtual DbSet<DBUnreadedMessage> UnreadedMessages { get; set; }
 
 
     public virtual DbSet<DBChatInviteUpdate> ChatInviteUpdates { get; set; }
@@ -37,9 +37,8 @@ public partial class TmdbContext : DbContext
     public virtual DbSet<DBFriendProfileUpdate> FriendProfileUpdates { get; set; }
     public virtual DbSet<DBFriendListUpdate> FriendListUpdates { get; set; }
     public virtual DbSet<DBChatUpdate> ChatUpdates { get; set; }
-
-    public virtual DbSet<DBMessageUpdate> MessageUpdates { get; set; }
-
+    public virtual DbSet<DBNewMessages> NewMessages { get; set; }
+    public virtual DbSet<DBMessageStatusUpdate> MessageStatusUpdates { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -249,7 +248,7 @@ public partial class TmdbContext : DbContext
 
             entity.Property(e => e.Data).HasColumnName("data");
         });
-        modelBuilder.Entity<DBUnreadedMessages>(entity =>
+        modelBuilder.Entity<DBUnreadedMessage>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("unreaded_messages_pkey");
             entity.ToTable("unreaded_messages");
@@ -263,10 +262,27 @@ public partial class TmdbContext : DbContext
         });
 
 
-        modelBuilder.Entity<DBMessageUpdate>(entity =>
+        modelBuilder.Entity<DBNewMessages>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("message_updates_pkey");
-            entity.ToTable("message_updates");
+            entity.HasKey(e => e.Id).HasName("new_messages_pkey");
+            entity.ToTable("new_messages");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.MessageId).HasColumnName("message_id");
+            entity.Property(e => e.UserId).HasColumnName("user_id");
+
+            entity.HasOne(e => e.User)
+                  .WithMany()
+                  .HasForeignKey(u => u.UserId);
+
+            entity.HasOne(e => e.Message)
+                  .WithMany()
+                  .HasForeignKey(u => u.MessageId);
+        });
+        modelBuilder.Entity<DBMessageStatusUpdate>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("message_status_updates_pkey");
+            entity.ToTable("message_status_updates");
 
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.MessageId).HasColumnName("message_id");

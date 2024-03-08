@@ -9,6 +9,7 @@ namespace TMApi.ApiRequests
         private TimeSpan LongPollPeriod { get; }
 
         public event EventHandler<int[]>? NewMessages;
+        public event EventHandler<int[]>? MessagesReaded;
         public event EventHandler<int[]>? NewFriendRequests;
         public event EventHandler<int[]>? NewChats;
         public event EventHandler<int[]>? FriendsAdded;
@@ -24,6 +25,7 @@ namespace TMApi.ApiRequests
         {
             Stop();
             NewMessages = null;
+            MessagesReaded = null;
             NewFriendRequests = null;
             NewChats = null;
             FriendsAdded = null;
@@ -54,7 +56,7 @@ namespace TMApi.ApiRequests
                 while (IsPolling)
                 {
                     var notification = await Requester.LongPollAsync<Notification, LongPollingRequest>(new LongPollingRequest(),
-                                                                                                       LongPollPeriod, 
+                                                                                                       LongPollPeriod,
                                                                                                        TokenSource.Token);
                     if (notification != null)
                         HandleNotification(notification);
@@ -70,14 +72,17 @@ namespace TMApi.ApiRequests
             if (notification.NewChats.Length > 0)
                 NewChats?.Invoke(this, notification.NewChats);
 
-            if (notification.MessagesIds.Length > 0)
-                NewMessages?.Invoke(this, notification.MessagesIds);
+            if (notification.NewMessagesIds.Length > 0)
+                NewMessages?.Invoke(this, notification.NewMessagesIds);
 
             if (notification.NewFriends.Length > 0)
                 FriendsAdded?.Invoke(this, notification.NewFriends);
 
             if (notification.RemovedFriends.Length > 0)
                 FriendsRemoved?.Invoke(this, notification.RemovedFriends);
+
+            if (notification.MessagesReadedIds.Length > 0)
+                MessagesReaded?.Invoke(this, notification.MessagesReadedIds);
         }
     }
 }

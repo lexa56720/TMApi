@@ -17,8 +17,13 @@ namespace TMServer.DataBase.Interaction
                 SendTime = DateTime.UtcNow,
             };
             db.Messages.Add(message);
-
             db.SaveChanges(true);
+
+            db.UnreadedMessages.Add(new DBUnreadedMessage()
+            {
+                MessageId = message.Id
+            });
+            db.SaveChanges();
             return message;
         }
         public static DBMessage[] GetMessages(int chatId, int offset, int count)
@@ -67,12 +72,12 @@ namespace TMServer.DataBase.Interaction
         public static bool IsMessageReaded(int messageId)
         {
             using var db = new TmdbContext();
-            return db.UnreadedMessages.Any(m => m.MessageId == messageId);
+            return !db.UnreadedMessages.Any(m => m.MessageId == messageId);
         }
         public static bool[] IsMessageReaded(IEnumerable<int> messageIds)
         {
             using var db = new TmdbContext();
-            return messageIds.Select(id => db.UnreadedMessages.Any(um => um.MessageId == id))
+            return messageIds.Select(id => !db.UnreadedMessages.Any(um => um.MessageId == id))
                              .ToArray();
         }
     }

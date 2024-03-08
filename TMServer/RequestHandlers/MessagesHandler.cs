@@ -67,7 +67,7 @@ namespace TMServer.RequestHandlers
 
         public static void MarkAsReaded(ApiData<MarkAsReaded> messages)
         {
-            if (Security.IsHaveAccessToMessages(messages.UserId, messages.Data.MessageIds))
+            if (Security.IsCanMarkAsReaded(messages.UserId, messages.Data.MessageIds))
                 Messages.MarkAsReaded(messages.Data.MessageIds);
         }
 

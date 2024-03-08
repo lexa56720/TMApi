@@ -76,5 +76,17 @@ namespace TMServer.DataBase.Interaction
                                    .Select(m => m.Destination);
             return chats.All(c => c.Members.Any(m => m.Id == userId));
         }
+        public static bool IsCanMarkAsReaded(int userId, params int[] messagesIds)
+        {
+            using var db = new TmdbContext();
+            if (!db.Messages.Where(m => messagesIds.Contains(m.Id)).All(m => m.AuthorId != userId))
+                return false;
+
+            var chats = db.Messages.Where(m => messagesIds.Contains(m.Id))
+                                   .Include(m => m.Destination)
+                                   .ThenInclude(c => c.Members)
+                                   .Select(m => m.Destination);
+            return chats.All(c => c.Members.Any(m => m.Id == userId));
+        }
     }
 }

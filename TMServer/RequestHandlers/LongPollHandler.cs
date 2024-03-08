@@ -20,7 +20,8 @@ namespace TMServer.RequestHandlers
         {
             return new Notification()
             {
-                MessagesIds = LongPolling.GetMessageUpdate(userId),
+                NewMessagesIds = LongPolling.GetMessageUpdate(userId),
+                MessagesReadedIds=LongPolling.GetMessagesWithUpdatedStatus(userId),
                 FriendRequestIds=LongPolling.GetFriendRequestUpdates(userId),
                 NewFriends=LongPolling.GetNewFriends(userId),
                 RemovedFriends=LongPolling.GetRemovedFriends(userId),

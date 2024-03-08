@@ -54,8 +54,24 @@ namespace TMServer.DataBase
             return className switch
             {
                 nameof(DBFriend) => HandleRemovedFriend((DBFriend)entity.Entity, context),
+                nameof(DBUnreadedMessage) => HandleMessageRead((DBUnreadedMessage)entity.Entity, context),
                 _ => [],
             };
+        }
+
+        private IEnumerable<int> HandleMessageRead(DBUnreadedMessage message, TmdbContext context)
+        {
+            var chatMembers = context.Messages.Include(m => m.Destination)
+                                              .ThenInclude(c => c.Members)
+                                              .First(m => m.Id == message.MessageId)
+                                              .Destination.Members.Select(m => m.Id);
+            foreach (var member in chatMembers)
+                context.MessageStatusUpdates.Add(new DBMessageStatusUpdate()
+                {
+                    MessageId = message.Id,
+                    UserId = member,
+                });
+            return chatMembers;
         }
 
         private IEnumerable<int> HandleAddedEntity(string className, EntityEntry entity, TmdbContext context)
@@ -109,24 +125,17 @@ namespace TMServer.DataBase
         private IEnumerable<int> HandleNewMessage(DBMessage message, TmdbContext context)
         {
             var chatMembers = context.Chats.Include(c => c.Members)
-                                           .First(c => c.Id == message.DestinationId)                               
+                                           .First(c => c.Id == message.DestinationId)
                                            .Members.Select(m => m.Id)
                                            .Where(id => id != message.AuthorId);
 
             //Добавление уведомлений в бд
             foreach (var member in chatMembers)
-            {
-
-                context.MessageUpdates.Add(new DBMessageUpdate()
+                context.NewMessages.Add(new DBNewMessages()
                 {
                     MessageId = message.Id,
                     UserId = member
                 });
-            }
-            context.UnreadedMessages.Add(new DBUnreadedMessages()
-            {
-                MessageId = message.Id,
-            });
             return chatMembers;
         }
 
