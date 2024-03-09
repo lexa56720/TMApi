@@ -23,7 +23,7 @@ namespace TMServer.DataBase.Interaction
             {
                 MessageId = message.Id
             });
-            db.SaveChanges();
+            db.SaveChanges(true);
             return message;
         }
         public static DBMessage[] GetMessages(int chatId, int offset, int count)
