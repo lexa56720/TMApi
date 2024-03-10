@@ -1,4 +1,5 @@
-﻿using CSDTP;
+﻿using ApiTypes.Communication.BaseTypes;
+using CSDTP;
 using Microsoft.EntityFrameworkCore;
 using TMServer.DataBase.Tables;
 
@@ -17,6 +18,20 @@ namespace TMServer.DataBase.Interaction
             using var db = new TmdbContext();
 
             return IsMemberOfChat(userId, chatId) || IsInvitedToChat(userId, chatId);
+        }
+
+        public static bool IsHaveAccessToRequest(int requestId, int userId)
+        {
+            using var db = new TmdbContext();
+
+            return db.FriendRequests.Any(r => r.Id == requestId && (r.SenderId == userId || r.ReceiverId == userId));
+        }
+        public static bool IsHaveAccessToRequest(int[] requestIds, int userId)
+        {
+            using var db = new TmdbContext();
+
+            return db.FriendRequests.Where(r => requestIds.Contains(r.Id))
+                                    .All(r=>r.SenderId == userId || r.ReceiverId == userId);
         }
 
         public static bool IsInvitedToChat(int userId, int chatId)
@@ -42,7 +57,7 @@ namespace TMServer.DataBase.Interaction
 
             bool isInviterInChat = db.Chats.Include(c => c.Members)
                                            .Any(c => c.Id == chatId && c.Members.Any(m => m.Id == inviterId));
-         
+
             bool isUserInChat = db.Chats.Include(c => c.Members)
                                          .Any(c => c.Id == chatId && c.Members.Any(m => m.Id == userId));
 
@@ -78,7 +93,7 @@ namespace TMServer.DataBase.Interaction
                                    .ThenInclude(c => c.Members)
                                    .Select(m => m.Destination)
                                    .AsEnumerable()
-                                   .DistinctBy(c=>c.Id);
+                                   .DistinctBy(c => c.Id);
             return chats.All(c => c.Members.Any(m => m.Id == userId));
         }
         public static bool IsCanMarkAsReaded(int userId, params int[] messagesIds)

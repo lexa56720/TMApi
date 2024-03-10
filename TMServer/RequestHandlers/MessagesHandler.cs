@@ -2,6 +2,7 @@
 using ApiTypes.Communication.BaseTypes;
 using ApiTypes.Communication.Messages;
 using ApiTypes.Shared;
+using CSDTP.Requests;
 using TMServer.DataBase;
 using TMServer.DataBase.Interaction;
 using TMServer.DataBase.Tables;
@@ -10,14 +11,14 @@ namespace TMServer.RequestHandlers
 {
     internal class MessagesHandler
     {
-        public static Message? NewMessage(ApiData<MessageSendRequest> message)
+        public static Message? NewMessage(ApiData<MessageSendRequest> request)
         {
-            if (DataConstraints.IsMessageLegal(message.Data.Text) &&
-                Security.IsMemberOfChat(message.UserId, message.Data.DestinationId))
+            if (DataConstraints.IsMessageLegal(request.Data.Text) &&
+                Security.IsMemberOfChat(request.UserId, request.Data.DestinationId))
             {
-                var dbMessage = Messages.AddMessage(message.UserId, message.Data.Text, message.Data.DestinationId);
-                var isReaded = Messages.IsMessageReaded(dbMessage.Id);
-                Messages.ReadAllInChat(message.UserId, message.Data.DestinationId);
+                var dbMessage = Messages.AddMessage(request.UserId, request.Data.Text, request.Data.DestinationId);
+                var isReaded = Messages.IsMessageReaded(request.UserId, dbMessage.Id);
+                Messages.ReadAllInChat(request.UserId, request.Data.DestinationId);
                 return ConvertMessages(dbMessage, isReaded);
             }
             return null;
@@ -28,7 +29,7 @@ namespace TMServer.RequestHandlers
                 return null;
 
             var dbMessages = Messages.GetMessages(request.Data.ChatId, request.Data.Offset, request.Data.MaxCount);
-            var isReaded = Messages.IsMessageReaded(dbMessages.Select(m => m.Id));
+            var isReaded = Messages.IsMessageReaded(request.UserId, dbMessages.Select(m => m.Id));
             return new MessageHistoryResponse()
             {
                 FromId = request.Data.ChatId,
@@ -42,7 +43,7 @@ namespace TMServer.RequestHandlers
 
             var dbMessages = Messages.GetMessages(request.Data.ChatId, 0, request.Data.MaxCount, request.Data.LastMessageId);
 
-            var isReaded = Messages.IsMessageReaded(dbMessages.Select(m => m.Id));
+            var isReaded = Messages.IsMessageReaded(request.UserId, dbMessages.Select(m => m.Id));
 
             return new MessageHistoryResponse()
             {
@@ -56,7 +57,7 @@ namespace TMServer.RequestHandlers
                 return null;
 
             var dbMessages = Messages.GetMessages(request.Data.Ids);
-            var isReaded = Messages.IsMessageReaded(dbMessages.Select(m => m.Id));
+            var isReaded = Messages.IsMessageReaded(request.UserId, dbMessages.Select(m => m.Id));
 
             return new SerializableArray<Message>(ConvertMessages(dbMessages, isReaded));
         }
@@ -66,10 +67,10 @@ namespace TMServer.RequestHandlers
                                              dbMessage.Content, dbMessage.SendTime, isReaded);
         }
 
-        public static void MarkAsReaded(ApiData<MarkAsReaded> messages)
+        public static void MarkAsReaded(ApiData<MarkAsReaded> request)
         {
-            if (Security.IsCanMarkAsReaded(messages.UserId, messages.Data.MessageIds))
-                Messages.MarkAsReaded(messages.Data.MessageIds);
+            if (Security.IsCanMarkAsReaded(request.UserId, request.Data.MessageIds))
+                Messages.MarkAsReaded(request.UserId, request.Data.MessageIds);
         }
 
         private static Message[] ConvertMessages(DBMessage[] dbMessages, bool[] isReaded)

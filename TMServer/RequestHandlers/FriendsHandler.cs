@@ -11,13 +11,13 @@ namespace TMServer.RequestHandlers
 {
     internal class FriendsHandler
     {
-        public static SerializableArray<FriendRequest> GetFriendRequests(ApiData<GetFriendRequests> data)
+        public static SerializableArray<FriendRequest>? GetFriendRequests(ApiData<GetFriendRequests> request)
         {
-            var requests = Friends.GetFriendRequest(data.Data.Ids);
+            if (!Security.IsHaveAccessToRequest(request.Data.Ids,request.UserId))
+                return null;
+            var requests = Friends.GetFriendRequest(request.Data.Ids);
 
-            var filteredRequests = requests.Where(r => IsHaveAccess(r, data.UserId))
-                                           .Select(r => new FriendRequest(r.SenderId, r.ReceiverId, r.Id))
-                                           .ToArray();
+            var filteredRequests = requests.Select(Convert).ToArray();
 
             if (filteredRequests.Length == 0)
                 return new SerializableArray<FriendRequest>([]);
@@ -38,9 +38,10 @@ namespace TMServer.RequestHandlers
         {
             return new IntArrayContainer(Friends.GetAllForUser(userId.UserId));
         }
-        private static bool IsHaveAccess(DBFriendRequest request, int userId)
+
+        private static FriendRequest Convert(DBFriendRequest request)
         {
-            return request.SenderId == userId || request.ReceiverId == userId;
+           return new FriendRequest(request.SenderId, request.ReceiverId, request.Id);
         }
     }
 }

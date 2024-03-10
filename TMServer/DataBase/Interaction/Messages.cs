@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using ApiTypes.Communication.Messages;
+using Microsoft.EntityFrameworkCore;
 using TMServer.DataBase.Tables;
 
 namespace TMServer.DataBase.Interaction
@@ -8,33 +9,35 @@ namespace TMServer.DataBase.Interaction
         public static DBMessage AddMessage(int authorId, string content, int destinationId)
         {
             using var db = new TmdbContext();
-
             var message = new DBMessage()
             {
                 AuthorId = authorId,
                 DestinationId = destinationId,
                 Content = content,
                 SendTime = DateTime.UtcNow,
-            };        
+            };
             db.Messages.Add(message);
-            db.UnreadedMessages.Add(new DBUnreadedMessage()
-            {
-                Message = message
-            });
             db.SaveChanges(true);
+            AddToUnreaded(message.Id, destinationId);
             return message;
         }
 
-        public static bool ReadAllInChat(int userId,int chatId)
+        private static bool AddToUnreaded(int messageId, int chatId)
         {
             using var db = new TmdbContext();
+            var members = db.Chats.Include(c => c.Members)
+                                  .First(c => c.Id == chatId).Members;
 
-           var readed= db.UnreadedMessages.Include(um => um.Message)
-                                          .Where(um => um.Message.DestinationId == chatId && um.Message.AuthorId != userId);
-
-            db.UnreadedMessages.RemoveRange(readed);
-            db.SaveChanges(true);
+            foreach (var member in members)
+                db.UnreadedMessages.Add(new DBUnreadedMessage()
+                {
+                    UserId = member.Id,
+                    MessageId = messageId,
+                });
+            return db.SaveChanges() > 0;
         }
+
+
 
         public static DBMessage[] GetMessages(int chatId, int offset, int count)
         {
@@ -71,23 +74,38 @@ namespace TMServer.DataBase.Interaction
                 .Where(m => ids.Contains(m.Id))
                 .ToArray();
         }
-
-        public static bool MarkAsReaded(int[] ids)
+        public static bool ReadAllInChat(int userId, int chatId)
         {
             using var db = new TmdbContext();
 
-            db.UnreadedMessages.RemoveRange(db.UnreadedMessages.Where(um => ids.Contains(um.MessageId)));
+            var messsagesToMark =
+                db.UnreadedMessages.Include(um => um.Message)
+                                   .Where(um => um.Message.DestinationId == chatId &&
+                                          (um.UserId == userId || um.UserId == um.Message.AuthorId));
+
+            db.UnreadedMessages.RemoveRange(messsagesToMark);
             return db.SaveChanges(true) > 0;
         }
-        public static bool IsMessageReaded(int messageId)
+        public static bool MarkAsReaded(int userId, int[] ids)
         {
             using var db = new TmdbContext();
-            return !db.UnreadedMessages.Any(m => m.MessageId == messageId);
+
+            var messsagesToMark =
+                db.UnreadedMessages.Include(um => um.Message)
+                                   .Where(um => (um.UserId == userId || um.UserId == um.Message.AuthorId) &&
+                                          ids.Contains(um.MessageId));
+
+            db.UnreadedMessages.RemoveRange(messsagesToMark);
+            return db.SaveChanges(true) > 0;
         }
-        public static bool[] IsMessageReaded(IEnumerable<int> messageIds)
+        public static bool IsMessageReaded(int userId, int messageId)
         {
             using var db = new TmdbContext();
-            return messageIds.Select(id => !db.UnreadedMessages.Any(um => um.MessageId == id))
+            return db.UnreadedMessages.All(m => m.UserId != userId && m.MessageId != messageId);
+        }
+        public static bool[] IsMessageReaded(int userId, IEnumerable<int> messageIds)
+        {
+            return messageIds.Select(id => IsMessageReaded(userId, id))
                              .ToArray();
         }
     }

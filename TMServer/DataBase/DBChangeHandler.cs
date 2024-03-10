@@ -68,7 +68,7 @@ namespace TMServer.DataBase
             foreach (var member in chatMembers)
                 context.MessageStatusUpdates.Add(new DBMessageStatusUpdate()
                 {
-                    MessageId = message.Id,
+                    MessageId = message.MessageId,
                     UserId = member,
                 });
             return chatMembers;

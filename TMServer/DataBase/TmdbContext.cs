@@ -255,12 +255,16 @@ public partial class TmdbContext : DbContext
 
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.MessageId).HasColumnName("message_id");
+            entity.Property(e => e.UserId).HasColumnName("user_id");
+
+            entity.HasOne(e => e.User)
+                  .WithMany()
+                  .HasForeignKey(u => u.UserId);
 
             entity.HasOne(e => e.Message)
                   .WithMany()
                   .HasForeignKey(u => u.MessageId);
         });
-
 
         modelBuilder.Entity<DBNewMessages>(entity =>
         {

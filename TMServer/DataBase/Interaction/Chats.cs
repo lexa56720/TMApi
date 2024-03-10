@@ -26,7 +26,6 @@ namespace TMServer.DataBase.Interaction
                 }
             }
             db.SaveChanges(true);
-            chat.Admin = db.Users.SingleOrDefault(u => u.Id == usersId[0]);
             return chat;
         }
         public static void InviteToChat(int inviterId, int userId, int chatId)
@@ -49,11 +48,20 @@ namespace TMServer.DataBase.Interaction
         {
             using var db = new TmdbContext();
 
-            var chats = db.Chats.Include(c=>c.Admin)
+            var chats = db.Chats.Include(c => c.Admin)
                                 .Include(c => c.Members)
                                 .Where(c => chatIds.Contains(c.Id))
                                 .ToArray();
             return chats;
+        }
+        public static int[] GetUnreadCount(int userId, int[] chatIds)
+        {
+            using var db = new TmdbContext();
+
+            return chatIds.Select(id => db.UnreadedMessages.Include(um => um.Message)
+                                      .ThenInclude(m => m.Destination)
+                                      .Where(um => um.UserId == userId && id == um.Message.Destination.Id)
+                                      .Count()).ToArray();
         }
 
         public static DBChat[] GetAllChats(int userId)
