@@ -37,13 +37,16 @@ namespace TMServer.DataBase.Interaction
         {
             using var db = new TmdbContext();
 
-            bool isFriends = db.Friends
-                .SingleOrDefault(f => f.SenderId == inviterId && f.DestId == userId
-                                   || f.SenderId == userId && f.DestId == inviterId) != null;
+            bool isFriends = db.Friends.SingleOrDefault(f => f.SenderId == inviterId && f.DestId == userId ||
+                                                        f.SenderId == userId && f.DestId == inviterId) != null;
 
-            bool isInviterInChat = db.Chats.Include(c => c.Members).Any(c => c.Id == chatId && c.Members.Any(m => m.Id == inviterId));
+            bool isInviterInChat = db.Chats.Include(c => c.Members)
+                                           .Any(c => c.Id == chatId && c.Members.Any(m => m.Id == inviterId));
+         
+            bool isUserInChat = db.Chats.Include(c => c.Members)
+                                         .Any(c => c.Id == chatId && c.Members.Any(m => m.Id == userId));
+
             bool isAlreadyInvited = IsInvitedToChat(userId, chatId);
-            bool isUserInChat = db.Chats.Include(c => c.Members).Any(c => c.Id == chatId && c.Members.Any(m => m.Id == userId));
 
             return isInviterInChat && !isAlreadyInvited && isUserInChat && isFriends;
         }
@@ -73,7 +76,9 @@ namespace TMServer.DataBase.Interaction
             var chats = db.Messages.Where(m => messagesIds.Contains(m.Id))
                                    .Include(m => m.Destination)
                                    .ThenInclude(c => c.Members)
-                                   .Select(m => m.Destination);
+                                   .Select(m => m.Destination)
+                                   .AsEnumerable()
+                                   .DistinctBy(c=>c.Id);
             return chats.All(c => c.Members.Any(m => m.Id == userId));
         }
         public static bool IsCanMarkAsReaded(int userId, params int[] messagesIds)
@@ -85,7 +90,9 @@ namespace TMServer.DataBase.Interaction
             var chats = db.Messages.Where(m => messagesIds.Contains(m.Id))
                                    .Include(m => m.Destination)
                                    .ThenInclude(c => c.Members)
-                                   .Select(m => m.Destination);
+                                   .Select(m => m.Destination)
+                                   .AsEnumerable()
+                                   .DistinctBy(c => c.Id);
             return chats.All(c => c.Members.Any(m => m.Id == userId));
         }
     }

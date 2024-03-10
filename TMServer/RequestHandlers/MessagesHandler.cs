@@ -17,6 +17,7 @@ namespace TMServer.RequestHandlers
             {
                 var dbMessage = Messages.AddMessage(message.UserId, message.Data.Text, message.Data.DestinationId);
                 var isReaded = Messages.IsMessageReaded(dbMessage.Id);
+                Messages.ReadAllInChat(message.UserId, message.Data.DestinationId);
                 return ConvertMessages(dbMessage, isReaded);
             }
             return null;
@@ -51,7 +52,7 @@ namespace TMServer.RequestHandlers
         }
         public static SerializableArray<Message>? GetMessagesById(ApiData<MessagesRequest> request)
         {
-            if (Security.IsHaveAccessToMessages(request.UserId, request.Data.Ids))
+            if (!Security.IsHaveAccessToMessages(request.UserId, request.Data.Ids))
                 return null;
 
             var dbMessages = Messages.GetMessages(request.Data.Ids);

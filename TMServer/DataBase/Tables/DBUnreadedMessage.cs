@@ -10,7 +10,7 @@ namespace TMServer.DataBase.Tables
     public partial class DBUnreadedMessage
     {
         public int Id { get; set; }
-        public required int MessageId { get; set; }
+        public int MessageId { get; set; }
         public virtual DBMessage Message { get; set; } = null!;
     }
 }

@@ -88,6 +88,7 @@ namespace TMServer.DataBase.Interaction
         {
             using var db = new TmdbContext();
             db.FriendRequestUpdates.Where(fr => fr.UserId == userId).ExecuteDelete();
+            db.MessageStatusUpdates.Where(u => u.UserId == userId).ExecuteDelete();
             db.ChatUpdates.Where(c => c.UserId == userId).ExecuteDelete();
             db.FriendListUpdates.Where(fl => fl.UserId == userId).ExecuteDelete();
             db.NewMessages.Where(u => u.UserId == userId).ExecuteDelete();
@@ -98,13 +99,12 @@ namespace TMServer.DataBase.Interaction
         {
             using var db = new TmdbContext();
             return db.NewMessages.Any(u => u.UserId == userId) ||
+                   db.MessageStatusUpdates.Any(u => u.UserId == userId) ||
                    db.FriendRequestUpdates.Any(u => u.UserId == userId) ||
                    db.ChatInviteUpdates.Any(u => u.UserId == userId) ||
                    db.ChatUpdates.Any(u => u.UserId == userId) ||
                    db.FriendProfileUpdates.Any(u => u.UserId == userId) ||
                    db.FriendListUpdates.Any(u => u.UserId == userId);
         }
-
-
     }
 }

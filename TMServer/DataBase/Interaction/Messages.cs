@@ -15,17 +15,27 @@ namespace TMServer.DataBase.Interaction
                 DestinationId = destinationId,
                 Content = content,
                 SendTime = DateTime.UtcNow,
-            };
+            };        
             db.Messages.Add(message);
-            db.SaveChanges(true);
-
             db.UnreadedMessages.Add(new DBUnreadedMessage()
             {
-                MessageId = message.Id
+                Message = message
             });
             db.SaveChanges(true);
             return message;
         }
+
+        public static bool ReadAllInChat(int userId,int chatId)
+        {
+            using var db = new TmdbContext();
+
+           var readed= db.UnreadedMessages.Include(um => um.Message)
+                                          .Where(um => um.Message.DestinationId == chatId && um.Message.AuthorId != userId);
+
+            db.UnreadedMessages.RemoveRange(readed);
+            db.SaveChanges(true);
+        }
+
         public static DBMessage[] GetMessages(int chatId, int offset, int count)
         {
             using var db = new TmdbContext();
@@ -66,8 +76,8 @@ namespace TMServer.DataBase.Interaction
         {
             using var db = new TmdbContext();
 
-            db.UnreadedMessages.Where(um => ids.Contains(um.MessageId)).ExecuteDelete();
-            return db.SaveChanges() > 0;
+            db.UnreadedMessages.RemoveRange(db.UnreadedMessages.Where(um => ids.Contains(um.MessageId)));
+            return db.SaveChanges(true) > 0;
         }
         public static bool IsMessageReaded(int messageId)
         {
