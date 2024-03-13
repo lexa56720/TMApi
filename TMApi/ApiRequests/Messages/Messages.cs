@@ -27,14 +27,24 @@ namespace TMApi.ApiRequests.Messages
 
             return messages.Messages;
         }
-        public async Task<Message[]> GetMessages(params int[] messagesId)
+        public async Task<Message[]> GetMessages(params int[] messageIds)
         {
-            var messages = await Requester.ApiRequestAsync<SerializableArray<Message>, MessagesRequest>(new MessagesRequest(messagesId));
+            var messages = await Requester.ApiRequestAsync<SerializableArray<Message>, MessageRequestById>(new MessageRequestById(messageIds));
             if (messages == null)
                 return [];
 
             return messages.Items;
         }
+
+        public async Task<Message[]> GetMessagesForChats(params int[] chatIds)
+        {
+            var messages = await Requester.ApiRequestAsync
+                <SerializableArray<Message>, MessageRequestByChats>(new MessageRequestByChats(chatIds));
+            if (messages == null)
+                return [];
+            return messages.Items;
+        }
+
         public async Task<Message?> SendMessage(string text, int destinationId)
         {
             if (!DataConstraints.IsMessageLegal(text))

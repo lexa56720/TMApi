@@ -25,10 +25,10 @@ namespace TMServer.RequestHandlers
             return DbConverter.Convert(chat,0);
         }
 
-        public static SerializableArray<Chat> GetChats(ApiData<ChatRequest> request)
+        public static SerializableArray<Chat>? GetChats(ApiData<ChatRequest> request)
         {
-            if (!request.Data.Ids.Select(v => Security.IsHaveAccessToChat(v, request.UserId)).All(a => a))
-                return new SerializableArray<Chat>([]);
+            if (!Security.IsHaveAccessToChat(request.Data.Ids,request.UserId))
+                return null;
 
             var chats = Chats.GetChat(request.Data.Ids);
             if (chats.Length == 0)
@@ -73,7 +73,7 @@ namespace TMServer.RequestHandlers
         {
             var chats = Chats.GetAllChats(request.UserId);
             if (chats.Length == 0)
-                return null;
+                return new IntArrayContainer();
             return new IntArrayContainer(chats.Select(c => c.Id).ToArray());
         }
     }

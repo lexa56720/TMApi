@@ -52,7 +52,7 @@ namespace TMServer.RequestHandlers
                 Messages = DbConverter.Convert(dbMessages, isReaded)
             };
         }
-        public static SerializableArray<Message>? GetMessagesById(ApiData<MessagesRequest> request)
+        public static SerializableArray<Message>? GetMessagesById(ApiData<MessageRequestById> request)
         {
             if (!Security.IsHaveAccessToMessages(request.UserId, request.Data.Ids))
                 return null;
@@ -61,6 +61,17 @@ namespace TMServer.RequestHandlers
             var isReaded = Messages.IsMessageReaded(request.UserId, dbMessages.Select(m => m.Id));
 
             return new SerializableArray<Message>(DbConverter.Convert(dbMessages, isReaded));
+        }
+
+        public static SerializableArray<Message>? GetMessagesByChatIds(ApiData<MessageRequestByChats> request)
+        {
+            if (!Security.IsHaveAccessToChat(request.Data.Ids, request.UserId))
+                return null;
+            var dbMessages = Messages.GetLastMessages(request.Data.Ids);
+            var isReaded = Messages.IsMessageReaded(request.UserId, dbMessages.Select(m => m.Id));
+
+          
+            return new SerializableArray<Message>(DbConverter.Convert(dbMessages, isReaded));         
         }
 
         public static void MarkAsReaded(ApiData<MarkAsReaded> request)

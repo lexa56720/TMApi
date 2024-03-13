@@ -19,6 +19,11 @@ namespace TMServer.DataBase.Interaction
 
             return IsMemberOfChat(userId, chatId) || IsInvitedToChat(userId, chatId);
         }
+        public static bool IsHaveAccessToChat(int[] chatIds, int userId)
+        {
+            return chatIds.All(c => IsHaveAccessToChat(c, userId));
+        }
+
 
         public static bool IsHaveAccessToRequest(int requestId, int userId)
         {

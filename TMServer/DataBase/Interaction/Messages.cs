@@ -18,7 +18,7 @@ namespace TMServer.DataBase.Interaction
             };
             db.Messages.Add(message);
             db.SaveChanges(true);
-     
+
             return message;
         }
 
@@ -51,6 +51,14 @@ namespace TMServer.DataBase.Interaction
                 .Take(count)
                 .ToArray();
         }
+        public static DBMessage[] GetLastMessages(int[] chatId)
+        {
+            using var db = new TmdbContext();
+
+            return chatId.Select(id => db.Messages.Where(m => m.DestinationId == id).AsEnumerable().MaxBy(m => m.Id))
+                         .Where(m=>m!=null)
+                         .ToArray();
+        }
         public static DBMessage[] GetMessages(int chatId, int offset, int count, int lastMessageId)
         {
             using var db = new TmdbContext();
@@ -81,7 +89,7 @@ namespace TMServer.DataBase.Interaction
             var messsagesToMark =
                 db.UnreadedMessages.Include(um => um.Message)
                                    .Where(um => um.Message.DestinationId == chatId &&
-                                          (um.UserId == userId || um.UserId == um.Message.AuthorId));
+                                          (um.UserId == userId && um.UserId != um.Message.AuthorId));
 
             db.UnreadedMessages.RemoveRange(messsagesToMark);
             return db.SaveChanges(true) > 0;

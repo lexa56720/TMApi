@@ -72,7 +72,9 @@ namespace TMServer.Servers
             ApiServer.RegisterRequestHandler<LastMessagesRequest, MessageHistoryResponse>(MessagesHandler.GetMessagesByOffset);
             ApiServer.RegisterRequestHandler<MessageSendRequest, Message>(MessagesHandler.NewMessage);
             ApiServer.RegisterRequestHandler<MessageHistoryRequest, MessageHistoryResponse>(MessagesHandler.GetMessagesByLastId);
-            ApiServer.RegisterRequestHandler<MessagesRequest, SerializableArray<Message>>(MessagesHandler.GetMessagesById);
+            ApiServer.RegisterRequestHandler<MessageRequestById, SerializableArray<Message>>(MessagesHandler.GetMessagesById);
+            ApiServer.RegisterRequestHandler<MessageRequestByChats, SerializableArray<Message>>(MessagesHandler.GetMessagesByChatIds);
+
             ApiServer.RegisterDataHandler<MarkAsReaded>(MessagesHandler.MarkAsReaded);
         }
         private void RegisterUserMethods()
