@@ -18,7 +18,7 @@ namespace TMServer.RequestHandlers
                 return null;
 
             var dbMessage = Messages.AddMessage(request.UserId, request.Data.Text, request.Data.DestinationId);
-            Messages.AddToUnreaded(dbMessage.Id, dbMessage.DestinationId);
+            Messages.AddToUnread(dbMessage.Id, dbMessage.DestinationId);
             var isReaded = Messages.IsMessageReaded(request.UserId, dbMessage.Id);
 
             Messages.ReadAllInChat(request.UserId, request.Data.DestinationId);

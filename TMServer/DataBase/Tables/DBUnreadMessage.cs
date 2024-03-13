@@ -7,7 +7,7 @@ using TMServer.DataBase.Tables.LongPolling;
 
 namespace TMServer.DataBase.Tables
 {
-    public partial class DBUnreadedMessage
+    public partial class DBUnreadMessage
     {
         public int Id { get; set; }
 

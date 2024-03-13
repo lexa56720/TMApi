@@ -54,12 +54,12 @@ namespace TMServer.DataBase
             return className switch
             {
                 nameof(DBFriend) => HandleRemovedFriend((DBFriend)entity.Entity, context),
-                nameof(DBUnreadedMessage) => HandleMessageRead((DBUnreadedMessage)entity.Entity, context),
+                nameof(DBUnreadMessage) => HandleMessageRead((DBUnreadMessage)entity.Entity, context),
                 _ => [],
             };
         }
 
-        private IEnumerable<int> HandleMessageRead(DBUnreadedMessage message, TmdbContext context)
+        private IEnumerable<int> HandleMessageRead(DBUnreadMessage message, TmdbContext context)
         {
             var chatMembers = context.Messages.Include(m => m.Destination)
                                               .ThenInclude(c => c.Members)

@@ -58,7 +58,7 @@ namespace TMServer.DataBase.Interaction
         {
             using var db = new TmdbContext();
 
-            return chatIds.Select(id => db.UnreadedMessages.Include(um => um.Message)
+            return chatIds.Select(id => db.UnreadMessages.Include(um => um.Message)
                                       .ThenInclude(m => m.Destination)
                                       .Where(um => um.UserId == userId && id == um.Message.Destination.Id)
                                       .Count()).ToArray();

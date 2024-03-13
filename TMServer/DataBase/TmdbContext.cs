@@ -29,7 +29,7 @@ public partial class TmdbContext : DbContext
     public virtual DbSet<DBChatInvite> ChatInvites { get; set; }
     public virtual DbSet<DBFriendRequest> FriendRequests { get; set; }
     public virtual DbSet<DBMessageMedia> MessageMedias { get; set; }
-    public virtual DbSet<DBUnreadedMessage> UnreadedMessages { get; set; }
+    public virtual DbSet<DBUnreadMessage> UnreadMessages { get; set; }
 
 
     public virtual DbSet<DBChatInviteUpdate> ChatInviteUpdates { get; set; }
@@ -251,10 +251,10 @@ public partial class TmdbContext : DbContext
 
             entity.Property(e => e.Data).HasColumnName("data");
         });
-        modelBuilder.Entity<DBUnreadedMessage>(entity =>
+        modelBuilder.Entity<DBUnreadMessage>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("unreaded_messages_pkey");
-            entity.ToTable("unreaded_messages");
+            entity.HasKey(e => e.Id).HasName("unread_messages_pkey");
+            entity.ToTable("unread_messages");
 
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.MessageId).HasColumnName("message_id");

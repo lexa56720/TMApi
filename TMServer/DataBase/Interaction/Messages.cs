@@ -22,14 +22,14 @@ namespace TMServer.DataBase.Interaction
             return message;
         }
 
-        public static bool AddToUnreaded(int messageId, int chatId)
+        public static bool AddToUnread(int messageId, int chatId)
         {
             using var db = new TmdbContext();
             var members = db.Chats.Include(c => c.Members)
                                   .First(c => c.Id == chatId).Members;
 
             foreach (var member in members)
-                db.UnreadedMessages.Add(new DBUnreadedMessage()
+                db.UnreadMessages.Add(new DBUnreadMessage()
                 {
                     UserId = member.Id,
                     MessageId = messageId,
@@ -87,11 +87,11 @@ namespace TMServer.DataBase.Interaction
             using var db = new TmdbContext();
 
             var messsagesToMark =
-                db.UnreadedMessages.Include(um => um.Message)
+                db.UnreadMessages.Include(um => um.Message)
                                    .Where(um => um.Message.DestinationId == chatId &&
                                           (um.UserId == userId && um.UserId != um.Message.AuthorId));
 
-            db.UnreadedMessages.RemoveRange(messsagesToMark);
+            db.UnreadMessages.RemoveRange(messsagesToMark);
             return db.SaveChanges(true) > 0;
         }
         public static bool MarkAsReaded(int userId, int[] ids)
@@ -99,17 +99,17 @@ namespace TMServer.DataBase.Interaction
             using var db = new TmdbContext();
 
             var messsagesToMark =
-                db.UnreadedMessages.Include(um => um.Message)
+                db.UnreadMessages.Include(um => um.Message)
                                    .Where(um => (um.UserId == userId || um.UserId == um.Message.AuthorId) &&
                                           ids.Contains(um.MessageId));
 
-            db.UnreadedMessages.RemoveRange(messsagesToMark);
+            db.UnreadMessages.RemoveRange(messsagesToMark);
             return db.SaveChanges(true) > 0;
         }
         public static bool IsMessageReaded(int userId, int messageId)
         {
             using var db = new TmdbContext();
-            return db.UnreadedMessages.All(m => m.UserId != userId || m.MessageId != messageId);
+            return db.UnreadMessages.All(m => m.UserId != userId || m.MessageId != messageId);
         }
         public static bool[] IsMessageReaded(int userId, IEnumerable<int> messageIds)
         {
