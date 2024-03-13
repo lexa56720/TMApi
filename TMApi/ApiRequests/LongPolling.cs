@@ -24,12 +24,6 @@ namespace TMApi.ApiRequests
         public override void Dispose()
         {
             Stop();
-            NewMessages = null;
-            MessagesReaded = null;
-            NewFriendRequests = null;
-            NewChats = null;
-            FriendsAdded = null;
-            FriendsRemoved = null;
             TokenSource.Cancel();
             TokenSource.Dispose();
             base.Dispose();
@@ -55,9 +49,10 @@ namespace TMApi.ApiRequests
             {
                 while (IsPolling)
                 {
-                    var notification = await Requester.LongPollAsync<Notification, LongPollingRequest>(new LongPollingRequest(),
-                                                                                                       LongPollPeriod,
-                                                                                                       TokenSource.Token);
+                    var notification = await Requester.LongPollAsync<Notification, LongPollingRequest>
+                                                      (new LongPollingRequest(),
+                                                       LongPollPeriod,
+                                                       TokenSource.Token);
                     if (notification != null)
                         HandleNotification(notification);
                 }

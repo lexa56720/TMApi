@@ -101,7 +101,7 @@ namespace TMServer.DataBase.Interaction
         public static bool IsMessageReaded(int userId, int messageId)
         {
             using var db = new TmdbContext();
-            return db.UnreadedMessages.All(m => m.UserId != userId && m.MessageId != messageId);
+            return db.UnreadedMessages.All(m => m.UserId != userId || m.MessageId != messageId);
         }
         public static bool[] IsMessageReaded(int userId, IEnumerable<int> messageIds)
         {

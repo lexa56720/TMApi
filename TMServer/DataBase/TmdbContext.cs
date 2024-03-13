@@ -209,14 +209,17 @@ public partial class TmdbContext : DbContext
 
             entity.Property(e => e.ToUserId).HasColumnName("user_id");
 
-            entity.HasOne(e => e.Chat).WithOne()
-            .HasForeignKey<DBChatInvite>(i => i.ChatId);
+            entity.HasOne(e => e.Chat)
+                  .WithMany()
+                  .HasForeignKey(i => i.ChatId);
 
-            entity.HasOne(e => e.Inviter).WithOne()
-            .HasForeignKey<DBChatInvite>(i => i.InviterId);
+            entity.HasOne(e => e.Inviter)
+                  .WithMany()
+                  .HasForeignKey(i => i.InviterId);
 
-            entity.HasOne(e => e.DestinationUser).WithOne()
-            .HasForeignKey<DBChatInvite>(i => i.ToUserId);
+            entity.HasOne(e => e.DestinationUser)
+                  .WithMany()
+                  .HasForeignKey(i => i.ToUserId);
         });
         modelBuilder.Entity<DBFriendRequest>(entity =>
         {
@@ -225,18 +228,18 @@ public partial class TmdbContext : DbContext
             entity.Property(e => e.Id).HasColumnName("id");
 
             entity.Property(e => e.SenderId)
-                .ValueGeneratedNever()
-                .HasColumnName("user_id_one");
+                  .HasColumnName("user_id_one");
 
             entity.Property(e => e.ReceiverId)
-              .ValueGeneratedNever()
-              .HasColumnName("user_id_two");
+                  .HasColumnName("user_id_two");
 
             entity.HasOne(e => e.Sender)
-            .WithOne().HasForeignKey<DBFriendRequest>(r => r.SenderId);
+                  .WithMany()
+                  .HasForeignKey(r => r.SenderId);
 
             entity.HasOne(e => e.Receiver)
-           .WithOne().HasForeignKey<DBFriendRequest>(r => r.ReceiverId);
+                  .WithMany()
+                  .HasForeignKey(r => r.ReceiverId);
         });
         modelBuilder.Entity<DBMessageMedia>(entity =>
         {

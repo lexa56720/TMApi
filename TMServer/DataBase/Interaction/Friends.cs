@@ -43,7 +43,7 @@ namespace TMServer.DataBase.Interaction
                 return;
 
 
-            var oppositeRequest = db.FriendRequests.Single(r => r.ReceiverId == fromId && r.SenderId == toId);
+            var oppositeRequest = db.FriendRequests.SingleOrDefault(r => r.ReceiverId == fromId && r.SenderId == toId);
             if (oppositeRequest != null)
             {
                 db.FriendRequests.Remove(oppositeRequest);
