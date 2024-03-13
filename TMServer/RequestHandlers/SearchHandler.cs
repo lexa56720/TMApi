@@ -12,7 +12,7 @@ using TMServer.DataBase.Interaction;
 
 namespace TMServer.RequestHandlers
 {
-    internal class SearchHandler
+    internal static class SearchHandler
     {
         public static SerializableArray<User> GetUserByName(ApiData<SearchRequest> request)
         {
@@ -21,19 +21,13 @@ namespace TMServer.RequestHandlers
 
             var users = Users.GetUserByName(request.Data.SearchQuery)
                 .UnionBy(Users.GetUserByLogin(request.Data.SearchQuery),u=>u.Id)
-                .Where(u => u.Id != request.UserId);
+                .Where(u => u.Id != request.UserId)
+                .ToArray();
 
-            if (!users.Any())
+            if (users.Length==0)
                 return new SerializableArray<User>([]);
 
-            return new SerializableArray<User>(users.Select(
-                u => new User()
-                {
-                    Name = u.Name,
-                    Id = u.Id,
-                    Login = u.Login,
-                    IsOnline = u.IsOnline
-                }).ToArray());
+            return new SerializableArray<User>(DbConverter.Convert(users));
         }
     }
 }

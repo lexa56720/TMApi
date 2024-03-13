@@ -31,7 +31,7 @@ namespace TMServer.DataBase.Interaction
             using var db = new TmdbContext();
 
             return db.FriendRequests.Where(r => requestIds.Contains(r.Id))
-                                    .All(r=>r.SenderId == userId || r.ReceiverId == userId);
+                                    .All(r => r.SenderId == userId || r.ReceiverId == userId);
         }
 
         public static bool IsInvitedToChat(int userId, int chatId)
@@ -82,7 +82,12 @@ namespace TMServer.DataBase.Interaction
 
             return true;
         }
-
+        public static bool IsFriendRequestExist(int requestId, int userId)
+        {
+            using var db = new TmdbContext();
+            var request = db.FriendRequests.SingleOrDefault(r => r.Id == requestId);
+            return request != null && (request.SenderId == userId || request.ReceiverId == userId);
+        }
 
         public static bool IsHaveAccessToMessages(int userId, params int[] messagesIds)
         {

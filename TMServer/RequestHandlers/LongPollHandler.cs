@@ -14,7 +14,7 @@ using TMServer.DataBase.Tables.LongPolling;
 
 namespace TMServer.RequestHandlers
 {
-    internal class LongPollHandler
+    internal static class LongPollHandler
     {
         public static Notification GetUpdates(int userId)
         {

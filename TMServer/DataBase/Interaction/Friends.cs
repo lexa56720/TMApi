@@ -21,12 +21,10 @@ namespace TMServer.DataBase.Interaction
             return requests.ToArray();
         }
 
-        public static void FriendRequestResponse(int responseId, bool isAccepted)
+        public static void FriendRequestResponse(int requestId, bool isAccepted)
         {
             using var db = new TmdbContext();
-            var request = db.FriendRequests.SingleOrDefault
-                (r => r.Id == responseId);
-
+            var request = db.FriendRequests.SingleOrDefault(r => r.Id == requestId);
             if (request != null)
             {
                 db.FriendRequests.Remove(request);
@@ -40,9 +38,17 @@ namespace TMServer.DataBase.Interaction
         public static void RegisterFriendRequest(int fromId, int toId)
         {
             using var db = new TmdbContext();
-            if (IsAlreadyRequested(fromId, toId) || IsAlreadyFriends(fromId, toId))
+
+            if (IsAlreadyFriends(fromId, toId) || db.FriendRequests.Any(r => r.SenderId == fromId && r.ReceiverId == toId))
+                return;
+
+
+            var oppositeRequest = db.FriendRequests.Single(r => r.ReceiverId == fromId && r.SenderId == toId);
+            if (oppositeRequest != null)
             {
-                RegisterFriends(fromId, toId);
+                db.FriendRequests.Remove(oppositeRequest);
+                RegisterFriends(toId,fromId);
+                db.SaveChanges(true);
                 return;
             }
 
@@ -57,25 +63,25 @@ namespace TMServer.DataBase.Interaction
         private static void RegisterFriends(int idOne, int idTwo)
         {
             using var db = new TmdbContext();
-            if (!IsAlreadyFriends(idOne, idTwo))
-            {
-                db.Friends.Add(new DBFriend()
-                {
-                    SenderId = idOne,
-                    DestId = idTwo
-                });
+            if (IsAlreadyFriends(idOne, idTwo))
+                return;
 
-                var chat = new DBChat()
-                {
-                    AdminId = idOne,
-                    IsDialogue = true,
-                    Name = string.Empty,
-                };
-                db.Chats.Add(chat);
-                chat.Members.Add(db.Users.Find(idOne));
-                chat.Members.Add(db.Users.Find(idTwo));
-                db.SaveChanges(true);
-            }
+            db.Friends.Add(new DBFriend()
+            {
+                SenderId = idOne,
+                DestId = idTwo
+            });
+
+            var chat = new DBChat()
+            {
+                AdminId = idOne,
+                IsDialogue = true,
+                Name = string.Empty,
+            };
+            db.Chats.Add(chat);
+            chat.Members.Add(db.Users.Find(idOne));
+            chat.Members.Add(db.Users.Find(idTwo));
+            db.SaveChanges(true);
         }
 
         public static int[] GetAllForUser(int userId)

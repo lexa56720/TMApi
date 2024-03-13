@@ -18,11 +18,11 @@ namespace TMServer.DataBase.Interaction
             };
             db.Messages.Add(message);
             db.SaveChanges(true);
-            AddToUnreaded(message.Id, destinationId);
+     
             return message;
         }
 
-        private static bool AddToUnreaded(int messageId, int chatId)
+        public static bool AddToUnreaded(int messageId, int chatId)
         {
             using var db = new TmdbContext();
             var members = db.Chats.Include(c => c.Members)

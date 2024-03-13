@@ -7,7 +7,7 @@ using TMServer.DataBase.Tables;
 
 namespace TMServer.RequestHandlers
 {
-    internal class ChatsHandler
+    internal static class ChatsHandler
     {
         public static Chat? CreateChat(ApiData<ChatCreationRequest> request)
         {
@@ -22,7 +22,7 @@ namespace TMServer.RequestHandlers
                 return null;
 
             var chat = Chats.CreateChat(request.Data.ChatName, false, chatMembers);
-            return Convert(chat,0);
+            return DbConverter.Convert(chat,0);
         }
 
         public static SerializableArray<Chat> GetChats(ApiData<ChatRequest> request)
@@ -35,7 +35,7 @@ namespace TMServer.RequestHandlers
                 return new SerializableArray<Chat>([]);
 
             var unreadCount = Chats.GetUnreadCount(request.UserId,request.Data.Ids);
-            return new SerializableArray<Chat>(Convert(chats, unreadCount));
+            return new SerializableArray<Chat>(DbConverter.Convert(chats, unreadCount));
         }
 
         public static SerializableArray<ChatInvite> GetChatInvites(ApiData<InviteRequest> request)
@@ -75,27 +75,6 @@ namespace TMServer.RequestHandlers
             if (chats.Length == 0)
                 return null;
             return new IntArrayContainer(chats.Select(c => c.Id).ToArray());
-        }
-
-        private static Chat Convert(DBChat chat, int unreadCount)
-        {
-            return new Chat()
-            {
-                Id = chat.Id,
-                AdminId = chat.Admin.Id,
-                Name = chat.Name,
-                MemberIds = chat.Members.Select(m => m.Id)
-                                        .ToArray(),
-                UnreadCount=unreadCount,
-                IsDialogue = chat.IsDialogue,
-            };
-        }
-        private static Chat[] Convert(DBChat[] chats, int[] unreadCounts)
-        {
-            var result = new Chat[chats.Length];
-            for (int i = 0; i < chats.Length; i++)
-                result[i] = Convert(chats[i], unreadCounts[i]);
-            return result;
         }
     }
 }

@@ -14,7 +14,7 @@ namespace TMServer.RequestHandlers
             if (user == null)
                 return null;
 
-            var friends = user.GetFriends().Select(ConvertUser).ToArray();
+            var friends = DbConverter.Convert(user.GetFriends().ToArray());
 
             return new UserInfo()
             {
@@ -22,7 +22,7 @@ namespace TMServer.RequestHandlers
                 Friends = friends,
                 FriendRequests = Friends.GetAllForUser(id.UserId),
                 ChatInvites = Chats.GetAllChatInvites(id.UserId),
-                MainInfo = ConvertUser(user),
+                MainInfo = DbConverter.Convert(user),
             };
         }
 
@@ -31,7 +31,7 @@ namespace TMServer.RequestHandlers
             var users = Users.GetUserMain(ids.Data.Ids);
             if (users.Length == 0)
                 return new SerializableArray<User>([]);
-            return new SerializableArray<User>(users.Select(ConvertUser).ToArray());
+            return new SerializableArray<User>(DbConverter.Convert(users));
         }
 
         public static void ChangeUserName(ApiData<ChangeNameRequest> request)
@@ -39,16 +39,6 @@ namespace TMServer.RequestHandlers
             Users.ChangeName(request.UserId, request.Data.NewName);
         }
 
-        private static User ConvertUser(DBUser dBUser)
-        {
-            return new User()
-            {
-                Name = dBUser.Name,
-                Id = dBUser.Id,
-                Login = dBUser.Login,
-                IsOnline = dBUser.IsOnline
-            };
-        }
     }
 
 }

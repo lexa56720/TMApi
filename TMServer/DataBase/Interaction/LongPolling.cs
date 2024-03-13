@@ -87,11 +87,12 @@ namespace TMServer.DataBase.Interaction
         public static void ClearUpdates(int userId)
         {
             using var db = new TmdbContext();
-            db.FriendRequestUpdates.Where(fr => fr.UserId == userId).ExecuteDelete();
-            db.MessageStatusUpdates.Where(u => u.UserId == userId).ExecuteDelete();
-            db.ChatUpdates.Where(c => c.UserId == userId).ExecuteDelete();
-            db.FriendListUpdates.Where(fl => fl.UserId == userId).ExecuteDelete();
             db.NewMessages.Where(u => u.UserId == userId).ExecuteDelete();
+            db.MessageStatusUpdates.Where(u => u.UserId == userId).ExecuteDelete();
+            db.FriendRequestUpdates.Where(fr => fr.UserId == userId).ExecuteDelete();
+            db.ChatUpdates.Where(c => c.UserId == userId).ExecuteDelete();
+            db.FriendProfileUpdates.Where(p => p.UserId == userId).ExecuteDelete();
+            db.FriendListUpdates.Where(fl => fl.UserId == userId).ExecuteDelete();
             db.SaveChanges();
         }
 

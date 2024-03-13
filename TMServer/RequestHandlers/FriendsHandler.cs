@@ -9,15 +9,15 @@ using TMServer.DataBase;
 
 namespace TMServer.RequestHandlers
 {
-    internal class FriendsHandler
+    internal static class FriendsHandler
     {
         public static SerializableArray<FriendRequest>? GetFriendRequests(ApiData<GetFriendRequests> request)
         {
-            if (!Security.IsHaveAccessToRequest(request.Data.Ids,request.UserId))
+            if (!Security.IsHaveAccessToRequest(request.Data.Ids, request.UserId))
                 return null;
             var requests = Friends.GetFriendRequest(request.Data.Ids);
 
-            var filteredRequests = requests.Select(Convert).ToArray();
+            var filteredRequests = requests.Select(DbConverter.Convert).ToArray();
 
             if (filteredRequests.Length == 0)
                 return new SerializableArray<FriendRequest>([]);
@@ -25,13 +25,14 @@ namespace TMServer.RequestHandlers
             return new SerializableArray<FriendRequest>(filteredRequests);
         }
 
-        public static void AddFriendRequest(ApiData<FriendRequest> data)
+        public static void AddFriendRequest(ApiData<FriendRequest> request)
         {
-            Friends.RegisterFriendRequest(data.UserId, data.Data.ToId);
+            Friends.RegisterFriendRequest(request.UserId, request.Data.ToId);
         }
-        public static void FriendRequestResponse(ApiData<RequestResponse> data)
+        public static void FriendRequestResponse(ApiData<RequestResponse> request)
         {
-            Friends.FriendRequestResponse(data.Data.RequestId, data.Data.IsAccepted);
+            if (Security.IsFriendRequestExist(request.Data.RequestId, request.UserId))
+                Friends.FriendRequestResponse(request.Data.RequestId, request.Data.IsAccepted);
         }
 
         public static IntArrayContainer? GetAllFriendRequests(ApiData<GetAllFriendRequests> userId)
@@ -39,9 +40,5 @@ namespace TMServer.RequestHandlers
             return new IntArrayContainer(Friends.GetAllForUser(userId.UserId));
         }
 
-        private static FriendRequest Convert(DBFriendRequest request)
-        {
-           return new FriendRequest(request.SenderId, request.ReceiverId, request.Id);
-        }
     }
 }
