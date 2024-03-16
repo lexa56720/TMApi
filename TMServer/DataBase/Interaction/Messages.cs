@@ -1,5 +1,6 @@
 ﻿using ApiTypes.Communication.Messages;
 using Microsoft.EntityFrameworkCore;
+using System.Data;
 using TMServer.DataBase.Tables;
 
 namespace TMServer.DataBase.Interaction
@@ -98,13 +99,19 @@ namespace TMServer.DataBase.Interaction
         {
             using var db = new TmdbContext();
 
-            var messsagesToMark =
-                db.UnreadMessages.Include(um => um.Message)
+            var messsagesToMark = db.UnreadMessages.Include(um => um.Message)
                                    .Where(um => (um.UserId == userId || um.UserId == um.Message.AuthorId) &&
                                           ids.Contains(um.MessageId));
 
             db.UnreadMessages.RemoveRange(messsagesToMark);
-            return db.SaveChanges(true) > 0;
+            try
+            {
+                return db.SaveChanges(true) > 0;
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                return true;
+            }
         }
         public static bool IsMessageReaded(int userId, int messageId)
         {

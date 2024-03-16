@@ -60,27 +60,27 @@ namespace TMServer.DataBase.Interaction
             db.SaveChanges(true);
         }
 
-        private static void RegisterFriends(int idOne, int idTwo)
+        private static void RegisterFriends(int senderId, int responderId)
         {
             using var db = new TmdbContext();
-            if (IsAlreadyFriends(idOne, idTwo))
+            if (IsAlreadyFriends(senderId, responderId))
                 return;
 
             db.Friends.Add(new DBFriend()
             {
-                SenderId = idOne,
-                DestId = idTwo
+                SenderId = senderId,
+                DestId = responderId
             });
 
             var chat = new DBChat()
             {
-                AdminId = idOne,
+                AdminId = senderId,
                 IsDialogue = true,
                 Name = string.Empty,
             };
             db.Chats.Add(chat);
-            chat.Members.Add(db.Users.Find(idOne));
-            chat.Members.Add(db.Users.Find(idTwo));
+            chat.Members.Add(db.Users.Find(senderId));
+            chat.Members.Add(db.Users.Find(responderId));
             db.SaveChanges(true);
         }
 

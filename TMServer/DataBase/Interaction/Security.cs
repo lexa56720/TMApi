@@ -74,8 +74,8 @@ namespace TMServer.DataBase.Interaction
         public static bool IsCanCreateChat(int userId, int[] memberIds)
         {
             using var db = new TmdbContext();
-            var user = db.Users.Include(u => u.FriendsOne)
-                               .Include(u => u.FriendsTwo)
+            var user = db.Users.Include(u => u.FriendsTwo).ThenInclude(f => f.Sender)
+                               .Include(u => u.FriendsOne).ThenInclude(f => f.Receiver)
                                .SingleOrDefault(u => u.Id == userId);
 
             if (user == null)

@@ -61,17 +61,12 @@ namespace TMServer.DataBase
 
         private IEnumerable<int> HandleMessageRead(DBUnreadMessage message, TmdbContext context)
         {
-            var chatMembers = context.Messages.Include(m => m.Destination)
-                                              .ThenInclude(c => c.Members)
-                                              .First(m => m.Id == message.MessageId)
-                                              .Destination.Members.Select(m => m.Id);
-            foreach (var member in chatMembers)
-                context.MessageStatusUpdates.Add(new DBMessageStatusUpdate()
-                {
-                    MessageId = message.MessageId,
-                    UserId = member,
-                });
-            return chatMembers;
+            context.MessageStatusUpdates.Add(new DBMessageStatusUpdate()
+            {
+                MessageId = message.MessageId,
+                UserId = message.UserId,
+            });
+            return [message.UserId];
         }
 
         private IEnumerable<int> HandleAddedEntity(string className, EntityEntry entity, TmdbContext context)
