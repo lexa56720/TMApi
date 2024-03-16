@@ -27,7 +27,8 @@ namespace TMServer.RequestHandlers
 
         public static void AddFriendRequest(ApiData<FriendRequest> request)
         {
-            Friends.RegisterFriendRequest(request.UserId, request.Data.ToId);
+            if (Security.IsFriendshipPossible(request.UserId,request.Data.ToId))
+                Friends.RegisterFriendRequest(request.UserId, request.Data.ToId);
         }
         public static void FriendRequestResponse(ApiData<RequestResponse> request)
         {

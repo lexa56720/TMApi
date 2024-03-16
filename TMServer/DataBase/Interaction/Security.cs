@@ -1,5 +1,6 @@
 ﻿using ApiTypes.Communication.BaseTypes;
 using CSDTP;
+using CSDTP.Requests;
 using Microsoft.EntityFrameworkCore;
 using TMServer.DataBase.Tables;
 
@@ -24,7 +25,12 @@ namespace TMServer.DataBase.Interaction
             return chatIds.All(c => IsHaveAccessToChat(c, userId));
         }
 
-
+        public static bool IsAlreadyFriends(int idOne, int idTwo)
+        {
+            using var db = new TmdbContext();
+            return db.Friends.Any(f => (f.SenderId == idOne && f.DestId == idTwo)
+                                    || (f.SenderId == idTwo && f.DestId == idOne));
+        }
         public static bool IsHaveAccessToRequest(int requestId, int userId)
         {
             using var db = new TmdbContext();
@@ -68,7 +74,7 @@ namespace TMServer.DataBase.Interaction
 
             bool isAlreadyInvited = IsInvitedToChat(userId, chatId);
 
-            return isInviterInChat && !isAlreadyInvited && isUserInChat && isFriends;
+            return inviterId != userId && isInviterInChat && !isAlreadyInvited && isUserInChat && isFriends;
         }
 
         public static bool IsCanCreateChat(int userId, int[] memberIds)
@@ -86,6 +92,12 @@ namespace TMServer.DataBase.Interaction
                     return false;
 
             return true;
+        }
+        public static bool IsFriendshipPossible(int toId, int fromId)
+        {
+            using var db = new TmdbContext();
+            return toId != fromId && !IsAlreadyFriends(fromId, toId) &&
+                   !db.FriendRequests.Any(r => r.SenderId == fromId && r.ReceiverId == toId);
         }
         public static bool IsFriendRequestExist(int requestId, int userId)
         {

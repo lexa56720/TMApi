@@ -39,10 +39,6 @@ namespace TMServer.DataBase.Interaction
         {
             using var db = new TmdbContext();
 
-            if (IsAlreadyFriends(fromId, toId) || db.FriendRequests.Any(r => r.SenderId == fromId && r.ReceiverId == toId))
-                return;
-
-
             var oppositeRequest = db.FriendRequests.SingleOrDefault(r => r.ReceiverId == fromId && r.SenderId == toId);
             if (oppositeRequest != null)
             {
@@ -62,10 +58,10 @@ namespace TMServer.DataBase.Interaction
 
         private static void RegisterFriends(int senderId, int responderId)
         {
-            using var db = new TmdbContext();
-            if (IsAlreadyFriends(senderId, responderId))
+            if (Security.IsAlreadyFriends(senderId, responderId))
                 return;
 
+            using var db = new TmdbContext();
             db.Friends.Add(new DBFriend()
             {
                 SenderId = senderId,
@@ -91,17 +87,6 @@ namespace TMServer.DataBase.Interaction
                                     .Select(i => i.Id)
                                     .ToArray();
         }
-        private static bool IsAlreadyRequested(int idOne, int idTwo)
-        {
-            using var db = new TmdbContext();
-            return db.FriendRequests.Any(r => (r.SenderId == idOne && r.ReceiverId == idTwo)
-                                           || (r.SenderId == idTwo && r.ReceiverId == idOne));
-        }
-        private static bool IsAlreadyFriends(int idOne, int idTwo)
-        {
-            using var db = new TmdbContext();
-            return db.Friends.Any(f => (f.SenderId == idOne && f.DestId == idTwo)
-                                    || (f.SenderId == idTwo && f.DestId == idOne));
-        }
+
     }
 }
