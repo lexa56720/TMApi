@@ -54,7 +54,9 @@ namespace TMServer.DataBase.Interaction
         {
             using var db = new TmdbContext();
             var user = db.Users.Find(userId);
-            if (user == null) return;
+            if (user == null) 
+                return;
+
             user.LastRequest = DateTime.UtcNow;
             db.SaveChanges();
         }

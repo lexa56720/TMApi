@@ -68,7 +68,7 @@ namespace TMServer.RequestHandlers
 
         public static FriendRequest Convert(DBFriendRequest request)
         {
-            return new FriendRequest(request.SenderId, request.ReceiverId, request.Id);
+            return new FriendRequest(request.ReceiverId, request.SenderId, request.Id);
         }
     }
 }

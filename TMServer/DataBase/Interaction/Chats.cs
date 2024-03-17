@@ -9,7 +9,6 @@ namespace TMServer.DataBase.Interaction
         public static DBChat CreateChat(string name, bool isDialogue, params int[] usersId)
         {
             using var db = new TmdbContext();
-
             var chat = new DBChat()
             {
                 AdminId = usersId[0],
@@ -21,9 +20,7 @@ namespace TMServer.DataBase.Interaction
             {
                 var user = db.Users.Find(usersId[i]);
                 if (user != null)
-                {
                     chat.Members.Add(user);
-                }
             }
             db.SaveChanges(true);
             return chat;

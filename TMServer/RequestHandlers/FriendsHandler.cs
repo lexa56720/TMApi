@@ -13,7 +13,7 @@ namespace TMServer.RequestHandlers
     {
         public static SerializableArray<FriendRequest>? GetFriendRequests(ApiData<GetFriendRequests> request)
         {
-            if (!Security.IsHaveAccessToRequest(request.Data.Ids, request.UserId))
+            if (!Security.IsHaveAccessToRequest(request.UserId, request.Data.Ids))
                 return null;
             var requests = Friends.GetFriendRequest(request.Data.Ids);
 
@@ -27,13 +27,25 @@ namespace TMServer.RequestHandlers
 
         public static void AddFriendRequest(ApiData<FriendRequest> request)
         {
-            if (Security.IsFriendshipPossible(request.UserId,request.Data.ToId))
+            if (!Security.IsFriendshipPossible(request.UserId, request.Data.ToId))
+                return;
+
+            if (Security.IsExistOppositeRequest(request.UserId, request.Data.ToId))
+            {
+                Friends.RemoveFriendRequest(request.Data.ToId, request.UserId);
+                Friends.RegisterFriends(request.UserId, request.Data.ToId);
+            }
+            else
                 Friends.RegisterFriendRequest(request.UserId, request.Data.ToId);
         }
         public static void FriendRequestResponse(ApiData<RequestResponse> request)
         {
-            if (Security.IsFriendRequestExist(request.Data.RequestId, request.UserId))
-                Friends.FriendRequestResponse(request.Data.RequestId, request.Data.IsAccepted);
+            if (!Security.IsExistFriendRequest(request.Data.RequestId, request.UserId))
+                return;
+
+            var dbRequest = Friends.RemoveFriendRequest(request.Data.RequestId);
+            if (request.Data.IsAccepted)
+                Friends.RegisterFriends(dbRequest.SenderId, dbRequest.ReceiverId);
         }
 
         public static IntArrayContainer? GetAllFriendRequests(ApiData<GetAllFriendRequests> userId)

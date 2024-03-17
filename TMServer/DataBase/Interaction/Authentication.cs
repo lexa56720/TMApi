@@ -9,7 +9,7 @@ namespace TMServer.DataBase.Interaction
 
         public static int GetUserId(string login, string password)
         {
-            var saltedPassword = GetPasswordWithSalt(password, login);
+            var saltedPassword = GetPasswordWithSalt(password);
             using var db = new TmdbContext();
             var user = db.Users.SingleOrDefault(u => u.Login == login && u.Password == saltedPassword);
             return user == null ? -1 : user.Id;
@@ -29,7 +29,7 @@ namespace TMServer.DataBase.Interaction
                 LastRequest = DateTime.UtcNow,
                 RegisterDate = DateTime.UtcNow,
                 Name = username,
-                Password = GetPasswordWithSalt(password, login),
+                Password = GetPasswordWithSalt(password),
             };
             db.Users.Add(user);
             db.SaveChanges();
@@ -69,9 +69,9 @@ namespace TMServer.DataBase.Interaction
             db.SaveChanges();
         }
 
-        private static string GetPasswordWithSalt(string password, string login)
+        private static string GetPasswordWithSalt(string password)
         {
-            return HashGenerator.GenerateHash(password + login + Salt);
+            return HashGenerator.GenerateHash(password  + Salt);
         }
     }
 }
