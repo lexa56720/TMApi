@@ -29,9 +29,6 @@ namespace TMServer.DataBase.Interaction
         {
             using var db = new TmdbContext();
 
-            if (!Security.IsCanInviteToChat(inviterId, userId, chatId))
-                return;
-
             db.ChatInvites.Add(new DBChatInvite()
             {
                 ChatId = chatId,

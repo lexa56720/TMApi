@@ -38,7 +38,7 @@ namespace TMApi.ApiRequests.Friends
         }
         public async Task<bool> SendFriendRequest(int toId)
         {
-            return await Requester.ApiSendAsync(new FriendRequest(Api.Id, toId));
+            return await Requester.ApiSendAsync(new FriendRequest(toId));
         }
     }
 }
