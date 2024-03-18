@@ -34,11 +34,12 @@ public partial class TmdbContext : DbContext
 
     public virtual DbSet<DBChatInviteUpdate> ChatInviteUpdates { get; set; }
     public virtual DbSet<DBFriendRequestUpdate> FriendRequestUpdates { get; set; }
-    public virtual DbSet<DBFriendProfileUpdate> FriendProfileUpdates { get; set; }
+    public virtual DbSet<DBUserProfileUpdate> UserProfileUpdates { get; set; }
     public virtual DbSet<DBFriendListUpdate> FriendListUpdates { get; set; }
-    public virtual DbSet<DBChatUpdate> ChatUpdates { get; set; }
-    public virtual DbSet<DBNewMessages> NewMessages { get; set; }
+    public virtual DbSet<DBChatListUpdate> ChatListUpdates { get; set; }
+    public virtual DbSet<DBNewMessageUpdate> NewMessageUpdates { get; set; }
     public virtual DbSet<DBMessageStatusUpdate> MessageStatusUpdates { get; set; }
+    public virtual DbSet<DBChatUpdate> ChatUpdates { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -108,77 +109,83 @@ public partial class TmdbContext : DbContext
         });
         modelBuilder.Entity<DBMessage>(entity =>
         {
-            entity.HasKey(e => e.Id)
-            .HasName("messages_pkey");
             entity.ToTable("messages");
+
+            entity.HasKey(e => e.Id).HasName("messages_pkey");
             entity.Property(e => e.Id).HasColumnName("id");
 
             entity.Property(e => e.AuthorId)
-            .HasColumnName("author_id");
+                  .HasColumnName("author_id");
 
             entity.Property(e => e.Content)
-                .HasMaxLength(512)
-                .HasColumnName("content");
+                  .HasMaxLength(512)
+                  .HasColumnName("content");
 
             entity.Property(e => e.DestinationId)
-            .HasColumnName("destination_id");
+                  .HasColumnName("destination_id");
 
             entity.Property(e => e.SendTime)
-            .HasColumnName("send_time");
+                  .HasColumnName("send_time");
+
+            entity.Property(e => e.IsSystem)
+                  .HasColumnName("is_system");
 
             entity.HasMany(e => e.Medias)
-            .WithOne(m => m.Message)
-            .HasForeignKey(m => m.MessageId);
+                  .WithOne(m => m.Message)
+                  .HasForeignKey(m => m.MessageId);
 
             entity.HasOne(d => d.Author).WithMany()
-                .HasForeignKey(d => d.AuthorId)
-                .OnDelete(DeleteBehavior.ClientSetNull);
+                  .HasForeignKey(d => d.AuthorId)
+                  .OnDelete(DeleteBehavior.ClientSetNull);
 
             entity.HasOne(d => d.Destination).WithMany(p => p.Messages)
-                .HasForeignKey(d => d.DestinationId)
-                .OnDelete(DeleteBehavior.ClientSetNull);
+                  .HasForeignKey(d => d.DestinationId)
+                  .OnDelete(DeleteBehavior.ClientSetNull);
         });
         modelBuilder.Entity<DBRsa>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("rsa_pkey");
             entity.ToTable("rsa");
+
+            entity.HasKey(e => e.Id).HasName("rsa_pkey");
             entity.Property(e => e.Id).HasColumnName("id");
 
             entity.Property(e => e.PrivateServerKey)
-                .HasMaxLength(4096)
-                .HasColumnName("private_server_key");
+                  .HasMaxLength(4096)
+                  .HasColumnName("private_server_key");
 
             entity.Property(e => e.PublicClientKey)
-                .HasMaxLength(1024)
-                .HasColumnName("public_client_key");
+                  .HasMaxLength(1024)
+                  .HasColumnName("public_client_key");
 
             entity.Property(e => e.Expiration).HasColumnName("expiration_date");
         });
         modelBuilder.Entity<DBToken>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("tokens_pkey");
             entity.ToTable("tokens");
+
+            entity.HasKey(e => e.Id).HasName("tokens_pkey");
             entity.Property(e => e.Id).HasColumnName("id");
 
             entity.Property(e => e.UserId)
-                .HasColumnName("user_id");
+                  .HasColumnName("user_id");
 
             entity.Property(e => e.AccessToken)
-             .HasMaxLength(512)
-             .HasColumnName("token");
+                  .HasMaxLength(512)
+                  .HasColumnName("token");
 
             entity.Property(e => e.Expiration).HasColumnName("expiration");
 
 
             entity.HasOne(d => d.User).WithMany(p => p.Tokens)
-                .HasForeignKey(d => d.UserId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("tokens_userid_fkey");
+                  .HasForeignKey(d => d.UserId)
+                  .OnDelete(DeleteBehavior.ClientSetNull)
+                  .HasConstraintName("tokens_userid_fkey");
         });
         modelBuilder.Entity<DBUser>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("users_pkey");
             entity.ToTable("users");
+
+            entity.HasKey(e => e.Id).HasName("users_pkey");
             entity.Property(e => e.Id).HasColumnName("id");
 
             entity.Property(e => e.LastRequest).HasColumnName("last_request");
@@ -186,28 +193,32 @@ public partial class TmdbContext : DbContext
             entity.Property(e => e.RegisterDate).HasColumnName("register_date");
 
             entity.Property(e => e.Login)
-                .HasMaxLength(128)
-                .HasColumnName("login");
+                  .HasMaxLength(128)
+                  .HasColumnName("login");
 
             entity.Property(e => e.Name)
-                .HasMaxLength(128)
-                .HasColumnName("name");
+                  .HasMaxLength(128)
+                  .HasColumnName("name");
 
             entity.Property(e => e.Password)
-                .HasMaxLength(512)
-                .HasColumnName("password");
+                  .HasMaxLength(512)
+                  .HasColumnName("password");
         });
         modelBuilder.Entity<DBChatInvite>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("chat_invites_pkey");
             entity.ToTable("chat_invites");
+
+            entity.HasKey(e => e.Id).HasName("chat_invites_pkey");
             entity.Property(e => e.Id).HasColumnName("id");
 
-            entity.Property(e => e.ChatId).HasColumnName("chat_id");
+            entity.Property(e => e.ChatId)
+                  .HasColumnName("chat_id");
 
-            entity.Property(e => e.InviterId).HasColumnName("inviter_id");
+            entity.Property(e => e.InviterId)
+                  .HasColumnName("inviter_id");
 
-            entity.Property(e => e.ToUserId).HasColumnName("user_id");
+            entity.Property(e => e.ToUserId)
+                  .HasColumnName("user_id");
 
             entity.HasOne(e => e.Chat)
                   .WithMany()
@@ -223,8 +234,9 @@ public partial class TmdbContext : DbContext
         });
         modelBuilder.Entity<DBFriendRequest>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("friend_requests_pkey");
             entity.ToTable("friend_requests");
+
+            entity.HasKey(e => e.Id).HasName("friend_requests_pkey");
             entity.Property(e => e.Id).HasColumnName("id");
 
             entity.Property(e => e.SenderId)
@@ -243,22 +255,29 @@ public partial class TmdbContext : DbContext
         });
         modelBuilder.Entity<DBMessageMedia>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("message_medias_pkey");
             entity.ToTable("message_medias");
+
+            entity.HasKey(e => e.Id).HasName("message_medias_pkey");
             entity.Property(e => e.Id).HasColumnName("id");
 
-            entity.Property(e => e.MediaType).HasColumnName("type");
+            entity.Property(e => e.MediaType)
+                  .HasColumnName("type");
 
-            entity.Property(e => e.Data).HasColumnName("data");
+            entity.Property(e => e.Data)
+                  .HasColumnName("data");
         });
         modelBuilder.Entity<DBUnreadMessage>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("unread_messages_pkey");
             entity.ToTable("unread_messages");
 
+            entity.HasKey(e => e.Id).HasName("unread_messages_pkey");
             entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.MessageId).HasColumnName("message_id");
-            entity.Property(e => e.UserId).HasColumnName("user_id");
+
+            entity.Property(e => e.MessageId)
+                  .HasColumnName("message_id");
+
+            entity.Property(e => e.UserId)
+                  .HasColumnName("user_id");
 
             entity.HasOne(e => e.User)
                   .WithMany()
@@ -269,14 +288,18 @@ public partial class TmdbContext : DbContext
                   .HasForeignKey(u => u.MessageId);
         });
 
-        modelBuilder.Entity<DBNewMessages>(entity =>
+        modelBuilder.Entity<DBNewMessageUpdate>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("new_messages_pkey");
             entity.ToTable("new_messages");
 
+            entity.HasKey(e => e.Id).HasName("new_message_update_pkey");
             entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.MessageId).HasColumnName("message_id");
-            entity.Property(e => e.UserId).HasColumnName("user_id");
+
+            entity.Property(e => e.MessageId)
+                  .HasColumnName("message_id");
+
+            entity.Property(e => e.UserId)
+                  .HasColumnName("user_id");
 
             entity.HasOne(e => e.User)
                   .WithMany()
@@ -288,12 +311,16 @@ public partial class TmdbContext : DbContext
         });
         modelBuilder.Entity<DBMessageStatusUpdate>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("message_status_updates_pkey");
             entity.ToTable("message_status_updates");
 
+            entity.HasKey(e => e.Id).HasName("message_status_updates_pkey");
             entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.MessageId).HasColumnName("message_id");
-            entity.Property(e => e.UserId).HasColumnName("user_id");
+
+            entity.Property(e => e.MessageId)
+                  .HasColumnName("message_id");
+
+            entity.Property(e => e.UserId)
+                  .HasColumnName("user_id");
 
             entity.HasOne(e => e.User)
                   .WithMany()
@@ -305,12 +332,17 @@ public partial class TmdbContext : DbContext
         });
         modelBuilder.Entity<DBChatInviteUpdate>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("chat_invite_updates_pkey");
             entity.ToTable("chat_invite_updates");
 
+            entity.HasKey(e => e.Id).HasName("chat_invite_updates_pkey");
             entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.ChatInviteId).HasColumnName("invite_id");
-            entity.Property(e => e.UserId).HasColumnName("user_id");
+
+
+            entity.Property(e => e.ChatInviteId)
+                  .HasColumnName("invite_id");
+
+            entity.Property(e => e.UserId)
+                  .HasColumnName("user_id");
 
             entity.HasOne(e => e.User)
                   .WithMany()
@@ -320,31 +352,39 @@ public partial class TmdbContext : DbContext
                   .WithMany()
                   .HasForeignKey(u => u.ChatInviteId);
         });
-        modelBuilder.Entity<DBFriendProfileUpdate>(entity =>
+        modelBuilder.Entity<DBUserProfileUpdate>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("friend_profile_updates_pkey");
-            entity.ToTable("friend_profile_updates");
+            entity.ToTable("user_profile_updates");
 
+            entity.HasKey(e => e.Id).HasName("user_profile_updates_pkey");
             entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.FriendId).HasColumnName("friend_id");
-            entity.Property(e => e.UserId).HasColumnName("user_id");
+
+            entity.Property(e => e.ProfileId)
+                  .HasColumnName("profile_id");
+
+            entity.Property(e => e.UserId)
+                  .HasColumnName("user_id");
 
             entity.HasOne(e => e.User)
                   .WithMany()
                   .HasForeignKey(u => u.UserId);
 
-            entity.HasOne(e => e.Friend)
+            entity.HasOne(e => e.Profile)
                   .WithMany()
-                  .HasForeignKey(u => u.FriendId);
+                  .HasForeignKey(u => u.ProfileId);
         });
         modelBuilder.Entity<DBFriendRequestUpdate>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("friend_request_updates_pkey");
             entity.ToTable("friend_request_updates");
 
+            entity.HasKey(e => e.Id).HasName("friend_request_updates_pkey");
             entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.RequestId).HasColumnName("request_id");
-            entity.Property(e => e.UserId).HasColumnName("user_id");
+
+            entity.Property(e => e.RequestId)
+                  .HasColumnName("request_id");
+
+            entity.Property(e => e.UserId)
+                  .HasColumnName("user_id");
 
             entity.HasOne(e => e.User)
                   .WithMany()
@@ -356,12 +396,16 @@ public partial class TmdbContext : DbContext
         });
         modelBuilder.Entity<DBFriendListUpdate>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("friend_list_updates_pkey");
             entity.ToTable("friend_list_updates");
 
+            entity.HasKey(e => e.Id).HasName("friend_list_updates_pkey");
             entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.FriendId).HasColumnName("friend_id");
-            entity.Property(e => e.UserId).HasColumnName("user_id");
+
+            entity.Property(e => e.FriendId)
+                  .HasColumnName("friend_id");
+
+            entity.Property(e => e.UserId)
+                  .HasColumnName("user_id");
 
             entity.HasOne(e => e.User)
                   .WithMany()
@@ -372,14 +416,42 @@ public partial class TmdbContext : DbContext
                   .HasForeignKey(u => u.FriendId);
         });
 
+        modelBuilder.Entity<DBChatListUpdate>(entity =>
+        {
+            entity.ToTable("chat_list_updates");
+
+            entity.HasKey(e => e.Id).HasName("chat_list_updates_pkey");
+            entity.Property(e => e.Id).HasColumnName("id");
+
+            entity.Property(e => e.ChatId)
+                  .HasColumnName("chat_id");
+
+            entity.Property(e => e.UserId)
+                  .HasColumnName("user_id");
+
+            entity.Property(e => e.IsAdded)
+                  .HasColumnName("is_added5");
+
+            entity.HasOne(e => e.User)
+                  .WithMany()
+                  .HasForeignKey(u => u.UserId);
+
+            entity.HasOne(e => e.Chat)
+                  .WithMany()
+                  .HasForeignKey(u => u.ChatId);
+        });
         modelBuilder.Entity<DBChatUpdate>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("chat_updates_pkey");
             entity.ToTable("chat_updates");
 
+            entity.HasKey(e => e.Id).HasName("chat_updates_pkey");
             entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.ChatId).HasColumnName("chat_id");
-            entity.Property(e => e.UserId).HasColumnName("user_id");
+
+            entity.Property(e => e.ChatId)
+                  .HasColumnName("chat_id");
+
+            entity.Property(e => e.UserId)
+                  .HasColumnName("user_id");
 
             entity.HasOne(e => e.User)
                   .WithMany()

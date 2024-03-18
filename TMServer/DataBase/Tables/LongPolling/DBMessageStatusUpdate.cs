@@ -8,7 +8,6 @@ namespace TMServer.DataBase.Tables.LongPolling
 {
     public class DBMessageStatusUpdate : DBUpdate
     {
-        public int Id { get; set; }
         public required int MessageId { get; set; }
         public virtual DBMessage Message { get; set; } = null!;
     }

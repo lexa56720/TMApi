@@ -8,6 +8,8 @@ namespace TMServer.DataBase.Tables.LongPolling
 {
     public abstract class DBUpdate
     {
+        public int Id { get; set; }
+
         public required int UserId { get; set; }
 
         public virtual DBUser User { get; set; } = null!;

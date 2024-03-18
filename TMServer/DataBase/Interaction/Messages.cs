@@ -15,6 +15,7 @@ namespace TMServer.DataBase.Interaction
                 AuthorId = authorId,
                 DestinationId = destinationId,
                 Content = content,
+                IsSystem = false,
                 SendTime = DateTime.UtcNow,
             };
             db.Messages.Add(message);
@@ -57,7 +58,7 @@ namespace TMServer.DataBase.Interaction
             using var db = new TmdbContext();
 
             return chatId.Select(id => db.Messages.Where(m => m.DestinationId == id).AsEnumerable().MaxBy(m => m.Id))
-                         .Where(m=>m!=null)
+                         .Where(m => m != null)
                          .ToArray();
         }
         public static DBMessage[] GetMessages(int chatId, int offset, int count, int lastMessageId)

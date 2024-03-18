@@ -8,8 +8,6 @@ namespace TMServer.DataBase.Tables.LongPolling
 {
     public partial class DBFriendRequestUpdate: DBUpdate
     {
-        public int Id { get; set; }
-
         public required int RequestId { get; set; }
 
         public virtual DBFriendRequest FriendRequest { get; set; } = null!;

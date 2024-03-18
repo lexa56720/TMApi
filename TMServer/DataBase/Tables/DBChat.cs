@@ -1,4 +1,4 @@
-﻿namespace TMServer.DataBase.Tables;
+﻿ namespace TMServer.DataBase.Tables;
 
 public partial class DBChat
 {

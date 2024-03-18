@@ -47,7 +47,8 @@ namespace TMApi
 
             LongPollRequester = RequesterFactory.Create(new IPEndPoint(Server, GetPort(RequestKind.LongPoll)),
                                                         new SimpleEncryptProvider(encrypter, decrypter),
-                                                        typeof(TMPacket<>));
+                                                        typeof(TMPacket<>),
+                                                        CSDTP.Protocols.Protocol.Http);
         }
 
         public RequestSender(IPAddress server, int authPort, int apiPort, int longPollPort, RequestKind kind)
@@ -57,7 +58,9 @@ namespace TMApi
             ApiPort = apiPort;
             LongPollPort = longPollPort;
             Requester = RequesterFactory.Create(new IPEndPoint(Server, GetPort(kind)), typeof(TMPacket<>));
-            LongPollRequester = RequesterFactory.Create(new IPEndPoint(Server, GetPort(RequestKind.LongPoll)), typeof(TMPacket<>));
+            LongPollRequester = RequesterFactory.Create(new IPEndPoint(Server, GetPort(RequestKind.LongPoll)),
+                                                        typeof(TMPacket<>),
+                                                        CSDTP.Protocols.Protocol.Http);
         }
 
         public void Dispose()

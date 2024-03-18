@@ -37,7 +37,7 @@ namespace TMServer.RequestHandlers
         public static Message Convert(DBMessage dbMessage, bool isReaded)
         {
             return new Message(dbMessage.Id, dbMessage.AuthorId, dbMessage.DestinationId,
-                                             dbMessage.Content, dbMessage.SendTime, isReaded);
+                               dbMessage.Content, dbMessage.SendTime, isReaded, dbMessage.IsSystem);
         }
         public static Message[] Convert(DBMessage[] dbMessages, bool[] isReaded)
         {

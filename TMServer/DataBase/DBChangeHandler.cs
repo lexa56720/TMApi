@@ -126,7 +126,7 @@ namespace TMServer.DataBase
 
             //Добавление уведомлений в бд
             foreach (var member in chatMembers)
-                context.NewMessages.Add(new DBNewMessages()
+                context.NewMessageUpdates.Add(new DBNewMessageUpdate()
                 {
                     MessageId = message.Id,
                     UserId = member
@@ -138,7 +138,7 @@ namespace TMServer.DataBase
         {
             var members = chat.Members;
             foreach (var member in members)
-                context.ChatUpdates.Add(new DBChatUpdate()
+                context.ChatListUpdates.Add(new DBChatListUpdate()
                 {
                     ChatId = chat.Id,
                     UserId = member.Id,

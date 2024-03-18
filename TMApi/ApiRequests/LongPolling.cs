@@ -47,14 +47,18 @@ namespace TMApi.ApiRequests
         {
             Task.Run(async () =>
             {
+                var prevLongPollId = -1;
                 while (IsPolling)
                 {
                     var notification = await Requester.LongPollAsync<Notification, LongPollingRequest>
-                                                      (new LongPollingRequest(),
+                                                      (new LongPollingRequest(prevLongPollId),
                                                        LongPollPeriod,
                                                        TokenSource.Token);
                     if (notification != null)
+                    {
                         HandleNotification(notification);
+                        prevLongPollId = notification.LongPollId;
+                    }               
                 }
             });
         }
@@ -64,20 +68,20 @@ namespace TMApi.ApiRequests
             if (notification.FriendRequestIds.Length > 0)
                 NewFriendRequests?.Invoke(this, notification.FriendRequestIds);
 
-            if (notification.NewChats.Length > 0)
-                NewChats?.Invoke(this, notification.NewChats);
+            if (notification.NewChatIds.Length > 0)
+                NewChats?.Invoke(this, notification.NewChatIds);
 
             if (notification.NewMessagesIds.Length > 0)
                 NewMessages?.Invoke(this, notification.NewMessagesIds);
 
-            if (notification.NewFriends.Length > 0)
-                FriendsAdded?.Invoke(this, notification.NewFriends);
+            if (notification.NewFriendsIds.Length > 0)
+                FriendsAdded?.Invoke(this, notification.NewFriendsIds);
 
-            if (notification.RemovedFriends.Length > 0)
-                FriendsRemoved?.Invoke(this, notification.RemovedFriends);
+            if (notification.RemovedFriendsIds.Length > 0)
+                FriendsRemoved?.Invoke(this, notification.RemovedFriendsIds);
 
-            if (notification.MessagesReadedIds.Length > 0)
-                MessagesReaded?.Invoke(this, notification.MessagesReadedIds);
+            if (notification.ReadedMessagesIds.Length > 0)
+                MessagesReaded?.Invoke(this, notification.ReadedMessagesIds);
         }
     }
 }

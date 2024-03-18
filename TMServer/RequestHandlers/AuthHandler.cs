@@ -30,7 +30,7 @@ namespace TMServer.RequestHandlers
                 {
                     IsSuccessful = false
                 };
-            LongPolling.ClearUpdates(id);
+            LongPolling.ClearAllUpdates(id);
             return GetAuthData(id);
         }
         private static AuthorizationResponse GetAuthData(int userId)

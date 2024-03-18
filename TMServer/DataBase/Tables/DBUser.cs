@@ -6,7 +6,7 @@ public partial class DBUser
 {
     public int Id { get; set; }
 
-    public bool IsOnline => (DateTime.UtcNow - LastRequest).TotalSeconds < 180;
+    public bool IsOnline =>  (DateTime.UtcNow - LastRequest).Duration()<2*GlobalSettings.LongPollLifeTime;
     public required string Name { get; set; }
 
     public required DateTime LastRequest { get; set; }

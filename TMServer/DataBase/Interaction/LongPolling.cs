@@ -1,110 +1,125 @@
 ﻿using ApiTypes.Communication.LongPolling;
 using Microsoft.EntityFrameworkCore;
+using TMServer.DataBase.Tables.LongPolling;
+using TMServer.ServerComponent.LongPolling;
 
 namespace TMServer.DataBase.Interaction
 {
     internal static class LongPolling
     {
-        public static int[] GetMessageUpdate(int userId)
+        public static DBNewMessageUpdate[] GetMessageUpdate(int userId)
         {
             using var db = new TmdbContext();
-            var result = db.NewMessages
+            var result = db.NewMessageUpdates
                            .Where(c => c.UserId == userId)
-                           .Select(m => m.MessageId)
                            .ToArray();
-            db.NewMessages.Where(u => u.UserId == userId)
-                             .ExecuteDelete();
-            db.SaveChanges();
             return result;
         }
 
-        public static int[] GetMessagesWithUpdatedStatus(int userId)
+        public static DBMessageStatusUpdate[] GetMessagesWithUpdatedStatus(int userId)
         {
             using var db = new TmdbContext();
             var result = db.MessageStatusUpdates
                            .Where(c => c.UserId == userId)
-                           .Select(m => m.MessageId)
                            .ToArray();
-
-            db.MessageStatusUpdates.Where(u => u.UserId == userId)
-                                   .ExecuteDelete();
-            db.SaveChanges();
             return result;
         }
-        public static int[] GetFriendRequestUpdates(int userId)
+        public static DBFriendRequestUpdate[] GetFriendRequestUpdates(int userId)
         {
             using var db = new TmdbContext();
             var result = db.FriendRequestUpdates
-                            .Where(r => r.UserId == userId)
-                            .Select(r => r.RequestId)
-                            .ToArray();
-
-            db.FriendRequestUpdates.Where(r => r.UserId == userId)
-                                   .ExecuteDelete();
-            db.SaveChanges();
+                           .Where(r => r.UserId == userId)
+                           .ToArray();
             return result;
         }
-        public static int[] GetNewFriends(int userId)
+        public static DBFriendListUpdate[] GetFriendListUpdates(int userId)
         {
             using var db = new TmdbContext();
             var result = db.FriendListUpdates
-                .Where(fl => fl.UserId == userId && fl.IsAdded)
-                .Select(fl => fl.FriendId)
-                .ToArray();
+                           .Where(fl => fl.UserId == userId)
+                           .ToArray();
 
-            db.FriendListUpdates.Where(fl => fl.UserId == userId && fl.IsAdded)
-                               .ExecuteDelete();
-            db.SaveChanges();
             return result;
         }
-        public static int[] GetRemovedFriends(int userId)
+
+        public static DBChatListUpdate[] GetChatListUpdates(int userId)
         {
             using var db = new TmdbContext();
-            var result = db.FriendListUpdates
-                .Where(fl => fl.UserId == userId && !fl.IsAdded)
-                .Select(fl => fl.FriendId)
-                .ToArray();
-
-            db.FriendListUpdates.Where(fl => fl.UserId == userId && !fl.IsAdded)
-                               .ExecuteDelete();
-            db.SaveChanges();
+            var result = db.ChatListUpdates
+                           .Where(cu => cu.UserId == userId)
+                           .ToArray();
             return result;
         }
-        public static int[] GetNewChats(int userId)
+
+        public static DBUserProfileUpdate[] GetRelatedUsersUpdates(int userId)
+        {
+            using var db = new TmdbContext();
+            var result = db.UserProfileUpdates
+                           .Where(u => u.UserId == userId)
+                           .ToArray();
+            return result;
+        }
+
+        public static DBChatInviteUpdate[] GetChatInvites(int userId)
+        {
+            using var db = new TmdbContext();
+            var result = db.ChatInviteUpdates
+                           .Where(c => c.UserId == userId)
+                           .ToArray();
+            return result;
+        }
+
+        public static DBChatUpdate[] GetChatUpdates(int userId)
         {
             using var db = new TmdbContext();
             var result = db.ChatUpdates
-                .Where(cu => cu.UserId == userId && cu.IsAdded)
-                .Select(fl => fl.ChatId)
-                .ToArray();
-
-            db.ChatUpdates.Where(cu => cu.UserId == userId && cu.IsAdded)
-                          .ExecuteDelete();
-            db.SaveChanges();
+                           .Where(c => c.UserId == userId)
+                           .ToArray();
             return result;
         }
 
-        public static void ClearUpdates(int userId)
+
+        public static void ClearAllUpdates(int userId)
         {
             using var db = new TmdbContext();
-            db.NewMessages.Where(u => u.UserId == userId).ExecuteDelete();
+            db.NewMessageUpdates.Where(u => u.UserId == userId).ExecuteDelete();
             db.MessageStatusUpdates.Where(u => u.UserId == userId).ExecuteDelete();
             db.FriendRequestUpdates.Where(fr => fr.UserId == userId).ExecuteDelete();
-            db.ChatUpdates.Where(c => c.UserId == userId).ExecuteDelete();
-            db.FriendProfileUpdates.Where(p => p.UserId == userId).ExecuteDelete();
+            db.ChatListUpdates.Where(c => c.UserId == userId).ExecuteDelete();
+            db.UserProfileUpdates.Where(p => p.UserId == userId).ExecuteDelete();
             db.FriendListUpdates.Where(fl => fl.UserId == userId).ExecuteDelete();
             db.SaveChanges();
+        }
+        public static void ClearUpdatesByIds(LongPollResponseInfo info)
+        {
+            using var db = new TmdbContext();
+            ExecuteDeleteByIds(db.NewMessageUpdates, info.NewMessages);
+            ExecuteDeleteByIds(db.MessageStatusUpdates, info.ReadedMessages);
+            ExecuteDeleteByIds(db.FriendRequestUpdates, info.FriendRequests);
+            ExecuteDeleteByIds(db.ChatListUpdates, info.ChatListUpdates);
+            ExecuteDeleteByIds(db.UserProfileUpdates, info.RelatedUsersChanged);
+            ExecuteDeleteByIds(db.FriendListUpdates, info.FriendListUpdates);
+            db.SaveChanges();
+        }
+
+        private static void ExecuteDeleteByIds<T>(DbSet<T> dbSet, int[] ids) where T : DBUpdate
+        {
+            dbSet.Where(x => ids.Contains(x.Id)).ExecuteDelete();
         }
 
         public static bool IsHaveUpdates(int userId)
         {
             using var db = new TmdbContext();
-            return db.NewMessages.Any(u => u.UserId == userId) ||
+            return db.NewMessageUpdates.Any(u => u.UserId == userId) ||
                    db.MessageStatusUpdates.Any(u => u.UserId == userId) ||
-                   db.FriendRequestUpdates.Any(u => u.UserId == userId) ||
+
                    db.ChatInviteUpdates.Any(u => u.UserId == userId) ||
+                   db.ChatListUpdates.Any(u => u.UserId == userId) ||
                    db.ChatUpdates.Any(u => u.UserId == userId) ||
-                   db.FriendProfileUpdates.Any(u => u.UserId == userId) ||
+
+                   db.UserProfileUpdates.Any(u => u.UserId == userId) ||
+
+                   db.FriendRequestUpdates.Any(u => u.UserId == userId) ||
                    db.FriendListUpdates.Any(u => u.UserId == userId);
         }
     }

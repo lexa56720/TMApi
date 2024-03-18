@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace TMServer.DataBase.Tables.LongPolling
 {
-    public partial class DBChatInviteUpdate : DBUpdate
+    public partial class DBUserProfileUpdate : DBUpdate
     {
-        public required int ChatInviteId { get; set; }
+        public required int ProfileId { get; set; }
 
-        public virtual DBChatInvite Invite { get; set; } = null!;
+        public virtual DBUser Profile { get; set; } = null!;
     }
 }

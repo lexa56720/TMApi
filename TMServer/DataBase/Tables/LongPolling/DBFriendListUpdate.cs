@@ -8,8 +8,6 @@ namespace TMServer.DataBase.Tables.LongPolling
 {
     public class DBFriendListUpdate : DBUpdate
     {
-        public int Id { get; set; }
-
         public required bool IsAdded { get; set; }
 
         public required int FriendId { get; set; }

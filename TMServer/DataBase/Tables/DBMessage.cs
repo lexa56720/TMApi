@@ -6,13 +6,14 @@ public partial class DBMessage
 
     public required int AuthorId { get; set; }
 
+    public required bool IsSystem { get; set; }
     public required string Content { get; set; }
 
     public required int DestinationId { get; set; }
 
     public required DateTime SendTime { get; set; }
 
-    public virtual ICollection<DBMessageMedia> Medias { get; set; }=new List<DBMessageMedia>();
+    public virtual ICollection<DBMessageMedia> Medias { get; set; } = new List<DBMessageMedia>();
 
     public virtual DBUser Author { get; set; } = null!;
 

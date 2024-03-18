@@ -17,12 +17,14 @@ namespace ApiTypes.Communication.Messages
 
         public bool IsReaded { get; set; }
 
+        public bool IsSystem { get; set; }
+
         public Message()
         {
 
         }
 
-        public Message(int id, int authorId, int destinationId, string text, DateTime sendTime,bool isReaded)
+        public Message(int id, int authorId, int destinationId, string text, DateTime sendTime,bool isReaded,bool isSystem)
         {
             Id = id;
             AuthorId = authorId;
@@ -30,6 +32,7 @@ namespace ApiTypes.Communication.Messages
             Text = text;
             SendTime = sendTime;
             IsReaded = isReaded;
+            IsSystem = isSystem;
         }
     }
 }
