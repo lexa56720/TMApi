@@ -102,7 +102,7 @@ namespace TMServer.DataBase.Interaction
             db.SaveChanges();
         }
 
-        private static void ExecuteDeleteByIds<T>(DbSet<T> dbSet, int[] ids) where T : DBUpdate
+        private static void ExecuteDeleteByIds<T>(DbSet<T> dbSet, int[] ids) where T : Update
         {
             dbSet.Where(x => ids.Contains(x.Id)).ExecuteDelete();
         }

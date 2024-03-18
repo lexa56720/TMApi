@@ -30,6 +30,7 @@ public partial class TmdbContext : DbContext
     public virtual DbSet<DBFriendRequest> FriendRequests { get; set; }
     public virtual DbSet<DBMessageMedia> MessageMedias { get; set; }
     public virtual DbSet<DBUnreadMessage> UnreadMessages { get; set; }
+    public virtual DbSet<DBChatUpdate> ChatUpdates { get; set; }
 
 
     public virtual DbSet<DBChatInviteUpdate> ChatInviteUpdates { get; set; }
@@ -39,7 +40,6 @@ public partial class TmdbContext : DbContext
     public virtual DbSet<DBChatListUpdate> ChatListUpdates { get; set; }
     public virtual DbSet<DBNewMessageUpdate> NewMessageUpdates { get; set; }
     public virtual DbSet<DBMessageStatusUpdate> MessageStatusUpdates { get; set; }
-    public virtual DbSet<DBChatUpdate> ChatUpdates { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -51,23 +51,27 @@ public partial class TmdbContext : DbContext
     {
         modelBuilder.Entity<DBAes>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("aes_pkey");
             entity.ToTable("aes");
+
+            entity.HasKey(e => e.Id).HasName("aes_pkey");
             entity.Property(e => e.Id).HasColumnName("id");
 
             entity.Property(e => e.AesKey)
-                .HasMaxLength(32)
-                .HasColumnName("aes_key");
+                  .HasMaxLength(32)
+                  .HasColumnName("aes_key");
 
-            entity.Property(e => e.DeprecatedDate).HasColumnName("depricated_date");
+            entity.Property(e => e.DeprecatedDate)
+                  .HasColumnName("depricated_date");
 
-            entity.HasOne(e => e.User).WithMany(u => u.Crypts)
-            .HasForeignKey(u => u.UserId);
+            entity.HasOne(e => e.User)
+                  .WithMany(u => u.Crypts)
+                  .HasForeignKey(u => u.UserId);
         });
         modelBuilder.Entity<DBChat>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("chats_pkey");
             entity.ToTable("chats");
+
+            entity.HasKey(e => e.Id).HasName("chats_pkey");
             entity.Property(e => e.Id).HasColumnName("id");
 
             entity.Property(e => e.AdminId).HasColumnName("admin_id");
@@ -75,13 +79,21 @@ public partial class TmdbContext : DbContext
 
             entity.Property(e => e.IsDialogue).HasColumnName("is_dialogue");
 
-            entity.HasOne(e => e.Admin).WithMany()
-            .HasForeignKey(c => c.AdminId);
+            entity.HasOne(e => e.Admin)
+                  .WithMany()
+                  .HasForeignKey(c => c.AdminId);
 
-            entity.HasMany(d => d.Members).WithMany(p => p.Chats);
+            entity.HasMany(d => d.Members)
+                  .WithMany(p => p.Chats)
+                  .UsingEntity<DBChatUser>
+                  (
+                    l => l.HasOne(e => e.User).WithMany().HasForeignKey(e => e.UserId),
+                    r => r.HasOne(e => e.Chat).WithMany().HasForeignKey(e => e.ChatId)
+                  );
 
-            entity.HasMany(c => c.Messages).WithOne(m => m.Destination)
-            .HasForeignKey(m => m.DestinationId);
+            entity.HasMany(c => c.Messages)
+                  .WithOne(m => m.Destination)
+                  .HasForeignKey(m => m.DestinationId);
         });
         modelBuilder.Entity<DBFriend>(entity =>
         {

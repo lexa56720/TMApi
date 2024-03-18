@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TMServer.DataBase.Tables.LongPolling
 {
-    public class DBMessageStatusUpdate : DBUpdate
+    public class DBMessageStatusUpdate : Update
     {
         public required int MessageId { get; set; }
         public virtual DBMessage Message { get; set; } = null!;
