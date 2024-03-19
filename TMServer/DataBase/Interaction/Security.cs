@@ -71,7 +71,7 @@ namespace TMServer.DataBase.Interaction
             return true;
         }
 
-        public static bool IsFriendshipPossible(int toId, int fromId)
+        public static bool IsFriendshipPossible( int fromId, int toId)
         {
             using var db = new TmdbContext();
             return toId != fromId && !IsAlreadyFriends(fromId, toId) &&

@@ -62,6 +62,20 @@ namespace TMServer.DataBase
             };
         }
 
+
+        private IEnumerable<int> HandleAddedEntity(string className, EntityEntry entity, TmdbContext context)
+        {
+            return className switch
+            {
+                nameof(DBMessage) => HandleNewMessage((DBMessage)entity.Entity, context),
+                nameof(DBFriendRequest) => HandleNewFriendRequest((DBFriendRequest)entity.Entity, context),
+                nameof(DBFriend) => HandleNewFriend((DBFriend)entity.Entity, context),
+                nameof(DBChat) => HandleNewChat((DBChat)entity.Entity, context),
+                nameof(DBChatUser) => HandleNewChatMember((DBChatUser)entity.Entity, context),
+                _ => [],
+            };
+        }
+
         private IEnumerable<int> HandleDeletedEntity(string className, EntityEntry entity, TmdbContext context)
         {
             return className switch
@@ -72,8 +86,6 @@ namespace TMServer.DataBase
                 _ => [],
             };
         }
-
-
 
         private IEnumerable<int> HandleModifiedChat(DBChat entity, TmdbContext context)
         {
@@ -106,21 +118,6 @@ namespace TMServer.DataBase
 
             return result;
         }
-
-
-        private IEnumerable<int> HandleAddedEntity(string className, EntityEntry entity, TmdbContext context)
-        {
-            return className switch
-            {
-                nameof(DBMessage) => HandleNewMessage((DBMessage)entity.Entity, context),
-                nameof(DBFriendRequest) => HandleNewFriendRequest((DBFriendRequest)entity.Entity, context),
-                nameof(DBFriend) => HandleNewFriend((DBFriend)entity.Entity, context),
-                nameof(DBChat) => HandleNewChat((DBChat)entity.Entity, context),
-                nameof(DBChatUser) => HandleNewChatMember((DBChatUser)entity.Entity, context),
-                _ => [],
-            };
-        }
-
 
 
         private IEnumerable<int> HandleRemovedFriend(DBFriend entity, TmdbContext context)
