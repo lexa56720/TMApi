@@ -21,7 +21,7 @@ namespace TMServer.RequestHandlers
             if (chatMembers.Length < 2 || !DataConstraints.IsNameLegal(request.Data.ChatName))
                 return null;
 
-            var chat = Chats.CreateChat(request.Data.ChatName, false, chatMembers);
+            var chat = Chats.CreateChat(request.Data.ChatName, chatMembers);
             return DbConverter.Convert(chat,0);
         }
 
@@ -61,7 +61,7 @@ namespace TMServer.RequestHandlers
         {
             return new IntArrayContainer(Chats.GetAllChatInvites(request.UserId));
         }
-        public static void SendChatInvite(ApiData<ChatInvite> request)
+        public static void RegisterChatInvite(ApiData<ChatInvite> request)
         {
             if (!Security.IsCanInviteToChat(request.UserId, request.Data.ToUserId, request.Data.ChatId))
                 return;

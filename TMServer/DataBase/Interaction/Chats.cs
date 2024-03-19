@@ -6,13 +6,13 @@ namespace TMServer.DataBase.Interaction
 {
     internal static class Chats
     {
-        public static DBChat CreateChat(string name, bool isDialogue, params int[] usersId)
+        public static DBChat CreateChat(string name, params int[] usersId)
         {
             using var db = new TmdbContext();
             var chat = new DBChat()
             {
                 AdminId = usersId[0],
-                IsDialogue = isDialogue,
+                IsDialogue = false,
                 Name = name,
             };
             db.Chats.Add(chat);

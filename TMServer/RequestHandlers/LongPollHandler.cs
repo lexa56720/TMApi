@@ -83,9 +83,9 @@ namespace TMServer.RequestHandlers
             void Add(ListUpdate friendListUpdate)
             {
                 if (friendListUpdate.IsAdded)
-                    added.Add(friendListUpdate.Id);
+                    added.Add(friendListUpdate.TargetId);
                 else
-                    removed.Add(friendListUpdate.Id);
+                    removed.Add(friendListUpdate.TargetId);
             }
             return (added.ToArray(), removed.ToArray());
         }

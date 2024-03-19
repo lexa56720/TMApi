@@ -32,7 +32,7 @@ namespace TMServer.ServerComponent.LongPolling
         private readonly TimeSpan LongPollLifetime;
 
         public LongPollServer(TimeSpan longPollLifetime, int port, IEncryptProvider encryptProvider, ILogger logger)
-                                                                : base(port, encryptProvider, logger, Protocol.Http)
+                                                                : base(port, encryptProvider, logger, Protocol.Udp)
         {
             TmdbContext.ChangeHandler.UpdateForUser += DBUpdateForUser;
             LongPollLifetime = longPollLifetime;

@@ -88,7 +88,12 @@ public partial class TmdbContext : DbContext
                   .UsingEntity<DBChatUser>
                   (
                     l => l.HasOne(e => e.User).WithMany().HasForeignKey(e => e.UserId),
-                    r => r.HasOne(e => e.Chat).WithMany().HasForeignKey(e => e.ChatId)
+                    r => r.HasOne(e => e.Chat).WithMany().HasForeignKey(e => e.ChatId),
+                    j =>
+                    {
+                        j.ToTable("user_chats");
+                        j.HasKey(t => new { t.UserId, t.ChatId });
+                    }
                   );
 
             entity.HasMany(c => c.Messages)

@@ -57,8 +57,17 @@ namespace TMServer.DataBase.Interaction
                 SenderId = senderId,
                 DestId = responderId
             });
+            var chat = new DBChat()
+            {
+                AdminId = senderId,
+                IsDialogue = true,
+                Name = string.Empty,
+            };
+            db.Chats.Add(chat);
+            chat.Members.Add(db.Users.Find(senderId));
+            chat.Members.Add(db.Users.Find(responderId));
+
             db.SaveChanges(true);
-            Chats.CreateChat(string.Empty, true, senderId, responderId);
         }
 
         public static int[] GetAllForUser(int userId)

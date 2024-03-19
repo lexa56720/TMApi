@@ -11,5 +11,7 @@ namespace TMServer.DataBase.Tables.LongPolling
         public required int FriendId { get; set; }
 
         public virtual DBUser Friend{ get; set; } = null!;
+
+        public override int TargetId => FriendId;
     }
 }

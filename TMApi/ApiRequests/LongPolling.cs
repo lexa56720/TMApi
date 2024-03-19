@@ -12,9 +12,11 @@ namespace TMApi.ApiRequests
         public event EventHandler<int[]>? MessagesReaded;
         public event EventHandler<int[]>? NewFriendRequests;
         public event EventHandler<int[]>? NewChats;
+        public event EventHandler<int[]>? RemovedChats;
         public event EventHandler<int[]>? FriendsAdded;
         public event EventHandler<int[]>? FriendsRemoved;
-
+        public event EventHandler<int[]>? ChatsChanged; 
+        public event EventHandler<int[]>? RelatedUsersChanged;
         private readonly CancellationTokenSource TokenSource = new();
         internal LongPolling(TimeSpan longPollPeriod, RequestSender requester, Api api) : base(requester, api)
         {
@@ -71,6 +73,9 @@ namespace TMApi.ApiRequests
             if (notification.NewChatIds.Length > 0)
                 NewChats?.Invoke(this, notification.NewChatIds);
 
+            if (notification.RemovedChatIds.Length > 0)
+                RemovedChats?.Invoke(this, notification.RemovedChatIds);
+
             if (notification.NewMessagesIds.Length > 0)
                 NewMessages?.Invoke(this, notification.NewMessagesIds);
 
@@ -82,6 +87,12 @@ namespace TMApi.ApiRequests
 
             if (notification.ReadedMessagesIds.Length > 0)
                 MessagesReaded?.Invoke(this, notification.ReadedMessagesIds);
+
+            if (notification.ChatChangedIds.Length > 0)
+                ChatsChanged?.Invoke(this, notification.ChatChangedIds);
+
+            if (notification.RelatedUserChangedIds.Length > 0)
+                RelatedUsersChanged?.Invoke(this, notification.RelatedUserChangedIds);
         }
     }
 }

@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 
 namespace TMServer.DataBase.Tables.LongPolling
 {
-    public class ListUpdate : Update
+    public abstract class ListUpdate : Update
     {
         public required bool IsAdded { get; set; }
+
+        public abstract int TargetId { get; }
     }
 }

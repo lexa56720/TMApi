@@ -90,8 +90,21 @@ namespace TMServer.DataBase
 
         private IEnumerable<int> HandleModifiedUser(DBUser user, TmdbContext context)
         {
-            var chatMembers = user.Chats.SelectMany(c => c.Members.Where(m => m.Id != user.Id).Select(m => m.Id));
-            return chatMembers;
+            var chatMembers = user.Chats.SelectMany(c => c.Members.Where(m => m.Id != user.Id)
+                                                                  .Select(m => m.Id));
+
+            var invited = context.ChatInvites.Where(i => i.InviterId == user.Id)
+                                             .Select(i => i.ToUserId);
+
+            var requested = context.FriendRequests.Where(r => r.SenderId == user.Id)
+                                                  .Select(r => r.ReceiverId);
+
+            var result = new List<int>(chatMembers.Count() + invited.Count() + requested.Count());
+            result.AddRange(chatMembers);
+            result.AddRange(invited);
+            result.AddRange(requested);
+
+            return result;
         }
 
 

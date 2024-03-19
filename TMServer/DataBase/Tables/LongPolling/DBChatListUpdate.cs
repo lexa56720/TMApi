@@ -10,5 +10,7 @@ namespace TMServer.DataBase.Tables.LongPolling
     {
         public required int ChatId { get; set; }
         public virtual DBChat Chat { get; set; } = null!;
+
+        public override int TargetId => ChatId;
     }
 }

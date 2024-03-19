@@ -60,7 +60,7 @@ namespace TMApi
             Requester = RequesterFactory.Create(new IPEndPoint(Server, GetPort(kind)), typeof(TMPacket<>));
             LongPollRequester = RequesterFactory.Create(new IPEndPoint(Server, GetPort(RequestKind.LongPoll)),
                                                         typeof(TMPacket<>),
-                                                        CSDTP.Protocols.Protocol.Http);
+                                                        CSDTP.Protocols.Protocol.Udp);
         }
 
         public void Dispose()
