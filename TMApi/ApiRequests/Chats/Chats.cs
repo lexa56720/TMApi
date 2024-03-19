@@ -48,10 +48,9 @@ namespace TMApi.ApiRequests.Chats
                 return [];
             return invites.Items;
         }
-
-        public async Task<bool> SendChatInvite(int chatId, int toUserId)
+        public async Task<bool> SendChatInvite(int chatId, params int[] toUserIds)
         {
-            return await Requester.ApiSendAsync(new ChatInvite(chatId, toUserId, Api.Id));
+            return await Requester.ApiSendAsync(new InviteToChatRequest(chatId, toUserIds));
         }
         public async Task<bool> SendChatInviteResponse(int inviteId, bool isAccepted)
         {

@@ -95,7 +95,7 @@ namespace TMServer.Servers
         {
             ApiServer.RegisterRequestHandler<ChatCreationRequest, Chat>(ChatsHandler.CreateChat);
             ApiServer.RegisterRequestHandler<ChatRequest, SerializableArray<Chat>>(ChatsHandler.GetChats);
-            ApiServer.RegisterDataHandler<ChatInvite>(ChatsHandler.RegisterChatInvite);
+            ApiServer.RegisterDataHandler<InviteToChatRequest>(ChatsHandler.RegisterChatInvite);
             ApiServer.RegisterRequestHandler<InviteRequest, SerializableArray<ChatInvite>>(ChatsHandler.GetChatInvites);
             ApiServer.RegisterDataHandler<RequestResponse>(ChatsHandler.ChatInviteResponse);
             ApiServer.RegisterRequestHandler<InviteRequestAll, IntArrayContainer>(ChatsHandler.GetAllChatInvites);

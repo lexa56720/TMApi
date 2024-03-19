@@ -25,16 +25,17 @@ namespace TMServer.DataBase.Interaction
             db.SaveChanges(true);
             return chat;
         }
-        public static void InviteToChat(int inviterId, int userId, int chatId)
+        public static void InviteToChat(int inviterId, int chatId, params int[] userIds)
         {
             using var db = new TmdbContext();
 
-            db.ChatInvites.Add(new DBChatInvite()
-            {
-                ChatId = chatId,
-                InviterId = inviterId,
-                ToUserId = userId,
-            });
+            foreach (var userId in userIds)
+                db.ChatInvites.Add(new DBChatInvite()
+                {
+                    ChatId = chatId,
+                    InviterId = inviterId,
+                    ToUserId = userId,
+                });
             db.SaveChanges(true);
         }
 

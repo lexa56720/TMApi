@@ -61,12 +61,12 @@ namespace TMServer.RequestHandlers
         {
             return new IntArrayContainer(Chats.GetAllChatInvites(request.UserId));
         }
-        public static void RegisterChatInvite(ApiData<ChatInvite> request)
+        public static void RegisterChatInvite(ApiData<InviteToChatRequest> request)
         {
-            if (!Security.IsCanInviteToChat(request.UserId, request.Data.ToUserId, request.Data.ChatId))
+            if (!Security.IsCanInviteToChat(request.UserId, request.Data.UserIds, request.Data.ChatId))
                 return;
 
-            Chats.InviteToChat(request.UserId, request.Data.ToUserId, request.Data.ChatId);
+            Chats.InviteToChat(request.UserId, request.Data.ChatId, request.Data.UserIds);
         }
 
         public static IntArrayContainer? GetAllChats(ApiData<ChatRequestAll> request)

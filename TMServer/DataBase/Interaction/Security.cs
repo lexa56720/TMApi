@@ -36,6 +36,18 @@ namespace TMServer.DataBase.Interaction
             return db.Chats.Include(c => c.Members)
                            .Any(c => c.Id == chatId && c.Members.Any(m => m.Id == userId));
         }
+
+        public static bool IsCanInviteToChat(int inviterId, int[] userIds, int chatId)
+        {
+            bool result = true;
+            for (var i = 0; i < userIds.Length; i++)
+                if (!IsCanInviteToChat(inviterId, userIds[i], chatId))
+                {
+                    result = false;
+                    break;
+                }
+            return result;
+        }
         public static bool IsCanInviteToChat(int inviterId, int userId, int chatId)
         {
             using var db = new TmdbContext();
@@ -71,7 +83,7 @@ namespace TMServer.DataBase.Interaction
             return true;
         }
 
-        public static bool IsFriendshipPossible( int fromId, int toId)
+        public static bool IsFriendshipPossible(int fromId, int toId)
         {
             using var db = new TmdbContext();
             return toId != fromId && !IsAlreadyFriends(fromId, toId) &&
