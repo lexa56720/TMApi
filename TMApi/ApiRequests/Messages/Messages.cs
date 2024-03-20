@@ -37,12 +37,13 @@ namespace TMApi.ApiRequests.Messages
                         (x) => x.Id);
         }
 
-        public async Task<Message[]> GetMessagesForChats(params int[] chatIds)
+        public async Task<Message?[]> GetMessagesForChats(params int[] chatIds)
         {
             return await RequestMany(chatIds,
                         (ids) => new MessageRequestByChats(ids),
                         Requester.ApiRequestAsync<SerializableArray<Message>, MessageRequestByChats>,
-                        (x) => x.Id);
+                        (x) => x.DestinationId,
+                        true);
         }
 
         public async Task<Message?> SendMessage(string text, int destinationId)

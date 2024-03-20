@@ -87,11 +87,12 @@ namespace TMServer.DataBase.Interaction
         public static bool ReadAllInChat(int userId, int chatId)
         {
             using var db = new TmdbContext();
-
+            //Чтение всех собщений в чате для юзера userId и отметка о прочитке собщений их авторам 
             var messsagesToMark =
                 db.UnreadMessages.Include(um => um.Message)
                                    .Where(um => um.Message.DestinationId == chatId &&
-                                          (um.UserId == userId && um.UserId != um.Message.AuthorId));
+                                          ((um.UserId == userId && um.UserId != um.Message.AuthorId) ||
+                                          (um.UserId == um.Message.AuthorId)));
 
             db.UnreadMessages.RemoveRange(messsagesToMark);
             return db.SaveChanges(true) > 0;
