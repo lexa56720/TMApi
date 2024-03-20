@@ -54,7 +54,7 @@ namespace TMServer.Servers
         {
             AuthServer.Register<RsaPublicKey, RsaPublicKey>(AuthHandler.RsaKeyTrade);
             AuthServer.Register<AuthorizationRequest, AuthorizationResponse>(AuthHandler.Login);
-            AuthServer.Register<RegisterRequest, RequestResponse>(AuthHandler.Register);
+            AuthServer.Register<RegisterRequest, RegisterResponse>(AuthHandler.Register);
             AuthServer.Register<VersionRequest, IntContainer>(e => AuthHandler.GetVersion());
         }
 
@@ -97,7 +97,7 @@ namespace TMServer.Servers
             ApiServer.RegisterRequestHandler<ChatRequest, SerializableArray<Chat>>(ChatsHandler.GetChats);
             ApiServer.RegisterDataHandler<InviteToChatRequest>(ChatsHandler.RegisterChatInvite);
             ApiServer.RegisterRequestHandler<InviteRequest, SerializableArray<ChatInvite>>(ChatsHandler.GetChatInvites);
-            ApiServer.RegisterDataHandler<RequestResponse>(ChatsHandler.ChatInviteResponse);
+            ApiServer.RegisterDataHandler<ResponseToInvite>(ChatsHandler.ChatInviteResponse);
             ApiServer.RegisterRequestHandler<InviteRequestAll, IntArrayContainer>(ChatsHandler.GetAllChatInvites);
             ApiServer.RegisterRequestHandler<ChatRequestAll, IntArrayContainer>(ChatsHandler.GetAllChats);
         }

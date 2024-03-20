@@ -8,7 +8,7 @@ namespace ApiTypes.Communication.Chats
 {
     public class InviteToChatRequest : ISerializable<InviteToChatRequest>
     {
-        public int[] UserIds { get; set; }
+        public int[] UserIds { get; set; } = [];
 
         public int ChatId { get; set; }
 

@@ -89,19 +89,20 @@ namespace TMServer.DataBase
 
         private IEnumerable<int> HandleModifiedChat(DBChat entity, TmdbContext context)
         {
-            foreach (var member in entity.Members)
-            {
-                context.ChatUpdates.Add(new DBChatUpdate()
-                {
-                    ChatId = entity.Id,
-                    UserId = member.Id
-                });
-            }
-            return entity.Members.Select(m => m.Id);
+            var usersToNotify = GetUsersForChatUpdate(entity.Id, context);
+            UpdateChatForUsers(entity.Id, usersToNotify, context);
+            return usersToNotify;
         }
 
         private IEnumerable<int> HandleModifiedUser(DBUser user, TmdbContext context)
         {
+
+            user = context.Users.Include(u => u.FriendsTwo).ThenInclude(f => f.Sender)
+                                .Include(u => u.FriendsOne).ThenInclude(f => f.Receiver)
+                                .Include(u => u.Chats).ThenInclude(c => c.Members)
+                                .Single(u => u.Id == user.Id);
+
+
             var chatMembers = user.Chats.SelectMany(c => c.Members.Where(m => m.Id != user.Id)
                                                                   .Select(m => m.Id));
 
@@ -187,29 +188,43 @@ namespace TMServer.DataBase
         {
             return UpdateChatMembers(context, entity.ChatId, entity.UserId, false);
         }
+
+
         private IEnumerable<int> UpdateChatMembers(TmdbContext context, int chatId, int userId, bool isAdded)
         {
-            var result = new List<int>();
             context.ChatListUpdates.Add(new DBChatListUpdate()
             {
                 ChatId = chatId,
                 IsAdded = isAdded,
                 UserId = userId,
             });
-            result.Add(userId);
-            var chat = context.Chats.Single(c => c.Id == chatId);
-            foreach (var member in chat.Members)
+            var usersToNotify = GetUsersForChatUpdate(chatId, context);
+            UpdateChatForUsers(chatId,usersToNotify,context);
+            usersToNotify.Add(userId);
+            return usersToNotify;
+        }
+        private List<int> GetUsersForChatUpdate(int chatId,TmdbContext context)
+        {
+            var usersToNotify = new List<int>();
+            usersToNotify.AddRange(context.Chats.Include(c => c.Members)
+                                                .Single(c => c.Id == chatId)
+                                                .Members.Select(m => m.Id));
+
+            usersToNotify.AddRange(context.ChatInvites.Where(i => i.ChatId == chatId)
+                                                      .Select(i => i.ToUserId));
+
+            return usersToNotify;
+        }
+        private void UpdateChatForUsers(int chatId, IEnumerable<int> userIds, TmdbContext context)
+        {
+            foreach (var member in userIds)
             {
-                if (member.Id == userId)
-                    continue;
                 context.ChatUpdates.Add(new DBChatUpdate()
                 {
                     ChatId = chatId,
-                    UserId = member.Id,
+                    UserId = member,
                 });
-                result.Add(member.Id);
             }
-            return result;
         }
 
 

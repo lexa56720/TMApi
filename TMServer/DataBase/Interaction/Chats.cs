@@ -70,14 +70,6 @@ namespace TMServer.DataBase.Interaction
             return chats;
         }
 
-        public static DBChatInvite? GetInvite(int inviteId, int userId)
-        {
-            using var db = new TmdbContext();
-
-            return db.ChatInvites
-                     .SingleOrDefault(i => (i.ToUserId == userId || i.InviterId == userId) && i.Id == inviteId);
-        }
-
         public static DBChatInvite[] GetInvite(int[] inviteIds, int userId)
         {
             using var db = new TmdbContext();
@@ -88,7 +80,7 @@ namespace TMServer.DataBase.Interaction
         public static void InviteResponse(int inviteId, int userId, bool isAccepted)
         {
             using var db = new TmdbContext();
-            var invite = db.ChatInvites.Find(inviteId);
+            var invite = db.ChatInvites.SingleOrDefault(i => i.Id == inviteId);
             if (invite == null)
                 return;
 
@@ -100,7 +92,7 @@ namespace TMServer.DataBase.Interaction
                     chat.Members.Add(user);
             }
             db.ChatInvites.Remove(invite);
-            db.SaveChanges();
+            db.SaveChanges(true);
         }
 
         public static int[] GetAllChatInvites(int userId)

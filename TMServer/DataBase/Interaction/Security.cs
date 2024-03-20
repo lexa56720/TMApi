@@ -64,7 +64,14 @@ namespace TMServer.DataBase.Interaction
             bool isAlreadyInvited = IsInvitedToChat(userId, chatId);
 
             return !chat.IsDialogue && inviterId != userId && isInviterInChat &&
-                   !isAlreadyInvited && isUserInChat && isFriends;
+                   !isAlreadyInvited && !isUserInChat && isFriends;
+        }
+
+        public static bool IsHaveAccessToInvite(int inviteId, int userId)
+        {
+            using var db = new TmdbContext();
+
+            return db.ChatInvites.Any(i => (i.ToUserId == userId || i.InviterId == userId) && i.Id == inviteId);   
         }
         public static bool IsCanCreateChat(int userId, int[] memberIds)
         {

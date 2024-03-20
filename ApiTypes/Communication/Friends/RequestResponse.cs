@@ -1,7 +1,7 @@
 ﻿using CSDTP;
 using System.Diagnostics.CodeAnalysis;
 
-namespace ApiTypes.Communication.BaseTypes
+namespace ApiTypes.Communication.Friends
 {
     public class RequestResponse : ISerializable<RequestResponse>
     {
@@ -9,14 +9,11 @@ namespace ApiTypes.Communication.BaseTypes
 
         public int RequestId { get; set; } = -1;
 
-
-        [SetsRequiredMembers]
         public RequestResponse(int requestId, bool isAccepted)
         {
             RequestId = requestId;
             IsAccepted = isAccepted;
         }
-        [SetsRequiredMembers]
         public RequestResponse(bool isAccepted)
         {
             IsAccepted = isAccepted;
@@ -25,6 +22,5 @@ namespace ApiTypes.Communication.BaseTypes
         public RequestResponse()
         {
         }
-
     }
 }

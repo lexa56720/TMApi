@@ -1,11 +1,8 @@
-﻿using CSDTP;
-using CSDTP.Utils;
-
-namespace ApiTypes.Communication.BaseTypes
+﻿namespace ApiTypes.Communication.BaseTypes
 {
-    public class SerializableArray<T> : ISerializable<SerializableArray<T>> where T : ISerializable<T>,new()
+    public class SerializableArray<T> : ISerializable<SerializableArray<T>> where T : ISerializable<T>, new()
     {
-        public T[] Items { get; set; }
+        public T[] Items { get; set; } = [];
 
         public SerializableArray(params T[] items)
         {

@@ -44,17 +44,13 @@ namespace TMServer.RequestHandlers
             if (invites.Length == 0)
                 return new SerializableArray<ChatInvite>([]);
 
-            return new SerializableArray<ChatInvite>(
-                invites.Select(i => new ChatInvite(
-                                i.ChatId,
-                                i.ToUserId,
-                                i.InviterId)).ToArray());
+            return new SerializableArray<ChatInvite>(DbConverter.Convert(invites));
         }
 
-        public static void ChatInviteResponse(ApiData<RequestResponse> request)
+        public static void ChatInviteResponse(ApiData<ResponseToInvite> request)
         {
-            if (Chats.GetInvite(request.Data.RequestId, request.UserId) != null)
-                Chats.InviteResponse(request.Data.RequestId, request.UserId, request.Data.IsAccepted);
+            if (Security.IsHaveAccessToInvite(request.Data.InviteId, request.UserId))
+                Chats.InviteResponse(request.Data.InviteId, request.UserId, request.Data.IsAccepted);
         }
 
         public static IntArrayContainer? GetAllChatInvites(ApiData<InviteRequestAll> request)

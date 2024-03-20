@@ -52,11 +52,10 @@ namespace TMApi
             using var inputDecoder = coderDecoder.Value.decoder;
             using var outputEncoder = coderDecoder.Value.encoder;
 
-            RequestResponse? registerResult = null;
             using var rsaRequester = new RequestSender(Server, AuthPort, ApiPort, LongPollPort, RequestKind.Auth, outputEncoder, inputDecoder);
 
 
-            registerResult = await rsaRequester.RequestAsync<RequestResponse, RegisterRequest>(new RegisterRequest()
+            RegisterResponse? registerResult = await rsaRequester.RequestAsync<RegisterResponse, RegisterRequest>(new RegisterRequest()
             {
                 Username = username,
                 Login = login,

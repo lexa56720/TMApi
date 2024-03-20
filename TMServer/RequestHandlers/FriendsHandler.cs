@@ -15,14 +15,12 @@ namespace TMServer.RequestHandlers
         {
             if (!Security.IsHaveAccessToRequest(request.UserId, request.Data.Ids))
                 return null;
-            var requests = Friends.GetFriendRequest(request.Data.Ids);
 
-            var filteredRequests = requests.Select(DbConverter.Convert).ToArray();
-
-            if (filteredRequests.Length == 0)
+            var converted = DbConverter.Convert(Friends.GetFriendRequest(request.Data.Ids).ToArray());
+            if (converted.Length == 0)
                 return new SerializableArray<FriendRequest>([]);
 
-            return new SerializableArray<FriendRequest>(filteredRequests);
+            return new SerializableArray<FriendRequest>(converted);
         }
 
         public static void AddFriendRequest(ApiData<FriendRequest> request)

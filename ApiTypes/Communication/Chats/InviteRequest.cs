@@ -9,16 +9,13 @@ namespace ApiTypes.Communication.Chats
 {
     public class InviteRequest:ISerializable<InviteRequest>
     {
-        public required int[] Ids { get; set; }
+        public int[] Ids { get; set; } = [];
 
-
-        [SetsRequiredMembers]
         public InviteRequest(int[] ids)
         {
             Ids = ids;
         }
 
-        [SetsRequiredMembers]
         public InviteRequest()
         {
         }

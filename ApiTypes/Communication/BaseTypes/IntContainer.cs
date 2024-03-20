@@ -6,7 +6,6 @@ namespace ApiTypes.Communication.BaseTypes
     {
         public int Value { get; set; }
 
-
         public IntContainer(int value)
         {
             Value = value;
