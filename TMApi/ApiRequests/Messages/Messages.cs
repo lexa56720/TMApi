@@ -1,7 +1,9 @@
 ﻿using ApiTypes;
 using ApiTypes.Communication.BaseTypes;
+using ApiTypes.Communication.Friends;
 using ApiTypes.Communication.Messages;
 using ApiTypes.Shared;
+using TMApi.ApiRequests.Chats;
 
 namespace TMApi.ApiRequests.Messages
 {
@@ -29,20 +31,18 @@ namespace TMApi.ApiRequests.Messages
         }
         public async Task<Message[]> GetMessages(params int[] messageIds)
         {
-            var messages = await Requester.ApiRequestAsync<SerializableArray<Message>, MessageRequestById>(new MessageRequestById(messageIds));
-            if (messages == null)
-                return [];
-
-            return messages.Items;
+            return await RequestMany(messageIds,
+                        (ids) => new MessageRequestById(ids),
+                        Requester.ApiRequestAsync<SerializableArray<Message>, MessageRequestById>,
+                        (x) => x.Id);
         }
 
         public async Task<Message[]> GetMessagesForChats(params int[] chatIds)
         {
-            var messages = await Requester.ApiRequestAsync
-                <SerializableArray<Message>, MessageRequestByChats>(new MessageRequestByChats(chatIds));
-            if (messages == null)
-                return [];
-            return messages.Items;
+            return await RequestMany(chatIds,
+                        (ids) => new MessageRequestByChats(ids),
+                        Requester.ApiRequestAsync<SerializableArray<Message>, MessageRequestByChats>,
+                        (x) => x.Id);
         }
 
         public async Task<Message?> SendMessage(string text, int destinationId)
@@ -55,6 +55,8 @@ namespace TMApi.ApiRequests.Messages
 
         public async Task<bool> MarkAsReaded(params int[] messageIds)
         {
+            if (messageIds.Length < 0)
+                return false;
             return await Requester.ApiSendAsync(new MarkAsReaded(messageIds));
         }
     }

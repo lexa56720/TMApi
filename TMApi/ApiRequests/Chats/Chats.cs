@@ -2,6 +2,7 @@
 using ApiTypes.Communication.BaseTypes;
 using ApiTypes.Communication.Chats;
 using ApiTypes.Shared;
+using System;
 
 namespace TMApi.ApiRequests.Chats
 {
@@ -13,10 +14,11 @@ namespace TMApi.ApiRequests.Chats
 
         public async Task<Chat?> CreateChat(string name, int[] membersId)
         {
-            if (!DataConstraints.IsNameLegal(name))
+            var members = membersId.Distinct().ToArray();
+            if (!DataConstraints.IsNameLegal(name) || members.Length < 3)
                 return null;
 
-            return await Requester.ApiRequestAsync<Chat, ChatCreationRequest>(new ChatCreationRequest(name, membersId));
+            return await Requester.ApiRequestAsync<Chat, ChatCreationRequest>(new ChatCreationRequest(name, members));
         }
 
         public async Task<Chat?> GetChat(int chatId)
@@ -28,10 +30,10 @@ namespace TMApi.ApiRequests.Chats
         }
         public async Task<Chat[]> GetChat(int[] chatIds)
         {
-            var chats = await Requester.ApiRequestAsync<SerializableArray<Chat>,ChatRequest>(new ChatRequest(chatIds));
-            if (chats == null)
-                return [];
-            return chats.Items;
+            return await RequestMany(chatIds,
+                (ids) => new ChatRequest(ids),
+                Requester.ApiRequestAsync<SerializableArray<Chat>, ChatRequest>,
+                (x) => x.Id);
         }
 
         public async Task<ChatInvite?> GetChatInvite(int inviteId)
@@ -41,16 +43,18 @@ namespace TMApi.ApiRequests.Chats
                 return null;
             return result[0];
         }
-        public async Task<ChatInvite[]> GetChatInvite(int[] inviteId)
+        public async Task<ChatInvite[]> GetChatInvite(int[] inviteIds)
         {
-            var invites = await Requester.ApiRequestAsync<SerializableArray<ChatInvite>, InviteRequest>(new InviteRequest(inviteId));
-            if (invites == null)
-                return [];
-            return invites.Items;
+            return await RequestMany(inviteIds,
+                (ids) => new InviteRequest(ids),
+                Requester.ApiRequestAsync<SerializableArray<ChatInvite>, InviteRequest>,
+                (x) => x.Id);
         }
         public async Task<bool> SendChatInvite(int chatId, params int[] toUserIds)
         {
-            return await Requester.ApiSendAsync(new InviteToChatRequest(chatId, toUserIds));
+            if(toUserIds.Length==0)
+                return false;
+            return await Requester.ApiSendAsync(new InviteToChatRequest(chatId, toUserIds.Distinct().ToArray()));
         }
         public async Task<bool> SendChatInviteResponse(int inviteId, bool isAccepted)
         {

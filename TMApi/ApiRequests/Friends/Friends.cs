@@ -1,6 +1,8 @@
 ﻿using ApiTypes;
 using ApiTypes.Communication.BaseTypes;
+using ApiTypes.Communication.Chats;
 using ApiTypes.Communication.Friends;
+using TMApi.ApiRequests.Chats;
 
 namespace TMApi.ApiRequests.Friends
 {
@@ -18,10 +20,10 @@ namespace TMApi.ApiRequests.Friends
         }
         public async Task<FriendRequest[]> GetFriendRequest(int[] requestIds)
         {
-            var requests = await Requester.ApiRequestAsync<SerializableArray<FriendRequest>, GetFriendRequests>(new GetFriendRequests(requestIds));
-            if (requests == null)
-                return [];
-            return requests.Items;
+            return await RequestMany(requestIds,
+                    (ids) => new GetFriendRequests(ids),
+                    Requester.ApiRequestAsync<SerializableArray<FriendRequest>, GetFriendRequests>,
+                    (x) => x.Id);
         }
 
         public async Task<int[]> GetAllRequests()

@@ -1,4 +1,6 @@
-﻿namespace TMApi.ApiRequests
+﻿using ApiTypes.Communication.BaseTypes;
+
+namespace TMApi.ApiRequests
 {
     public abstract class BaseRequester : IDisposable
     {
@@ -14,6 +16,24 @@
         public virtual void Dispose()
         {
             Requester.Dispose();
+        }
+
+        protected async Task<T[]> RequestMany<T, U>(int[] originalIds, Func<int[], U> request, Func<U, Task<SerializableArray<T>?>> apiFunc, Func<T, int> selector)
+                                  where T : ISerializable<T>, new()
+        {
+            if (originalIds.Length == 0)
+                return [];
+
+            var ids = originalIds.Distinct()
+                                 .ToArray();
+            var apiResult = await apiFunc(request(ids));
+            if (apiResult == null || apiResult.Items.Length == 0)
+                return [];
+
+            var result = ids.Select(id => apiResult.Items.SingleOrDefault(i => selector(i) == id)).ToArray();
+            if (result.Any(r => r == null))
+                return [];
+            return result;
         }
     }
 }
