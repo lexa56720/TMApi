@@ -8,12 +8,10 @@ namespace TMServer.DataBase.Tables
 {
     public class DBChatUser
     {
-        public int Id { get; set; }
         public required int ChatId { get; set; }
         public required int UserId { get; set; }
 
         public virtual DBChat Chat { get; set; } = null!;
         public virtual DBUser User { get; set; } = null!;
-
     }
 }

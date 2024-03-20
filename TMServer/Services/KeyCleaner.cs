@@ -19,7 +19,7 @@ namespace TMServer.Services
         {
             using var db = new TmdbContext();
             var now = DateTime.UtcNow;
-            var deletedAes = await db.AesCrypts.Where(a=>a.DeprecatedDate<now).ExecuteDeleteAsync();
+            var deletedAes = await db.AesCrypts.Where(a=>a.Expiration<now).ExecuteDeleteAsync();
             var deletedRsa = await db.RsaCrypts.Where(r =>r.Expiration<now).ExecuteDeleteAsync();
 
             await db.SaveChangesAsync();

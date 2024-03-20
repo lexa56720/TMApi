@@ -23,7 +23,31 @@ namespace TMServer.DataBase.Interaction
 
             return message;
         }
-
+        public static void AddSystemMessage(int chatId, int executorId, ActionKind kind,params int[] targetIds)
+        {
+            using var db = new TmdbContext();
+            foreach (var targetId in targetIds)
+            {
+                var message = new DBMessage()
+                {
+                    AuthorId = executorId,
+                    DestinationId = chatId,
+                    Content = string.Empty,
+                    IsSystem = true,
+                    SendTime = DateTime.UtcNow,
+                };
+                var action = new DBMessageAction()
+                {
+                    ExecutorId = executorId,
+                    TargetId = targetId,
+                    Kind = kind,
+                    Message = message,
+                };
+                db.Messages.Add(message);
+                db.MessageActions.Add(action);
+            }
+            db.SaveChanges(true);
+        }
         public static bool AddToUnread(int messageId, int chatId)
         {
             using var db = new TmdbContext();

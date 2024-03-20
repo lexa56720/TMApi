@@ -19,7 +19,7 @@ namespace TMServer.Services
         {
             using var db = new TmdbContext();
             var now = DateTime.UtcNow;
-            var result = await db.Tokens.Where(t => t.Expiration <= now).ExecuteDeleteAsync();
+            var result = await db.Tokens.Where(t => t.Expiration < now).ExecuteDeleteAsync();
             await db.SaveChangesAsync();
             logger.Log($"TokenCleaner removed {result} old tokens");
         }

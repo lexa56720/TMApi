@@ -1,4 +1,7 @@
-﻿namespace TMServer.DataBase.Tables;
+﻿using ApiTypes.Communication.Messages;
+
+namespace TMServer.DataBase.Tables;
+
 
 public partial class DBMessage
 {
@@ -18,4 +21,6 @@ public partial class DBMessage
     public virtual DBUser Author { get; set; } = null!;
 
     public virtual DBChat Destination { get; set; } = null!;
+
+    public virtual DBMessageAction? Action { get; set; }
 }

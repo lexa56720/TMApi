@@ -39,7 +39,7 @@ namespace TMServer.DataBase.Interaction
             var aes = db.AesCrypts.Find(cryptId);
 
             if (aes != null)
-                aes.DeprecatedDate = DateTime.UtcNow+TimeSpan.FromHours(1);
+                aes.Expiration = DateTime.UtcNow+TimeSpan.FromHours(1);
 
             db.SaveChanges();
         }
@@ -49,7 +49,7 @@ namespace TMServer.DataBase.Interaction
             using var db = new TmdbContext();
 
             var dbAes = db.AesCrypts.SingleOrDefault(a =>
-            a.Id == cryptId && a.DeprecatedDate>DateTime.UtcNow);
+            a.Id == cryptId && a.Expiration>DateTime.UtcNow);
             if (dbAes == null)
                 return null;
 

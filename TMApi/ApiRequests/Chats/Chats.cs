@@ -15,7 +15,7 @@ namespace TMApi.ApiRequests.Chats
         public async Task<Chat?> CreateChat(string name, int[] membersId)
         {
             var members = membersId.Distinct().ToArray();
-            if (!DataConstraints.IsNameLegal(name) || members.Length < 3)
+            if (!DataConstraints.IsNameLegal(name) || members.Length < 2)
                 return null;
 
             return await Requester.ApiRequestAsync<Chat, ChatCreationRequest>(new ChatCreationRequest(name, members));

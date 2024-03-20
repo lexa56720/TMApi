@@ -1,6 +1,7 @@
 ﻿using ApiTypes;
 using ApiTypes.Communication.BaseTypes;
 using ApiTypes.Communication.Chats;
+using ApiTypes.Communication.Messages;
 using ApiTypes.Shared;
 using TMServer.DataBase.Interaction;
 using TMServer.DataBase.Tables;
@@ -22,19 +23,19 @@ namespace TMServer.RequestHandlers
                 return null;
 
             var chat = Chats.CreateChat(request.Data.ChatName, chatMembers);
-            return DbConverter.Convert(chat,0);
+            return DbConverter.Convert(chat, 0);
         }
 
         public static SerializableArray<Chat>? GetChats(ApiData<ChatRequest> request)
         {
-            if (!Security.IsHaveAccessToChat(request.Data.Ids,request.UserId))
+            if (!Security.IsHaveAccessToChat(request.Data.Ids, request.UserId))
                 return null;
 
             var chats = Chats.GetChat(request.Data.Ids);
             if (chats.Length == 0)
                 return new SerializableArray<Chat>([]);
 
-            var unreadCount = Chats.GetUnreadCount(request.UserId,request.Data.Ids);
+            var unreadCount = Chats.GetUnreadCount(request.UserId, request.Data.Ids);
             return new SerializableArray<Chat>(DbConverter.Convert(chats, unreadCount));
         }
 
@@ -63,6 +64,7 @@ namespace TMServer.RequestHandlers
                 return;
 
             Chats.InviteToChat(request.UserId, request.Data.ChatId, request.Data.UserIds);
+            Messages.AddSystemMessage(request.Data.ChatId, request.UserId, ActionKind.UserInvite, request.Data.UserIds);
         }
 
         public static IntArrayContainer? GetAllChats(ApiData<ChatRequestAll> request)

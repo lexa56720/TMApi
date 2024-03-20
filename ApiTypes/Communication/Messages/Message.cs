@@ -3,6 +3,14 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace ApiTypes.Communication.Messages
 {
+    public enum ActionKind
+    {
+        None,
+        UserInvite,
+        UserEnter,
+        UserLeave,
+        UserKicked,
+    }
     public class Message : ISerializable<Message>
     {
         public int Id { get; set; }
@@ -17,14 +25,19 @@ namespace ApiTypes.Communication.Messages
 
         public bool IsReaded { get; set; }
 
-        public bool IsSystem { get; set; }
+        public ActionKind Kind { get; set; } = ActionKind.None;
+
+        public int ExecutorId { get; set; } = -1;
+
+        public int TargetId { get; set; } = -1;
 
         public Message()
         {
 
         }
 
-        public Message(int id, int authorId, int destinationId, string text, DateTime sendTime,bool isReaded,bool isSystem)
+        public Message(int id, int authorId, int destinationId, string text,
+                       DateTime sendTime, bool isReaded)
         {
             Id = id;
             AuthorId = authorId;
@@ -32,7 +45,20 @@ namespace ApiTypes.Communication.Messages
             Text = text;
             SendTime = sendTime;
             IsReaded = isReaded;
-            IsSystem = isSystem;
+        }
+
+        public Message(int id, int authorId, int destinationId, string text,
+               DateTime sendTime, bool isReaded, ActionKind action, int executorId, int targetId)
+        {
+            Id = id;
+            AuthorId = authorId;
+            DestinationId = destinationId;
+            Text = text;
+            SendTime = sendTime;
+            IsReaded = isReaded;
+            ExecutorId = executorId;
+            TargetId = targetId;
+            Kind = action;
         }
     }
 }

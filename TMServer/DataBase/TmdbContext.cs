@@ -1,5 +1,4 @@
-﻿using ApiTypes.Communication.LongPolling;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using TMServer.DataBase.Tables;
 using TMServer.DataBase.Tables.LongPolling;
@@ -31,6 +30,7 @@ public partial class TmdbContext : DbContext
     public virtual DbSet<DBMessageMedia> MessageMedias { get; set; }
     public virtual DbSet<DBUnreadMessage> UnreadMessages { get; set; }
     public virtual DbSet<DBChatUpdate> ChatUpdates { get; set; }
+    public virtual DbSet<DBMessageAction> MessageActions { get; set; }
 
 
     public virtual DbSet<DBChatInviteUpdate> ChatInviteUpdates { get; set; }
@@ -60,8 +60,8 @@ public partial class TmdbContext : DbContext
                   .HasMaxLength(32)
                   .HasColumnName("aes_key");
 
-            entity.Property(e => e.DeprecatedDate)
-                  .HasColumnName("depricated_date");
+            entity.Property(e => e.Expiration)
+                  .HasColumnName("expiration_date");
 
             entity.HasOne(e => e.User)
                   .WithMany(u => u.Crypts)
@@ -151,6 +151,11 @@ public partial class TmdbContext : DbContext
                   .WithOne(m => m.Message)
                   .HasForeignKey(m => m.MessageId);
 
+            entity.HasOne(m => m.Action)
+                  .WithOne(a => a.Message)
+                  .HasForeignKey<DBMessageAction>(a => a.MessageId)
+                  .IsRequired(false);
+
             entity.HasOne(d => d.Author).WithMany()
                   .HasForeignKey(d => d.AuthorId)
                   .OnDelete(DeleteBehavior.ClientSetNull);
@@ -174,7 +179,8 @@ public partial class TmdbContext : DbContext
                   .HasMaxLength(1024)
                   .HasColumnName("public_client_key");
 
-            entity.Property(e => e.Expiration).HasColumnName("expiration_date");
+            entity.Property(e => e.Expiration)
+                  .HasColumnName("expiration_date");
         });
         modelBuilder.Entity<DBToken>(entity =>
         {
@@ -190,7 +196,7 @@ public partial class TmdbContext : DbContext
                   .HasMaxLength(512)
                   .HasColumnName("token");
 
-            entity.Property(e => e.Expiration).HasColumnName("expiration");
+            entity.Property(e => e.Expiration).HasColumnName("expiration_date");
 
 
             entity.HasOne(d => d.User).WithMany(p => p.Tokens)
@@ -303,6 +309,33 @@ public partial class TmdbContext : DbContext
             entity.HasOne(e => e.Message)
                   .WithMany()
                   .HasForeignKey(u => u.MessageId);
+        });
+        modelBuilder.Entity<DBMessageAction>(entity =>
+        {
+            entity.ToTable("message_action");
+
+            entity.HasKey(e => e.Id).HasName("message_action_pkey");
+            entity.Property(e => e.Id).HasColumnName("id");
+
+            entity.Property(e => e.MessageId)
+                  .HasColumnName("message_id");
+
+            entity.Property(e => e.ExecutorId)
+                  .HasColumnName("executor_id");
+
+            entity.Property(e => e.TargetId)
+                  .HasColumnName("target_id");
+
+            entity.Property(e => e.Kind)
+                  .HasColumnName("kind");
+
+            entity.HasOne(e => e.Target)
+                  .WithMany()
+                  .HasForeignKey(e => e.TargetId);
+
+            entity.HasOne(e => e.Executor)
+                  .WithMany()
+                  .HasForeignKey(e => e.ExecutorId);
         });
 
         modelBuilder.Entity<DBNewMessageUpdate>(entity =>

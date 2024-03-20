@@ -49,7 +49,7 @@ namespace TMServer.DataBase.Interaction
             var aes = new DBAes()
             {
                 AesKey = aesKey,
-                DeprecatedDate = DateTime.MaxValue,
+                Expiration = DateTime.MaxValue,
                 UserId = userId,
             };
             db.AesCrypts.Add(aes);
