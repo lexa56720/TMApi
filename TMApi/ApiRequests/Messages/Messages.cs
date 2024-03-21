@@ -39,11 +39,14 @@ namespace TMApi.ApiRequests.Messages
 
         public async Task<Message?[]> GetMessagesForChats(params int[] chatIds)
         {
-            return await RequestMany(chatIds,
-                        (ids) => new MessageRequestByChats(ids),
-                        Requester.ApiRequestAsync<SerializableArray<Message>, MessageRequestByChats>,
-                        (x) => x.DestinationId,
-                        true);
+            var result = await RequestMany(chatIds,
+                         (ids) => new MessageRequestByChats(ids),
+                         Requester.ApiRequestAsync<SerializableArray<Message>, MessageRequestByChats>,
+                         (x) => x.DestinationId,
+                         true);
+            if (result.Length > 0)
+                return result;
+            return Enumerable.Repeat<Message?>(null, chatIds.Length).ToArray();
         }
 
         public async Task<Message?> SendMessage(string text, int destinationId)

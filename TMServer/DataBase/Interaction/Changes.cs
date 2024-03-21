@@ -1,100 +1,23 @@
-﻿using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Xml.Linq;
-using TMServer.DataBase.Tables;
 using TMServer.DataBase.Tables.LongPolling;
-using TMServer.DataBase.Interaction;
-using ApiTypes.Communication.Chats;
+using TMServer.DataBase.Tables;
 
-namespace TMServer.DataBase
+namespace TMServer.DataBase.Interaction
 {
-    public class DBChangeHandler
+    public static class Changes
     {
-        public event EventHandler<int>? UpdateForUser;
-        public bool IsUpdateTracked => UpdateForUser != null;
-
-        public void HandleChanges((EntityEntry entity, EntityState state)[] entities)
-        {
-            if (!IsUpdateTracked)
-                return;
-
-            var userIds = GetAffectedUsers(entities);
-            foreach (var userId in userIds)
-                NotifyUser(userId);
-        }
-
-        private int[] GetAffectedUsers((EntityEntry entity, EntityState state)[] entities)
-        {
-            using var context = new TmdbContext();
-            var notifyList = new List<int>();
-            foreach (var entity in entities)
-            {
-                var className = entity.entity.Metadata.ClrType.Name;
-
-                switch (entity.state)
-                {
-                    case EntityState.Added:
-                        notifyList.AddRange(HandleAddedEntity(className, entity.entity, context));
-                        break;
-                    case EntityState.Deleted:
-                        notifyList.AddRange(HandleDeletedEntity(className, entity.entity, context));
-                        break;
-                    case EntityState.Modified:
-                        notifyList.AddRange(HandleModifiedEntity(className, entity.entity, context));
-                        break;
-                }
-            }
-            context.SaveChanges();
-            return notifyList.Distinct().ToArray();
-        }
-        private IEnumerable<int> HandleModifiedEntity(string className, EntityEntry entity, TmdbContext context)
-        {
-            return className switch
-            {
-                nameof(DBUser) => HandleModifiedUser((DBUser)entity.Entity, context),
-                nameof(DBChat) => HandleModifiedChat((DBChat)entity.Entity, context),
-                _ => [],
-            };
-        }
-
-
-        private IEnumerable<int> HandleAddedEntity(string className, EntityEntry entity, TmdbContext context)
-        {
-            return className switch
-            {
-                nameof(DBMessage) => HandleNewMessage((DBMessage)entity.Entity, context),
-                nameof(DBFriendRequest) => HandleNewFriendRequest((DBFriendRequest)entity.Entity, context),
-                nameof(DBFriend) => HandleNewFriend((DBFriend)entity.Entity, context),
-                nameof(DBChat) => HandleNewChat((DBChat)entity.Entity, context),
-                nameof(DBChatUser) => HandleNewChatMember((DBChatUser)entity.Entity, context),
-                _ => [],
-            };
-        }
-
-        private IEnumerable<int> HandleDeletedEntity(string className, EntityEntry entity, TmdbContext context)
-        {
-            return className switch
-            {
-                nameof(DBFriend) => HandleRemovedFriend((DBFriend)entity.Entity, context),
-                nameof(DBUnreadMessage) => HandleMessageRead((DBUnreadMessage)entity.Entity, context),
-                nameof(DBChatUser) => HandleRemovedChatMember((DBChatUser)entity.Entity, context),
-                _ => [],
-            };
-        }
-
-        private IEnumerable<int> HandleModifiedChat(DBChat entity, TmdbContext context)
+        public static IEnumerable<int> HandleModifiedChat(DBChat entity, TmdbContext context)
         {
             var usersToNotify = GetUsersForChatUpdate(entity.Id, context);
             UpdateChatForUsers(entity.Id, usersToNotify, context);
             return usersToNotify;
         }
-
-        private IEnumerable<int> HandleModifiedUser(DBUser user, TmdbContext context)
+        public static IEnumerable<int> HandleModifiedUser(DBUser user, TmdbContext context)
         {
 
             user = context.Users.Include(u => u.FriendsTwo).ThenInclude(f => f.Sender)
@@ -120,20 +43,19 @@ namespace TMServer.DataBase
             return result;
         }
 
-
-        private IEnumerable<int> HandleRemovedFriend(DBFriend entity, TmdbContext context)
+        public static IEnumerable<int> HandleRemovedFriend(DBFriend entity, TmdbContext context)
         {
             UpdateFriendList(false, entity.SenderId, entity.DestId, context);
             UpdateFriendList(false, entity.DestId, entity.SenderId, context);
             return [entity.DestId, entity.SenderId];
         }
-        private IEnumerable<int> HandleNewFriend(DBFriend entity, TmdbContext context)
+        public static IEnumerable<int> HandleNewFriend(DBFriend entity, TmdbContext context)
         {
             UpdateFriendList(true, entity.SenderId, entity.DestId, context);
             UpdateFriendList(true, entity.DestId, entity.SenderId, context);
             return [entity.DestId, entity.SenderId];
         }
-        private void UpdateFriendList(bool isAdded, int userId, int friendId, TmdbContext context)
+        public static void UpdateFriendList(bool isAdded, int userId, int friendId, TmdbContext context)
         {
             var update = context.FriendListUpdates.Where(f => f.UserId == userId && f.FriendId == friendId)
                                                   .SingleOrDefault();
@@ -145,7 +67,7 @@ namespace TMServer.DataBase
             });
         }
 
-        private IEnumerable<int> HandleNewFriendRequest(DBFriendRequest entity, TmdbContext context)
+        public static IEnumerable<int> HandleNewFriendRequest(DBFriendRequest entity, TmdbContext context)
         {
             context.FriendRequestUpdates.Add(new DBFriendRequestUpdate()
             {
@@ -154,7 +76,7 @@ namespace TMServer.DataBase
             });
             return [entity.ReceiverId];
         }
-        private IEnumerable<int> HandleNewMessage(DBMessage message, TmdbContext context)
+        public static IEnumerable<int> HandleNewMessage(DBMessage message, TmdbContext context)
         {
             var chatMembers = context.Chats.Include(c => c.Members)
                                            .First(c => c.Id == message.DestinationId)
@@ -170,7 +92,7 @@ namespace TMServer.DataBase
                     });
             return chatMembers;
         }
-        private IEnumerable<int> HandleMessageRead(DBUnreadMessage message, TmdbContext context)
+        public static IEnumerable<int> HandleMessageRead(DBUnreadMessage message, TmdbContext context)
         {
             context.MessageStatusUpdates.Add(new DBMessageStatusUpdate()
             {
@@ -180,17 +102,16 @@ namespace TMServer.DataBase
             return [message.UserId];
         }
 
-        private IEnumerable<int> HandleNewChatMember(DBChatUser entity, TmdbContext context)
+        public static IEnumerable<int> HandleNewChatMember(DBChatUser entity, TmdbContext context)
         {
             return UpdateChatMembers(context, entity.ChatId, entity.UserId, true);
         }
-        private IEnumerable<int> HandleRemovedChatMember(DBChatUser entity, TmdbContext context)
+        public static IEnumerable<int> HandleRemovedChatMember(DBChatUser entity, TmdbContext context)
         {
             return UpdateChatMembers(context, entity.ChatId, entity.UserId, false);
         }
 
-
-        private IEnumerable<int> UpdateChatMembers(TmdbContext context, int chatId, int userId, bool isAdded)
+        public static IEnumerable<int> UpdateChatMembers(TmdbContext context, int chatId, int userId, bool isAdded)
         {
             context.ChatListUpdates.Add(new DBChatListUpdate()
             {
@@ -203,7 +124,7 @@ namespace TMServer.DataBase
             usersToNotify.Add(userId);
             return usersToNotify;
         }
-        private List<int> GetUsersForChatUpdate(int chatId, TmdbContext context)
+        public static List<int> GetUsersForChatUpdate(int chatId, TmdbContext context)
         {
             var usersToNotify = new List<int>();
             usersToNotify.AddRange(context.Chats.Include(c => c.Members)
@@ -215,7 +136,7 @@ namespace TMServer.DataBase
 
             return usersToNotify;
         }
-        private void UpdateChatForUsers(int chatId, IEnumerable<int> userIds, TmdbContext context)
+        public static void UpdateChatForUsers(int chatId, IEnumerable<int> userIds, TmdbContext context)
         {
             foreach (var member in userIds)
             {
@@ -227,8 +148,7 @@ namespace TMServer.DataBase
             }
         }
 
-
-        private IEnumerable<int> HandleNewChat(DBChat chat, TmdbContext context)
+        public static IEnumerable<int> HandleNewChat(DBChat chat, TmdbContext context)
         {
             var members = chat.Members;
             foreach (var member in members)
@@ -241,9 +161,14 @@ namespace TMServer.DataBase
             return members.Select(m => m.Id);
         }
 
-        private void NotifyUser(int id)
+        public static IEnumerable<int> HandleNewChatInvite(DBChatInvite invite, TmdbContext context)
         {
-            UpdateForUser?.Invoke(null, id);
+            context.ChatInviteUpdates.Add(new DBChatInviteUpdate()
+            {
+                ChatInviteId = invite.Id,
+                UserId = invite.ToUserId,
+            });
+            return [invite.ToUserId];
         }
     }
 }

@@ -67,7 +67,7 @@ namespace TMServer.DataBase.Interaction
                    !isAlreadyInvited && !isUserInChat && isFriends;
         }
 
-        public static bool IsHaveAccessToInvite(int inviteId, int userId)
+        public static bool IsInviteExist(int inviteId, int userId)
         {
             using var db = new TmdbContext();
 

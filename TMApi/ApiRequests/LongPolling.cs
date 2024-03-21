@@ -10,6 +10,7 @@ namespace TMApi.ApiRequests
 
         public event EventHandler<int[]>? NewMessages;
         public event EventHandler<int[]>? MessagesReaded;
+        public event EventHandler<int[]>? NewChatInivites;
         public event EventHandler<int[]>? NewFriendRequests;
         public event EventHandler<int[]>? NewChats;
         public event EventHandler<int[]>? RemovedChats;
@@ -93,6 +94,9 @@ namespace TMApi.ApiRequests
 
             if (notification.RelatedUserChangedIds.Length > 0)
                 RelatedUsersChanged?.Invoke(this, notification.RelatedUserChangedIds);
+
+            if(notification.ChatInviteIds.Length > 0)
+                NewChatInivites?.Invoke(this, notification.ChatInviteIds);
         }
     }
 }

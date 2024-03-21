@@ -16,12 +16,13 @@ namespace TMServer.RequestHandlers
                 return null;
 
             var members = new List<int>(request.Data.Members);
-            members.Insert(0, request.UserId);;
+            members.Insert(0, request.UserId); ;
 
             if (members.Count < 2 || !DataConstraints.IsNameLegal(request.Data.ChatName))
                 return null;
 
             var chat = Chats.CreateChat(request.Data.ChatName, members.ToArray());
+            Messages.AddSystemMessage(chat.Id, request.UserId, ActionKind.ChatCreated);
             return DbConverter.Convert(chat, 0);
         }
 
@@ -49,8 +50,14 @@ namespace TMServer.RequestHandlers
 
         public static void ChatInviteResponse(ApiData<ResponseToInvite> request)
         {
-            if (Security.IsHaveAccessToInvite(request.Data.InviteId, request.UserId))
-                Chats.InviteResponse(request.Data.InviteId, request.UserId, request.Data.IsAccepted);
+            if (!Security.IsInviteExist(request.Data.InviteId, request.UserId))
+                return;
+
+            var invite = Chats.RemoveInvite(request.Data.InviteId);
+            if (!request.Data.IsAccepted)
+                return;
+            Chats.AddUserToChat(request.UserId, invite.ChatId);
+            Messages.AddSystemMessage(invite.ChatId, request.UserId, ActionKind.UserEnter);
         }
 
         public static IntArrayContainer? GetAllChatInvites(ApiData<InviteRequestAll> request)

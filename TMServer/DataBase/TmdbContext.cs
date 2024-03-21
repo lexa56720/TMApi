@@ -2,12 +2,13 @@
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using TMServer.DataBase.Tables;
 using TMServer.DataBase.Tables.LongPolling;
+using TMServer.RequestHandlers;
 
 namespace TMServer.DataBase;
 
 public partial class TmdbContext : DbContext
 {
-    public static DBChangeHandler ChangeHandler { get; private set; } = new DBChangeHandler();
+    public static ChangeHandler ChangeHandler { get; private set; } = new ChangeHandler();
 
     public TmdbContext()
     {
@@ -331,7 +332,8 @@ public partial class TmdbContext : DbContext
 
             entity.HasOne(e => e.Target)
                   .WithMany()
-                  .HasForeignKey(e => e.TargetId);
+                  .HasForeignKey(e => e.TargetId)
+                  .IsRequired(false);
 
             entity.HasOne(e => e.Executor)
                   .WithMany()

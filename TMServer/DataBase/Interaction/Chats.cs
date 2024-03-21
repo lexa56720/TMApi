@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel;
 using System.Linq;
 using TMServer.DataBase.Tables;
 
@@ -92,6 +93,25 @@ namespace TMServer.DataBase.Interaction
                     chat.Members.Add(user);
             }
             db.ChatInvites.Remove(invite);
+            db.SaveChanges(true);
+        }
+        public static DBChatInvite? RemoveInvite(int inviteId)
+        {
+            using var db = new TmdbContext();
+            var invite = db.ChatInvites.SingleOrDefault(i => i.Id == inviteId);
+            if (invite != null)
+                db.ChatInvites.Remove(invite);
+            db.SaveChanges();
+            return invite;
+        }
+        public static void AddUserToChat(int userId, int chatId)
+        {
+            using var db = new TmdbContext();
+
+            var user = db.Users.SingleOrDefault(u => u.Id == userId);
+            var chat = db.Chats.SingleOrDefault(c => c.Id == chatId);
+            if (user != null && chat != null)
+                chat.Members.Add(user);
             db.SaveChanges(true);
         }
 

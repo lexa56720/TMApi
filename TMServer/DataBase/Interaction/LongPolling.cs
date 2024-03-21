@@ -86,6 +86,7 @@ namespace TMServer.DataBase.Interaction
             db.MessageStatusUpdates.Where(u => u.UserId == userId).ExecuteDelete();
             db.FriendRequestUpdates.Where(fr => fr.UserId == userId).ExecuteDelete();
             db.ChatListUpdates.Where(c => c.UserId == userId).ExecuteDelete();
+            db.ChatInviteUpdates.Where(c => c.UserId == userId).ExecuteDelete();
             db.ChatUpdates.Where(c => c.UserId == userId).ExecuteDelete();
             db.UserProfileUpdates.Where(p => p.UserId == userId).ExecuteDelete();
             db.FriendListUpdates.Where(fl => fl.UserId == userId).ExecuteDelete();
@@ -97,6 +98,7 @@ namespace TMServer.DataBase.Interaction
             ExecuteDeleteByIds(db.NewMessageUpdates, info.NewMessages);
             ExecuteDeleteByIds(db.MessageStatusUpdates, info.ReadedMessages);
             ExecuteDeleteByIds(db.ChatUpdates, info.ChatsChanged);
+            ExecuteDeleteByIds(db.ChatInviteUpdates, info.ChatInvites);
             ExecuteDeleteByIds(db.FriendRequestUpdates, info.FriendRequests);
             ExecuteDeleteByIds(db.ChatListUpdates, info.ChatListUpdates);
             ExecuteDeleteByIds(db.UserProfileUpdates, info.RelatedUsersChanged);
