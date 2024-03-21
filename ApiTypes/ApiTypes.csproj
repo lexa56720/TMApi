@@ -7,10 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-	  <ProjectReference Include="..\..\AutoSerializer\SourceGenerator\SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Reference Include="AutoSerializer">
       <HintPath>Lib\AutoSerializer.dll</HintPath>
     </Reference>
@@ -20,6 +16,7 @@
     <Reference Include="Open.Nat">
       <HintPath>Lib\Open.Nat.dll</HintPath>
     </Reference>
+	  <Analyzer Include="Lib\AutoSerializerSourceGenerator.dll" />
   </ItemGroup>
 
   <ItemGroup>
