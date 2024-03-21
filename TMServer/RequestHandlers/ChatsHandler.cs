@@ -16,13 +16,12 @@ namespace TMServer.RequestHandlers
                 return null;
 
             var members = new List<int>(request.Data.Members);
-            members.Insert(0, request.UserId);
-            var chatMembers = members.Distinct().ToArray();
+            members.Insert(0, request.UserId);;
 
-            if (chatMembers.Length < 2 || !DataConstraints.IsNameLegal(request.Data.ChatName))
+            if (members.Count < 2 || !DataConstraints.IsNameLegal(request.Data.ChatName))
                 return null;
 
-            var chat = Chats.CreateChat(request.Data.ChatName, chatMembers);
+            var chat = Chats.CreateChat(request.Data.ChatName, members.ToArray());
             return DbConverter.Convert(chat, 0);
         }
 

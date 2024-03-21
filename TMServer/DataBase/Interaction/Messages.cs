@@ -23,7 +23,7 @@ namespace TMServer.DataBase.Interaction
 
             return message;
         }
-        public static void AddSystemMessage(int chatId, int executorId, ActionKind kind,params int[] targetIds)
+        public static void AddSystemMessage(int chatId, int executorId, ActionKind kind, params int[] targetIds)
         {
             using var db = new TmdbContext();
             foreach (var targetId in targetIds)
@@ -70,6 +70,7 @@ namespace TMServer.DataBase.Interaction
             using var db = new TmdbContext();
 
             return db.Messages
+                .Include(m => m.Action)
                 .Where(m => m.DestinationId == chatId)
                 .OrderByDescending(m => m.SendTime)
                 .ThenByDescending(m => m.Id)
@@ -81,7 +82,9 @@ namespace TMServer.DataBase.Interaction
         {
             using var db = new TmdbContext();
 
-            return chatId.Select(id => db.Messages.Where(m => m.DestinationId == id).AsEnumerable().MaxBy(m => m.Id))
+            return chatId.Select(id => db.Messages.Where(m => m.DestinationId == id && !m.IsSystem)
+                                                  .AsEnumerable()
+                                                  .MaxBy(m => m.Id))
                          .Where(m => m != null)
                          .ToArray();
         }
@@ -89,24 +92,24 @@ namespace TMServer.DataBase.Interaction
         {
             using var db = new TmdbContext();
 
-            return db.Messages
-                .Where(m => m.DestinationId == chatId)
-                .OrderByDescending(m => m.SendTime)
-                .ThenByDescending(m => m.Id)
-                .Where(m => m.Id < lastMessageId)
-                .Skip(offset)
-                .Take(count)
-                .ToArray();
+            return db.Messages.Include(m => m.Action)
+                              .Where(m => m.DestinationId == chatId)
+                              .OrderByDescending(m => m.SendTime)
+                              .ThenByDescending(m => m.Id)
+                              .Where(m => m.Id < lastMessageId)
+                              .Skip(offset)
+                              .Take(count)
+                              .ToArray();
         }
         public static DBMessage[] GetMessages(int[] ids)
         {
             using var db = new TmdbContext();
 
-            return db.Messages
-                .OrderByDescending(m => m.SendTime)
-                .ThenByDescending(m => m.Id)
-                .Where(m => ids.Contains(m.Id))
-                .ToArray();
+            return db.Messages.Include(m => m.Action)
+                              .OrderByDescending(m => m.SendTime)
+                              .ThenByDescending(m => m.Id)
+                              .Where(m => ids.Contains(m.Id))
+                              .ToArray();
         }
         public static bool ReadAllInChat(int userId, int chatId)
         {
@@ -114,9 +117,8 @@ namespace TMServer.DataBase.Interaction
             //Чтение всех собщений в чате для юзера userId и отметка о прочитке собщений их авторам 
             var messsagesToMark =
                 db.UnreadMessages.Include(um => um.Message)
-                                   .Where(um => um.Message.DestinationId == chatId &&
-                                          ((um.UserId == userId && um.UserId != um.Message.AuthorId) ||
-                                          (um.UserId == um.Message.AuthorId)));
+                                 .Where(um => um.Message.DestinationId == chatId && userId != um.Message.AuthorId &&
+                                       (um.UserId == userId || um.UserId == um.Message.AuthorId));
 
             db.UnreadMessages.RemoveRange(messsagesToMark);
             return db.SaveChanges(true) > 0;

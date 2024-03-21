@@ -71,7 +71,7 @@ namespace TMServer.DataBase.Interaction
         {
             using var db = new TmdbContext();
 
-            return db.ChatInvites.Any(i => (i.ToUserId == userId || i.InviterId == userId) && i.Id == inviteId);   
+            return db.ChatInvites.Any(i => (i.ToUserId == userId || i.InviterId == userId) && i.Id == inviteId);
         }
         public static bool IsCanCreateChat(int userId, int[] memberIds)
         {
@@ -80,12 +80,10 @@ namespace TMServer.DataBase.Interaction
                                .Include(u => u.FriendsOne).ThenInclude(f => f.Receiver)
                                .SingleOrDefault(u => u.Id == userId);
 
-            if (user == null)
+            var frinendsId = user?.GetFriends().Select(f=>f.Id);
+            if (user == null || memberIds.Distinct().Count() != memberIds.Length ||
+                memberIds.Contains(userId) || !memberIds.All(f => frinendsId.Contains(f)))
                 return false;
-
-            for (int i = 0; i < memberIds.Length; i++)
-                if (!user.GetFriends().Any(u => u.Id == memberIds[i]))
-                    return false;
 
             return true;
         }

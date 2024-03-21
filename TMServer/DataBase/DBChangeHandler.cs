@@ -158,16 +158,16 @@ namespace TMServer.DataBase
         {
             var chatMembers = context.Chats.Include(c => c.Members)
                                            .First(c => c.Id == message.DestinationId)
-                                           .Members.Select(m => m.Id)
-                                           .Where(id => id != message.AuthorId);
+                                           .Members.Select(m => m.Id);
 
             //Добавление уведомлений в бд
             foreach (var member in chatMembers)
-                context.NewMessageUpdates.Add(new DBNewMessageUpdate()
-                {
-                    MessageId = message.Id,
-                    UserId = member
-                });
+                if (message.IsSystem || member != message.AuthorId)
+                    context.NewMessageUpdates.Add(new DBNewMessageUpdate()
+                    {
+                        MessageId = message.Id,
+                        UserId = member
+                    });
             return chatMembers;
         }
         private IEnumerable<int> HandleMessageRead(DBUnreadMessage message, TmdbContext context)
@@ -199,11 +199,11 @@ namespace TMServer.DataBase
                 UserId = userId,
             });
             var usersToNotify = GetUsersForChatUpdate(chatId, context);
-            UpdateChatForUsers(chatId,usersToNotify,context);
+            UpdateChatForUsers(chatId, usersToNotify, context);
             usersToNotify.Add(userId);
             return usersToNotify;
         }
-        private List<int> GetUsersForChatUpdate(int chatId,TmdbContext context)
+        private List<int> GetUsersForChatUpdate(int chatId, TmdbContext context)
         {
             var usersToNotify = new List<int>();
             usersToNotify.AddRange(context.Chats.Include(c => c.Members)

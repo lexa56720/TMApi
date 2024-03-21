@@ -28,6 +28,7 @@ namespace TMClient
             await mudakApi.Friends.ResponseFriendRequest(3, true);
 
             Console.WriteLine("done");
+            Console.ReadLine();
         }
 
         private static async Task Register(ApiProvider apiProvider)
