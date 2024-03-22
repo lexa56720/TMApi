@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using ApiTypes.Communication.Messages;
+using CSDTP.Requests;
+using Microsoft.EntityFrameworkCore;
 using System.ComponentModel;
 using System.Linq;
 using TMServer.DataBase.Tables;
@@ -23,6 +25,7 @@ namespace TMServer.DataBase.Interaction
                 if (user != null)
                     chat.Members.Add(user);
             }
+            Messages.AddSystemMessage(chat.Id, usersId[0], ActionKind.ChatCreated, db);
             db.SaveChanges(true);
             return chat;
         }
@@ -37,6 +40,8 @@ namespace TMServer.DataBase.Interaction
                     InviterId = inviterId,
                     ToUserId = userId,
                 });
+
+            Messages.AddSystemMessage(chatId, inviterId, ActionKind.UserInvite, userIds, db);
             db.SaveChanges(true);
         }
 
@@ -112,9 +117,23 @@ namespace TMServer.DataBase.Interaction
             var chat = db.Chats.SingleOrDefault(c => c.Id == chatId);
             if (user != null && chat != null)
                 chat.Members.Add(user);
+
+            Messages.AddSystemMessage(chatId, userId, ActionKind.UserEnter, db);
             db.SaveChanges(true);
         }
 
+        public static bool LeaveChat(int userId, int chatId)
+        {
+            using var db = new TmdbContext();
+
+            var chat = db.Chats.Include(c => c.Members)
+                               .Where(i => i.Id == chatId)
+                               .Single();
+
+            chat.Members.Remove(chat.Members.Single(m => m.Id == userId));
+            Messages.AddSystemMessage(chatId, userId, ActionKind.UserLeave, db);
+            return db.SaveChanges(true) > 0;
+        }
         public static int[] GetAllChatInvites(int userId)
         {
             using var db = new TmdbContext();

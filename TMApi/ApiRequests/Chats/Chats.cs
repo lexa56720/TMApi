@@ -52,7 +52,7 @@ namespace TMApi.ApiRequests.Chats
         }
         public async Task<bool> SendChatInvite(int chatId, params int[] toUserIds)
         {
-            if(toUserIds.Length==0)
+            if (toUserIds.Length == 0)
                 return false;
             return await Requester.ApiSendAsync(new InviteToChatRequest(chatId, toUserIds.Distinct().ToArray()));
         }
@@ -74,6 +74,11 @@ namespace TMApi.ApiRequests.Chats
             if (chats == null)
                 return [];
             return chats.Values;
+        }
+
+        public async Task<bool> LeaveChat(int chatId)
+        {
+            return await Requester.ApiSendAsync(new ChatLeaveRequest(chatId));
         }
     }
 }

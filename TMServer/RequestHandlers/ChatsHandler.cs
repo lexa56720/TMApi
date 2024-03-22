@@ -22,7 +22,6 @@ namespace TMServer.RequestHandlers
                 return null;
 
             var chat = Chats.CreateChat(request.Data.ChatName, members.ToArray());
-            Messages.AddSystemMessage(chat.Id, request.UserId, ActionKind.ChatCreated);
             return DbConverter.Convert(chat, 0);
         }
 
@@ -57,20 +56,19 @@ namespace TMServer.RequestHandlers
             if (!request.Data.IsAccepted)
                 return;
             Chats.AddUserToChat(request.UserId, invite.ChatId);
-            Messages.AddSystemMessage(invite.ChatId, request.UserId, ActionKind.UserEnter);
         }
 
         public static IntArrayContainer? GetAllChatInvites(ApiData<InviteRequestAll> request)
         {
             return new IntArrayContainer(Chats.GetAllChatInvites(request.UserId));
         }
+
         public static void RegisterChatInvite(ApiData<InviteToChatRequest> request)
         {
             if (!Security.IsCanInviteToChat(request.UserId, request.Data.UserIds, request.Data.ChatId))
                 return;
 
             Chats.InviteToChat(request.UserId, request.Data.ChatId, request.Data.UserIds);
-            Messages.AddSystemMessage(request.Data.ChatId, request.UserId, ActionKind.UserInvite, request.Data.UserIds);
         }
 
         public static IntArrayContainer? GetAllChats(ApiData<ChatRequestAll> request)
@@ -79,6 +77,15 @@ namespace TMServer.RequestHandlers
             if (chats.Length == 0)
                 return new IntArrayContainer();
             return new IntArrayContainer(chats.Select(c => c.Id).ToArray());
+        }
+
+        internal static void LeaveChat(ApiData<ChatLeaveRequest> request)
+        {
+            if (!Security.IsMemberOfChat(request.UserId, request.Data.ChatId))
+                return;
+
+            Chats.LeaveChat(request.UserId, request.Data.ChatId);
+
         }
     }
 }

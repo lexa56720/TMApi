@@ -23,9 +23,8 @@ namespace TMServer.DataBase.Interaction
 
             return message;
         }
-        public static void AddSystemMessage(int chatId, int executorId, ActionKind kind, IEnumerable<int> targetIds)
+        public static void AddSystemMessage(int chatId, int executorId, ActionKind kind, IEnumerable<int> targetIds, TmdbContext db)
         {
-            using var db = new TmdbContext();
             foreach (var targetId in targetIds)
             {
                 var message = new DBMessage()
@@ -46,11 +45,9 @@ namespace TMServer.DataBase.Interaction
                 db.Messages.Add(message);
                 db.MessageActions.Add(action);
             }
-            db.SaveChanges(true);
         }
-        public static void AddSystemMessage(int chatId, int executorId, ActionKind kind)
+        public static void AddSystemMessage(int chatId, int executorId, ActionKind kind, TmdbContext db)
         {
-            using var db = new TmdbContext();
             var message = new DBMessage()
             {
                 AuthorId = executorId,
@@ -68,7 +65,6 @@ namespace TMServer.DataBase.Interaction
             };
             db.Messages.Add(message);
             db.MessageActions.Add(action);
-            db.SaveChanges(true);
         }
         public static bool AddToUnread(int messageId, int chatId)
         {

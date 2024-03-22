@@ -68,7 +68,7 @@ namespace TMServer.ServerComponent.LongPolling
         }
         public void RespondOnSaved(int userId)
         {
-            if (!Requests.TryGetValue(userId, out var packet))
+            if (!Requests.TryRemove(userId, out var packet))
                 return;
 
             Responder.ResponseManually(packet, GetNotification(userId));

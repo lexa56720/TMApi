@@ -110,7 +110,6 @@ namespace TMServer.DataBase.Interaction
         {
             return UpdateChatMembers(context, entity.ChatId, entity.UserId, false);
         }
-
         public static IEnumerable<int> UpdateChatMembers(TmdbContext context, int chatId, int userId, bool isAdded)
         {
             context.ChatListUpdates.Add(new DBChatListUpdate()
@@ -124,6 +123,8 @@ namespace TMServer.DataBase.Interaction
             usersToNotify.Add(userId);
             return usersToNotify;
         }
+
+
         public static List<int> GetUsersForChatUpdate(int chatId, TmdbContext context)
         {
             var usersToNotify = new List<int>();
@@ -138,12 +139,12 @@ namespace TMServer.DataBase.Interaction
         }
         public static void UpdateChatForUsers(int chatId, IEnumerable<int> userIds, TmdbContext context)
         {
-            foreach (var member in userIds)
+            foreach (var userId in userIds)
             {
                 context.ChatUpdates.Add(new DBChatUpdate()
                 {
                     ChatId = chatId,
-                    UserId = member,
+                    UserId = userId,
                 });
             }
         }

@@ -100,6 +100,8 @@ namespace TMServer.Servers
             ApiServer.RegisterDataHandler<ResponseToInvite>(ChatsHandler.ChatInviteResponse);
             ApiServer.RegisterRequestHandler<InviteRequestAll, IntArrayContainer>(ChatsHandler.GetAllChatInvites);
             ApiServer.RegisterRequestHandler<ChatRequestAll, IntArrayContainer>(ChatsHandler.GetAllChats);
+
+            ApiServer.RegisterDataHandler<ChatLeaveRequest>(ChatsHandler.LeaveChat);
         }
 
         private void RegisterLongPollMethods()
