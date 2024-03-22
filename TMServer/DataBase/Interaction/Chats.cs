@@ -131,6 +131,16 @@ namespace TMServer.DataBase.Interaction
                                .Single();
 
             chat.Members.Remove(chat.Members.Single(m => m.Id == userId));
+
+            if (chat.AdminId == userId)
+            {
+                var newAdmin = chat.Members.FirstOrDefault();
+                if (newAdmin != null)
+                    chat.AdminId = newAdmin.Id;
+              //  else
+                  //  db.Chats.Remove(chat);
+            }
+
             Messages.AddSystemMessage(chatId, userId, ActionKind.UserLeave, db);
             return db.SaveChanges(true) > 0;
         }
