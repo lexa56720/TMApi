@@ -64,6 +64,7 @@ namespace TMServer.DataBase.Interaction
                 ExecutorId = executorId,
                 Kind = kind,
                 Message = message,
+                TargetId=null,
             };
             db.Messages.Add(message);
             db.MessageActions.Add(action);

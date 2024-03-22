@@ -325,7 +325,8 @@ public partial class TmdbContext : DbContext
                   .HasColumnName("executor_id");
 
             entity.Property(e => e.TargetId)
-                  .HasColumnName("target_id");
+                  .HasColumnName("target_id")
+                  .IsRequired(false);
 
             entity.Property(e => e.Kind)
                   .HasColumnName("kind");

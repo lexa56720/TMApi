@@ -18,11 +18,12 @@ namespace TMApi
 
     internal class RequestSender : IDisposable
     {
-        public  int AuthPort { get; init; }
 
-        public  int ApiPort { get; init; }
+        public int AuthPort { get; init; }
 
-        public  int LongPollPort { get; init; }
+        public int ApiPort { get; init; }
+
+        public int LongPollPort { get; init; }
 
         public IPAddress Server { get; init; }
 
@@ -30,17 +31,21 @@ namespace TMApi
 
         public int UserId { get; internal set; }
 
-        private Requester LongPollRequester { get; set; }
-        private Requester Requester { get; set; }
+        private readonly int CryptId;
 
-        private TimeSpan Timeout => TimeSpan.FromSeconds(15);
 
-        public RequestSender(IPAddress server,int authPort,int apiPort,int longPollPort,RequestKind kind, IEncrypter encrypter, IEncrypter decrypter)
+        private readonly Requester LongPollRequester;
+        private readonly Requester Requester;
+
+        private readonly TimeSpan Timeout = TimeSpan.FromSeconds(15);
+
+        public RequestSender(IPAddress server, int authPort, int apiPort, int longPollPort, RequestKind kind, IEncrypter encrypter, IEncrypter decrypter, int cryptId)
         {
-            Server=server;
+            Server = server;
             AuthPort = authPort;
             ApiPort = apiPort;
             LongPollPort = longPollPort;
+            CryptId = cryptId;
             Requester = RequesterFactory.Create(new IPEndPoint(Server, GetPort(kind)),
                                                 new SimpleEncryptProvider(encrypter, decrypter),
                                                 typeof(TMPacket<>));
@@ -51,12 +56,13 @@ namespace TMApi
                                                         CSDTP.Protocols.Protocol.Udp);
         }
 
-        public RequestSender(IPAddress server, int authPort, int apiPort, int longPollPort, RequestKind kind)
+        public RequestSender(IPAddress server, int authPort, int apiPort, int longPollPort, RequestKind kind, int cryptId)
         {
             Server = server;
             AuthPort = authPort;
             ApiPort = apiPort;
             LongPollPort = longPollPort;
+            CryptId = cryptId;
             Requester = RequesterFactory.Create(new IPEndPoint(Server, GetPort(kind)), typeof(TMPacket<>));
             LongPollRequester = RequesterFactory.Create(new IPEndPoint(Server, GetPort(RequestKind.LongPoll)),
                                                         typeof(TMPacket<>),
@@ -74,10 +80,12 @@ namespace TMApi
                                       where TResponse : ISerializable<TResponse>, new()
                                       where TRequest : ISerializable<TRequest>, new()
         {
+            IdHolder.Value = CryptId;
             return await Requester.RequestAsync<TResponse, TRequest>(data, Timeout);
         }
         public async Task<bool> SendAsync<TRequest>(TRequest data) where TRequest : ISerializable<TRequest>, new()
         {
+            IdHolder.Value = CryptId;
             return await Requester.SendAsync(data);
         }
 
@@ -85,20 +93,23 @@ namespace TMApi
                                       where TResponse : ISerializable<TResponse>, new()
                                       where TRequest : ISerializable<TRequest>, new()
         {
+            IdHolder.Value = CryptId;
             return await Requester.RequestAsync<TResponse, ApiData<TRequest>>
                          (new ApiData<TRequest>(Token, UserId, data, IdHolder.Value), Timeout);
         }
         public async Task<bool> ApiSendAsync<TData>(TData data) where TData : ISerializable<TData>, new()
         {
+            IdHolder.Value = CryptId;
             return await Requester.SendAsync(new ApiData<TData>(Token, UserId, data, IdHolder.Value));
         }
 
-        public async Task<TResponse?> LongPollAsync<TResponse, TRequest>(TRequest data, TimeSpan timeout,CancellationToken token)
+        public async Task<TResponse?> LongPollAsync<TResponse, TRequest>(TRequest data, TimeSpan timeout, CancellationToken token)
                                       where TResponse : ISerializable<TResponse>, new()
                                       where TRequest : ISerializable<TRequest>, new()
         {
+            IdHolder.Value = CryptId;
             return await LongPollRequester.RequestAsync<TResponse, ApiData<TRequest>>
-                         (new ApiData<TRequest>(Token, UserId, data, IdHolder.Value), timeout,token);
+                         (new ApiData<TRequest>(Token, UserId, data, IdHolder.Value), timeout, token);
         }
 
         private int GetPort(RequestKind kind)

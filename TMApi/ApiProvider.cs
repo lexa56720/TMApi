@@ -35,7 +35,7 @@ namespace TMApi
 
         public async Task<int> GetVersion()
         {
-            using var uncryptRequester = new RequestSender(Server, AuthPort, ApiPort, LongPollPort, RequestKind.Auth);
+            using var uncryptRequester = new RequestSender(Server, AuthPort, ApiPort, LongPollPort, RequestKind.Auth,0);
             var version = await uncryptRequester.RequestAsync<IntContainer, VersionRequest>
                 (new VersionRequest());
 
@@ -45,14 +45,14 @@ namespace TMApi
         }
         public async Task<Api?> GetApiRegistration(string username, string login, string password)
         {
-            IdHolder.Value = 0;
             var coderDecoder = await GetCoderDecoder();
             if (coderDecoder == null)
                 return null;
             using var inputDecoder = coderDecoder.Value.decoder;
             using var outputEncoder = coderDecoder.Value.encoder;
 
-            using var rsaRequester = new RequestSender(Server, AuthPort, ApiPort, LongPollPort, RequestKind.Auth, outputEncoder, inputDecoder);
+            using var rsaRequester = new RequestSender(Server, AuthPort, ApiPort, LongPollPort, RequestKind.Auth,
+                                                          outputEncoder, inputDecoder,coderDecoder.Value.cryptId);
 
 
             RegisterResponse? registerResult = await rsaRequester.RequestAsync<RegisterResponse, RegisterRequest>(new RegisterRequest()
@@ -64,27 +64,26 @@ namespace TMApi
 
 
             if (registerResult != null && registerResult.IsAccepted)
-                return await Login(login, password, inputDecoder, outputEncoder);
+                return await Login(login, password, inputDecoder, outputEncoder, coderDecoder.Value.cryptId);
 
             return null;
         }
 
         public async Task<Api?> GetApiLogin(string login, string password)
         {
-            IdHolder.Value = 0;
             var coderDecoder = await GetCoderDecoder();
             if (coderDecoder == null)
                 return null;
             using var inputDecoder = coderDecoder.Value.decoder;
             using var outputEncoder = coderDecoder.Value.encoder;
 
-            return await Login(login, password, inputDecoder, outputEncoder);
+            return await Login(login, password, inputDecoder, outputEncoder,coderDecoder.Value.cryptId);
         }
 
-        private async Task<Api?> Login(string login, string password, RsaEncrypter inputDecoder, RsaEncrypter outputEncoder)
+        private async Task<Api?> Login(string login, string password, RsaEncrypter inputDecoder, RsaEncrypter outputEncoder,int cryptId)
         {
             password = GetPasswordHash(password,login);
-            var rsaRequester = new RequestSender(Server, AuthPort, ApiPort, LongPollPort, RequestKind.Auth, outputEncoder, inputDecoder);
+            var rsaRequester = new RequestSender(Server, AuthPort, ApiPort, LongPollPort, RequestKind.Auth, outputEncoder, inputDecoder, cryptId);
 
             var authResult = await rsaRequester.RequestAsync<AuthorizationResponse, AuthorizationRequest>
                                                               (new AuthorizationRequest(login, password));
@@ -129,7 +128,7 @@ namespace TMApi
                 return api;
             return null;
         }
-        private async Task<(RsaEncrypter decoder, RsaEncrypter encoder)?> GetCoderDecoder()
+        private async Task<(RsaEncrypter decoder, RsaEncrypter encoder,int cryptId)?> GetCoderDecoder()
         {
             try
             {
@@ -138,9 +137,7 @@ namespace TMApi
                 var (publicKey, id) = await GetRsaKey(inputDecoder);
                 var outputEncoder = new RsaEncrypter(publicKey);
 
-                IdHolder.Value = id;
-
-                return (inputDecoder, outputEncoder);
+                return (inputDecoder, outputEncoder, id);
             }
             catch
             {
@@ -149,7 +146,7 @@ namespace TMApi
         }
         private async Task<(string publicKey, int id)> GetRsaKey(RsaEncrypter inputDecoder)
         {
-            using var uncryptRequester = new RequestSender(Server, AuthPort, ApiPort, LongPollPort, RequestKind.Auth);
+            using var uncryptRequester = new RequestSender(Server, AuthPort, ApiPort, LongPollPort, RequestKind.Auth, 0);
             var request = new RsaPublicKey(inputDecoder.PublicKey);
             var response = await uncryptRequester.RequestAsync<RsaPublicKey, RsaPublicKey>(request)
                 ?? throw new Exception("no response");

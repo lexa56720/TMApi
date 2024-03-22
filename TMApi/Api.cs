@@ -47,9 +47,7 @@ namespace TMApi
             Expiration = tokenTime;
             Encrypter = new AesEncrypter(aesKey);
 
-            IdHolder.Value = cryptId;
-
-            Requester = new RequestSender(server, authPort, apiPort, longPollPort, RequestKind.Request, Encrypter, Encrypter)
+            Requester = new RequestSender(server, authPort, apiPort, longPollPort, RequestKind.Request, Encrypter, Encrypter, cryptId)
             {
                 Token = token,
                 UserId = userId,

@@ -39,7 +39,7 @@ namespace TMServer.RequestHandlers
             if (dbMessage.IsSystem && dbMessage.Action != null)
                 return new Message(dbMessage.Id, dbMessage.AuthorId, dbMessage.DestinationId,
                                    dbMessage.Content, dbMessage.SendTime, isReaded, dbMessage.Action.Kind,
-                                   dbMessage.Action.ExecutorId, dbMessage.Action.TargetId);
+                                   dbMessage.Action.ExecutorId, dbMessage.Action.TargetId == null ? -1 : dbMessage.Action.TargetId.Value);
             else
                 return new Message(dbMessage.Id, dbMessage.AuthorId, dbMessage.DestinationId,
                                    dbMessage.Content, dbMessage.SendTime, isReaded);

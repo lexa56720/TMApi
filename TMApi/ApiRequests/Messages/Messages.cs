@@ -13,7 +13,7 @@ namespace TMApi.ApiRequests.Messages
         {
         }
 
-        public async Task<Message[]> GetMessages(int chatId, int count, int offset)
+        public async Task<Message[]> GetMessagesByOffset(int chatId, int count, int offset)
         {
             var messages = await Requester.ApiRequestAsync<MessageHistoryResponse, LastMessagesRequest>(new LastMessagesRequest(chatId, offset, count));
             if (messages == null)
@@ -21,9 +21,10 @@ namespace TMApi.ApiRequests.Messages
 
             return messages.Messages;
         }
-        public async Task<Message[]> GetMessages(int chatId, int fromMessageId)
+        public async Task<Message[]> GetMessages(int chatId, int fromMessageId,int count)
         {
-            var messages = await Requester.ApiRequestAsync<MessageHistoryResponse, MessageHistoryRequest>(new MessageHistoryRequest(chatId, fromMessageId));
+            var messages = await Requester.ApiRequestAsync<MessageHistoryResponse, MessageHistoryRequest>
+                (new MessageHistoryRequest(chatId, fromMessageId,count));
             if (messages == null)
                 return [];
 
