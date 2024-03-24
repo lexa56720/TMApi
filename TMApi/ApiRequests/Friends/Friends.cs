@@ -42,5 +42,10 @@ namespace TMApi.ApiRequests.Friends
         {
             return await Requester.ApiSendAsync(new FriendRequest(toId));
         }
+
+        public async Task<bool> RemoveFriend(int friendId)
+        {
+            return await Requester.ApiSendAsync(new FriendRemoveRequest(friendId));
+        }
     }
 }

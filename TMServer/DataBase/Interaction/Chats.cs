@@ -130,6 +130,9 @@ namespace TMServer.DataBase.Interaction
                                .Where(i => i.Id == chatId)
                                .Single();
 
+            if (chat.IsDialogue)
+                return false;
+
             chat.Members.Remove(chat.Members.Single(m => m.Id == userId));
 
             if (chat.AdminId == userId)
@@ -137,8 +140,8 @@ namespace TMServer.DataBase.Interaction
                 var newAdmin = chat.Members.FirstOrDefault();
                 if (newAdmin != null)
                     chat.AdminId = newAdmin.Id;
-              //  else
-                  //  db.Chats.Remove(chat);
+                else
+                    Chats.RemoveChat(chat.Id, db);
             }
 
             Messages.AddSystemMessage(chatId, userId, ActionKind.UserLeave, db);
@@ -150,6 +153,26 @@ namespace TMServer.DataBase.Interaction
             return db.ChatInvites.Where(i => i.ToUserId == userId)
                                  .Select(i => i.Id)
                                  .ToArray();
+        }
+
+        public static void RemoveChat(int chatId, TmdbContext? db)
+        {
+            bool needToDispose = false;
+            if (db == null)
+            {
+                db = new TmdbContext();
+                needToDispose = true;
+            }
+
+            db.Messages.Where(m => m.DestinationId == chatId).ExecuteDelete();
+            db.ChatInvites.Where(i => i.ChatId == chatId).ExecuteDelete();
+            db.Chats.Where(c => c.Id == chatId).ExecuteDelete();
+
+            if (needToDispose)
+            {
+                db.SaveChanges();
+                db.Dispose();
+            }
         }
     }
 }

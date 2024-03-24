@@ -46,10 +46,16 @@ namespace TMServer.RequestHandlers
                 Friends.RegisterFriends(dbRequest.SenderId, dbRequest.ReceiverId);
         }
 
-        public static IntArrayContainer? GetAllFriendRequests(ApiData<GetAllFriendRequests> userId)
+        public static IntArrayContainer? GetAllFriendRequests(ApiData<GetAllFriendRequests> request)
         {
-            return new IntArrayContainer(Friends.GetAllForUser(userId.UserId));
+            return new IntArrayContainer(Friends.GetAllForUser(request.UserId));
         }
 
+        internal static void RemoveFriend(ApiData<FriendRemoveRequest> request)
+        {
+            if (!Security.IsFriends(request.UserId, request.Data.FriendId))
+                return;
+            Friends.RemoveFriend(request.UserId, request.Data.FriendId);
+        }
     }
 }

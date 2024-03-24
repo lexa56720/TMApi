@@ -91,10 +91,10 @@ namespace TMServer.DataBase.Interaction
         public static bool IsFriendshipPossible(int fromId, int toId)
         {
             using var db = new TmdbContext();
-            return toId != fromId && !IsAlreadyFriends(fromId, toId) &&
+            return toId != fromId && !IsFriends(fromId, toId) &&
                    !db.FriendRequests.Any(r => r.SenderId == fromId && r.ReceiverId == toId);
         }
-        public static bool IsAlreadyFriends(int idOne, int idTwo)
+        public static bool IsFriends(int idOne, int idTwo)
         {
             using var db = new TmdbContext();
             return db.Friends.Any(f => (f.SenderId == idOne && f.DestId == idTwo)

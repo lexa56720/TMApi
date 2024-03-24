@@ -78,5 +78,19 @@ namespace TMServer.DataBase.Interaction
                                     .ToArray();
         }
 
+        public static bool RemoveFriend(int userId, int friendId)
+        {
+            using var db = new TmdbContext();
+            var friend = db.Friends.Single(f => (f.DestId == userId && f.SenderId == friendId) ||
+                                               (f.SenderId == userId && f.DestId == friendId));
+            db.Friends.Remove(friend);
+            var dialogue = db.Chats.Include(c => c.Members)
+                                   .Single(c => c.IsDialogue &&
+                                              (c.Members.ElementAt(0).Id == userId && c.Members.ElementAt(1).Id == friendId) ||
+                                              (c.Members.ElementAt(1).Id == userId && c.Members.ElementAt(0).Id == friendId));
+
+            Chats.RemoveChat(dialogue.Id, db);
+            return db.SaveChanges(true) > 0;
+        }
     }
 }

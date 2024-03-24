@@ -254,7 +254,7 @@ public partial class TmdbContext : DbContext
 
             entity.HasOne(e => e.DestinationUser)
                   .WithMany()
-                  .HasForeignKey(i => i.ToUserId);
+                  .HasForeignKey(i => i.ToUserId) ;
         });
         modelBuilder.Entity<DBFriendRequest>(entity =>
         {

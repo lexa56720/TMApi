@@ -90,6 +90,7 @@ namespace TMServer.Servers
             ApiServer.RegisterDataHandler<FriendRequest>(FriendsHandler.AddFriendRequest);
             ApiServer.RegisterDataHandler<RequestResponse>(FriendsHandler.FriendRequestResponse);
             ApiServer.RegisterRequestHandler<GetAllFriendRequests, IntArrayContainer>(FriendsHandler.GetAllFriendRequests);
+            ApiServer.RegisterDataHandler<FriendRemoveRequest>(FriendsHandler.RemoveFriend);
         }
         private void RegisterChatMethods()
         {
