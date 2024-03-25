@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TMServer.DataBase.Tables.LongPolling
 {
-    public class DBFriendListUpdate : ListUpdate
+    public partial class DBFriendListUpdate : ListUpdate
     {
         public required int FriendId { get; set; }
 

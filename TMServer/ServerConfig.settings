@@ -26,8 +26,11 @@
     <Setting Name="Version" Type="System.String" Scope="User">
       <Value Profile="(Default)">0.0.1</Value>
     </Setting>
-    <Setting Name="DbConnectionString" Type="System.String" Scope="User">
+    <Setting Name="TMDBConnectionString" Type="System.String" Scope="User">
       <Value Profile="(Default)">Host=localhost;Port=5432;Database=tmdb;Username=tmadmin;Password=1234;Include Error Detail=True;</Value>
+    </Setting>
+    <Setting Name="TMImagesDBConnetctionString" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Host=localhost;Port=5432;Database=tmimagesdb;Username=tmadmin;Password=1234;Include Error Detail=True;</Value>
     </Setting>
   </Settings>
 </SettingsFile>

@@ -123,12 +123,25 @@ namespace TMServer {
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("Host=localhost;Port=5432;Database=tmdb;Username=tmadmin;Password=1234;Include Err" +
             "or Detail=True;")]
-        public string DbConnectionString {
+        public string TMDBConnectionString {
             get {
-                return ((string)(this["DbConnectionString"]));
+                return ((string)(this["TMDBConnectionString"]));
             }
             set {
-                this["DbConnectionString"] = value;
+                this["TMDBConnectionString"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Host=localhost;Port=5432;Database=tmimagesdb;Username=tmadmin;Password=1234;Inclu" +
+            "de Error Detail=True;")]
+        public string TMImagesDBConnetctionString {
+            get {
+                return ((string)(this["TMImagesDBConnetctionString"]));
+            }
+            set {
+                this["TMImagesDBConnetctionString"] = value;
             }
         }
     }

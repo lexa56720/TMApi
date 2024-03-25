@@ -1,6 +1,6 @@
 ﻿namespace TMServer.DataBase.Tables
 {
-    public class DBChatInvite
+    public partial class DBChatInvite
     {
         public int Id { get; set; }
 

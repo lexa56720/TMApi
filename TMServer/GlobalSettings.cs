@@ -20,7 +20,9 @@ namespace TMServer
         public static TimeSpan RsaLifeTime { get; set; }
 
 
-        public static string ConnectionString { get; set; } = string.Empty;
+        public static string TMDBConnectionString { get; set; } = string.Empty;
+        public static string ImagesDBConnectionString { get; set; } = string.Empty;
+
         public static string PasswordSalt { get; set; } = string.Empty;
         public static int Version { get; set; }
 
@@ -30,16 +32,17 @@ namespace TMServer
         }
 
         public static void Reload()
-        {      
+        {
             AuthPort = ServerConfig.Default.AuthPort;
             ApiPort = ServerConfig.Default.ApiPort;
             LongPollPort = ServerConfig.Default.LongPollPort;
-        
+
             LongPollLifeTime = TimeSpan.FromSeconds(ServerConfig.Default.LongPollLifeTimeSeconds);
             TokenLifeTime = TimeSpan.FromHours(ServerConfig.Default.TokenLifetimeHours);
             RsaLifeTime = TimeSpan.FromHours(ServerConfig.Default.RsaKeyLifetimeHours);
 
-            ConnectionString = ServerConfig.Default.DbConnectionString;
+            TMDBConnectionString = ServerConfig.Default.TMDBConnectionString;
+            ImagesDBConnectionString = ServerConfig.Default.TMImagesDBConnetctionString;
             PasswordSalt = ServerConfig.Default.PasswordSalt;
             Version = GetVersion(ServerConfig.Default.Version);
         }

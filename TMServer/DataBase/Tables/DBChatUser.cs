@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TMServer.DataBase.Tables
 {
-    public class DBChatUser
+    public partial class DBChatUser
     {
         public required int ChatId { get; set; }
         public required int UserId { get; set; }

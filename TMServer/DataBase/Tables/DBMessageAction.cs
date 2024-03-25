@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace TMServer.DataBase.Tables
 {
-    public class DBMessageAction
+    public partial class DBMessageAction
     {
         public int Id { get; set; }
 

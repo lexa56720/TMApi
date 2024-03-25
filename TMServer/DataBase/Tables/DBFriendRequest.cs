@@ -1,6 +1,6 @@
 ﻿namespace TMServer.DataBase.Tables
 {
-    public class DBFriendRequest
+    public partial class DBFriendRequest
     {
         public int Id { get; set; }
         public required int SenderId { get; set; }

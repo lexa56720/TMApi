@@ -11,24 +11,28 @@ namespace TMServer
         {
             Serializer.SerializerProvider = new ApiTypes.SerializerProvider();
 
-            ILogger logger = new ConsoleLogger();
+            var logger = new ConsoleLogger();
 
             using var db = new TmdbContext();
-           // db.Database.EnsureDeleted();
+            using var idb = new ImagesDBContext();
+
+            idb.Database.EnsureCreated();
+            idb.SaveChanges();
+
             db.Database.EnsureCreated();
             db.SaveChanges();
 
-            using var server = new Servers.TMServer(TimeSpan.FromMinutes(3), 
+            using var server = new Servers.TMServer(TimeSpan.FromMinutes(3),
                                                     GlobalSettings.AuthPort,
                                                     GlobalSettings.ApiPort,
                                                     GlobalSettings.LongPollPort,
                                                     logger);
             server.Start();
 
-            var tokenCleaner = new TokenCleaner(TimeSpan.FromMinutes(15),logger);
+            var tokenCleaner = new TokenCleaner(TimeSpan.FromMinutes(15), logger);
             tokenCleaner.Start();
 
-            var keyCleaner=new KeyCleaner(TimeSpan.FromMinutes(15),logger); 
+            var keyCleaner = new KeyCleaner(TimeSpan.FromMinutes(15), logger);
             keyCleaner.Start();
 
             Thread.Sleep(1000);

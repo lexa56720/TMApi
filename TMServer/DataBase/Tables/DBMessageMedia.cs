@@ -7,13 +7,13 @@ using System.Threading.Tasks;
 
 namespace TMServer.DataBase.Tables
 {
-    public class DBMessageMedia
+    public partial class DBMessageMedia
     {
         public int Id { get; set; }
-        public int MessageId { get; set; }
         public MediaType MediaType { get; set; }
         public byte[] Data { get; set; } = null!;
 
+        public int MessageId { get; set; }
 
         public virtual DBMessage Message { get; set; } = null!;
     }
