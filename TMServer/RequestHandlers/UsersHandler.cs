@@ -22,7 +22,7 @@ namespace TMServer.RequestHandlers
                 Friends = friends,
                 FriendRequests = Friends.GetAllForUser(id.UserId),
                 ChatInvites = Chats.GetAllChatInvites(id.UserId),
-                MainInfo = DbConverter.Convert(user),
+                MainInfo = DbConverter.Convert(user,Images.GetImageSet(user.ProfileImageId)),
             };
         }
 

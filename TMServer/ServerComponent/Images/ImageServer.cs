@@ -20,7 +20,7 @@ namespace TMServer.ServerComponent.Images
                            : base(imageLoadPort, encryptProvider, logger, Protocol.Http)
         {
             Listener = new HttpListener();
-            Listener.Prefixes.Add($"http://127.0.0.1:{imageGetPort}");
+            Listener.Prefixes.Add($"http://127.0.0.1:{imageGetPort}/");
         }
 
         public override void Dispose()

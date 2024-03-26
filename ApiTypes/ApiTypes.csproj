@@ -10,6 +10,10 @@
     <Reference Include="AutoSerializer">
       <HintPath>Lib\AutoSerializer.dll</HintPath>
     </Reference>
+    <Reference Include="AutoSerializerSourceGenerator">
+      <HintPath>Lib\AutoSerializerSourceGenerator.dll</HintPath>
+    </Reference>
+	  
     <Reference Include="CSDTP">
       <HintPath>Lib\CSDTP.dll</HintPath>
     </Reference>

@@ -19,7 +19,7 @@ namespace TMApi.ApiRequests.Users
         {
             if (imageData.Length == 0)
                 return false;
-
+           
             return await Requester.SendFileAsync(new ChangeUserProfileImageRequest(imageData));
         }
 

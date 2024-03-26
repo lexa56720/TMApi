@@ -15,16 +15,18 @@ namespace TMApi
         public required int AuthPort { get; init; }
         public required int ApiPort { get; init; }
         public required int LongPollPort { get; init; }
+        public required int ImageUploadPort { get; init; }
         public required TimeSpan LongPollPeriod { get; init; }
 
         [SetsRequiredMembers]
-        public ApiProvider(IPAddress server, int authPort, int apiPort, int longPollPort, TimeSpan longPollPeriod)
+        public ApiProvider(IPAddress server, int authPort, int apiPort, int longPollPort,int imageUploadPort, TimeSpan longPollPeriod)
         {
             Serializer.SerializerProvider = new ApiTypes.SerializerProvider();
             Server = server;
             AuthPort = authPort;
             ApiPort = apiPort;
             LongPollPort = longPollPort;
+            ImageUploadPort = imageUploadPort;
             LongPollPeriod = longPollPeriod;
         }
 
@@ -51,8 +53,8 @@ namespace TMApi
             using var inputDecoder = coderDecoder.Value.decoder;
             using var outputEncoder = coderDecoder.Value.encoder;
 
-            using var rsaRequester = new RequestSender(Server, AuthPort, ApiPort, LongPollPort, RequestKind.Auth,
-                                                          outputEncoder, inputDecoder,coderDecoder.Value.cryptId);
+            using var rsaRequester = new RequestSender(Server, AuthPort, ApiPort, LongPollPort, ImageUploadPort, RequestKind.Auth,
+                                                                          outputEncoder, inputDecoder,coderDecoder.Value.cryptId);
 
 
             RegisterResponse? registerResult = await rsaRequester.RequestAsync<RegisterResponse, RegisterRequest>(new RegisterRequest()
@@ -83,7 +85,8 @@ namespace TMApi
         private async Task<Api?> Login(string login, string password, RsaEncrypter inputDecoder, RsaEncrypter outputEncoder,int cryptId)
         {
             password = GetPasswordHash(password,login);
-            var rsaRequester = new RequestSender(Server, AuthPort, ApiPort, LongPollPort, RequestKind.Auth, outputEncoder, inputDecoder, cryptId);
+            var rsaRequester = new RequestSender(Server, AuthPort, ApiPort, LongPollPort, ImageUploadPort,
+                                                   RequestKind.Auth, outputEncoder, inputDecoder, cryptId);
 
             var authResult = await rsaRequester.RequestAsync<AuthorizationResponse, AuthorizationRequest>
                                                               (new AuthorizationRequest(login, password));
@@ -123,7 +126,8 @@ namespace TMApi
 
         private async Task<Api?> GetApi(string token, DateTime expiration, int userId, int cryptId, byte[] aesKey)
         {
-            var api = new Api(token, expiration, userId, cryptId, aesKey, Server, AuthPort, ApiPort, LongPollPort);
+            var api = new Api(token, expiration, userId, cryptId, aesKey,
+                              Server, AuthPort, ApiPort, LongPollPort, ImageUploadPort);
             if (await api.Init(LongPollPeriod))
                 return api;
             return null;

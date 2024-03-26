@@ -62,15 +62,19 @@ namespace TMServer.RequestHandlers
             return result;
         }
 
-        public static User Convert(DBUser dBUser, DBImageSet profilePic)
+        public static User Convert(DBUser dBUser, DBImageSet? profilePic)
         {
+            Photo[] pics=[];
+            if (profilePic != null)
+                pics = Convert(profilePic);
+
             return new User()
             {
                 Name = dBUser.Name,
                 Id = dBUser.Id,
                 Login = dBUser.Login,
                 IsOnline = dBUser.IsOnline,
-                ProfilePics = Convert(profilePic)
+                ProfilePics = pics,
             };
         }
         public static User[] Convert(DBUser[] users)

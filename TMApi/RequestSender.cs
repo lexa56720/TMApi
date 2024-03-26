@@ -26,7 +26,7 @@ namespace TMApi
         public int ApiPort { get; }
 
         public int LongPollPort { get; }
-        public int FilePort { get; }
+        public int FileUploadPort { get; }
         public IPAddress Server { get; }
 
         public string Token { get; internal set; } = string.Empty;
@@ -42,14 +42,14 @@ namespace TMApi
 
         private readonly TimeSpan Timeout = TimeSpan.FromSeconds(15);
 
-        public RequestSender(IPAddress server, int authPort, int apiPort, int longPollPort, int filePort,
+        public RequestSender(IPAddress server, int authPort, int apiPort, int longPollPort, int fileUploadPort,
                              RequestKind kind, IEncrypter encrypter, IEncrypter decrypter, int cryptId)
         {
             Server = server;
             AuthPort = authPort;
             ApiPort = apiPort;
             LongPollPort = longPollPort;
-            FilePort = filePort;
+            FileUploadPort = fileUploadPort;
             CryptId = cryptId;
             Requester = RequesterFactory.Create(new IPEndPoint(Server, GetPort(kind)),
                                                 new SimpleEncryptProvider(encrypter, decrypter),
@@ -134,7 +134,7 @@ namespace TMApi
                 RequestKind.Auth => AuthPort,
                 RequestKind.Request => ApiPort,
                 RequestKind.LongPoll => LongPollPort,
-                RequestKind.File => FilePort,
+                RequestKind.File => FileUploadPort,
                 _ => throw new NotImplementedException()
             };
         }

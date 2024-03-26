@@ -40,14 +40,14 @@ namespace TMApi
         private RequestSender Requester { get; set; }
 
         internal Api(string token, DateTime tokenTime, int userId, int cryptId, byte[] aesKey,
-                     IPAddress server, int authPort, int apiPort, int longPollPort)
+                     IPAddress server, int authPort, int apiPort, int longPollPort,int imageUploadPort)
         {
             Id = userId;
             AccesToken = token;
             Expiration = tokenTime;
             Encrypter = new AesEncrypter(aesKey);
 
-            Requester = new RequestSender(server, authPort, apiPort, longPollPort, RequestKind.Request, Encrypter, Encrypter, cryptId)
+            Requester = new RequestSender(server, authPort, apiPort, longPollPort, imageUploadPort, RequestKind.Request, Encrypter, Encrypter, cryptId)
             {
                 Token = token,
                 UserId = userId,

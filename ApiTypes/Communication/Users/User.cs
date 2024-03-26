@@ -28,5 +28,26 @@ namespace ApiTypes.Communication.Users
         {
 
         }
+
+        public static User Deserialize(BinaryReader reader)
+        {
+            return new User()
+            {
+                Name = reader.ReadString(),
+                Id = reader.ReadInt32(),
+                Login = reader.ReadString(),
+                IsOnline = reader.ReadBoolean(),
+                ProfilePics = reader.Read<Photo>()
+            };
+        }
+
+        public void Serialize(BinaryWriter writer)
+        {
+            writer.Write(Name);
+            writer.Write(Id);
+            writer.Write(Login);
+            writer.Write(IsOnline);
+            writer.Write(ProfilePics);
+        }
     }
 }

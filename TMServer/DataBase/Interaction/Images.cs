@@ -72,14 +72,14 @@ namespace TMServer.DataBase.Interaction
 
 
 
-        public static DBImageSet[] GetImageSet(int[] setIds)
+        public static DBImageSet?[] GetImageSet(int[] setIds)
         {
             using var db = new ImagesDBContext();
             var set = db.ImageSets.Include(s => s.Images)
                                   .Where(s => setIds.Contains(s.Id))
                                   .ToArray();
-            return setIds.Select(id => set.First(i => i.Id == id))
-                      .ToArray();
+            return setIds.Select(id => set.FirstOrDefault(i => i.Id == id))
+                         .ToArray();
         }
         public static DBImageSet? GetImageSet(int setId)
         {
