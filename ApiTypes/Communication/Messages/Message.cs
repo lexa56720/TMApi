@@ -1,4 +1,5 @@
-﻿using CSDTP;
+﻿using ApiTypes.Communication.Medias;
+using CSDTP;
 using System.Diagnostics.CodeAnalysis;
 
 namespace ApiTypes.Communication.Messages
@@ -20,7 +21,7 @@ namespace ApiTypes.Communication.Messages
 
         public int DestinationId { get; set; }
 
-        public string Text { get; set; }
+        public string Text { get; set; } = string.Empty;
 
         public DateTime SendTime { get; set; }
 
@@ -32,13 +33,15 @@ namespace ApiTypes.Communication.Messages
 
         public int TargetId { get; set; } = -1;
 
+        public Photo[] Photos { get; set; } = [];
+
         public Message()
         {
 
         }
 
         public Message(int id, int authorId, int destinationId, string text,
-                       DateTime sendTime, bool isReaded)
+                       DateTime sendTime, bool isReaded, Photo[] photos)
         {
             Id = id;
             AuthorId = authorId;
@@ -46,6 +49,7 @@ namespace ApiTypes.Communication.Messages
             Text = text;
             SendTime = sendTime;
             IsReaded = isReaded;
+            Photos = photos;
         }
 
         public Message(int id, int authorId, int destinationId, string text,

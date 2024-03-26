@@ -13,7 +13,8 @@ namespace TMServer
         public static int AuthPort { get; set; }
         public static int ApiPort { get; set; }
         public static int LongPollPort { get; set; }
-
+        public static int FileUploadPort { get; set; }
+        public static int FileGetPort { get; set; }
 
         public static TimeSpan LongPollLifeTime { get; set; }
         public static TimeSpan TokenLifeTime { get; set; }
@@ -36,6 +37,8 @@ namespace TMServer
             AuthPort = ServerConfig.Default.AuthPort;
             ApiPort = ServerConfig.Default.ApiPort;
             LongPollPort = ServerConfig.Default.LongPollPort;
+            FileUploadPort = ServerConfig.Default.FileUploadPort;
+            FileGetPort = ServerConfig.Default.FileGetPort;
 
             LongPollLifeTime = TimeSpan.FromSeconds(ServerConfig.Default.LongPollLifeTimeSeconds);
             TokenLifeTime = TimeSpan.FromHours(ServerConfig.Default.TokenLifetimeHours);

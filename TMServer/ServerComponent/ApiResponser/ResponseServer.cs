@@ -3,6 +3,7 @@ using ApiTypes.Communication.BaseTypes;
 using CSDTP;
 using CSDTP.Cryptography.Providers;
 using CSDTP.Packets;
+using CSDTP.Protocols;
 using CSDTP.Requests;
 using TMServer.DataBase;
 using TMServer.DataBase.Interaction;
@@ -11,7 +12,7 @@ using TMServer.ServerComponent.Basics;
 
 namespace TMServer.ServerComponent.ApiResponser
 {
-    internal class ResponseServer(int port, IEncryptProvider encryptProvider, ILogger logger) : Server(port, encryptProvider, logger)
+    internal class ResponseServer(int port, IEncryptProvider encryptProvider, ILogger logger,Protocol protocol=Protocol.Udp) : Server(port, encryptProvider, logger,protocol)
     {
         public void RegisterRequestHandler<TRequest, TResponse>(Func<ApiData<TRequest>, TResponse?> func)
                     where TRequest : ISerializable<TRequest>, new()

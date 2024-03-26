@@ -26,6 +26,8 @@ namespace TMServer
                                                     GlobalSettings.AuthPort,
                                                     GlobalSettings.ApiPort,
                                                     GlobalSettings.LongPollPort,
+                                                    GlobalSettings.FileUploadPort,
+                                                    GlobalSettings.FileGetPort,
                                                     logger);
             server.Start();
 

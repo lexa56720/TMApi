@@ -39,7 +39,8 @@ namespace TMServer.DataBase
                 entity.Property(e => e.Id).HasColumnName("id");
 
                 entity.Property(e => e.SetId)
-                      .HasColumnName("set_id");
+                      .HasColumnName("set_id")
+                      .IsRequired(false);
 
                 entity.Property(e => e.Url)
                       .HasColumnName("url")

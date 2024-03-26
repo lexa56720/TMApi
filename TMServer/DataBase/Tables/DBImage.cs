@@ -17,7 +17,7 @@ namespace TMServer.DataBase.Tables
     {
         public int Id { get; set; }
 
-        public int SetId { get; set; }
+        public int? SetId { get; set; }
 
         public required string Url { get; set; } = null!;
 
@@ -25,6 +25,6 @@ namespace TMServer.DataBase.Tables
 
         public required byte[] Data { get; set; } = null!;
 
-        public DBImageSet Set { get; set; } = null!;
+        public virtual DBImageSet? Set { get; set; } = null!;
     }
 }

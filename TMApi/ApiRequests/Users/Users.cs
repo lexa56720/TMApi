@@ -1,5 +1,6 @@
 ﻿using ApiTypes;
 using ApiTypes.Communication.BaseTypes;
+using ApiTypes.Communication.Medias;
 using ApiTypes.Communication.Messages;
 using ApiTypes.Communication.Search;
 using ApiTypes.Communication.Users;
@@ -12,6 +13,14 @@ namespace TMApi.ApiRequests.Users
     {
         internal Users(RequestSender requester, Api api) : base(requester, api)
         {
+        }
+
+        public async Task<bool> SetProfileImage(byte[] imageData)
+        {
+            if (imageData.Length == 0)
+                return false;
+
+            return await Requester.SendFileAsync(new ChangeUserProfileImageRequest(imageData));
         }
 
         public async Task<bool> ChangeName(string name)

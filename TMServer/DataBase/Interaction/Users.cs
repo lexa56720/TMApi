@@ -38,6 +38,16 @@ namespace TMServer.DataBase.Interaction
                 .Where(u => u.Login.Contains(login))
                 .Take(20).ToArray();
         }
+
+        public static bool SetProfileImage(int userId, int imageId)
+        {
+            using var db = new TmdbContext();
+
+            db.Users.Single(u => u.Id == userId).ProfileImageId = imageId;
+
+            return db.SaveChanges(true) > 0;
+        }
+
         public static void ChangeName(int userId, string newName)
         {
             using var db = new TmdbContext();
@@ -54,7 +64,7 @@ namespace TMServer.DataBase.Interaction
         {
             using var db = new TmdbContext();
             var user = db.Users.Find(userId);
-            if (user == null) 
+            if (user == null)
                 return;
 
             user.LastRequest = DateTime.UtcNow;

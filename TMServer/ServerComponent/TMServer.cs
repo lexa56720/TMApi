@@ -5,6 +5,7 @@ using ApiTypes.Communication.Chats;
 using ApiTypes.Communication.Friends;
 using ApiTypes.Communication.Info;
 using ApiTypes.Communication.LongPolling;
+using ApiTypes.Communication.Medias;
 using ApiTypes.Communication.Messages;
 using ApiTypes.Communication.Search;
 using ApiTypes.Communication.Users;
@@ -17,6 +18,7 @@ using TMServer.RequestHandlers;
 using TMServer.ServerComponent.ApiResponser;
 using TMServer.ServerComponent.Auth;
 using TMServer.ServerComponent.Basics;
+using TMServer.ServerComponent.Images;
 using TMServer.ServerComponent.LongPolling;
 
 namespace TMServer.Servers
@@ -29,13 +31,18 @@ namespace TMServer.Servers
 
         private readonly LongPollServer LongPollServer;
 
+        private readonly ImageServer ImageServer;
+
+
         private readonly ILogger Logger;
 
-        public TMServer(TimeSpan longPollLifetime, int authPort, int responsePort, int longPollPort, ILogger logger)
+        public TMServer(TimeSpan longPollLifetime, int authPort, int responsePort, 
+                        int longPollPort,int imageLoadPort,int imageGetPort, ILogger logger)
         {
             AuthServer = new AuthorizationServer(authPort, new AuthEncryptProvider(), logger);
             ApiServer = new ResponseServer(responsePort, new ApiEncryptProvider(), logger);
             LongPollServer = new LongPollServer(longPollLifetime, longPollPort, new ApiEncryptProvider(), logger);
+            ImageServer = new ImageServer(imageLoadPort, imageGetPort, new ApiEncryptProvider(), logger);
 
             RegisterAuthMethods();
             RegisterApiMethods();
@@ -49,6 +56,7 @@ namespace TMServer.Servers
             AuthServer.Dispose();
             ApiServer.Dispose();
             LongPollServer.Dispose();
+            ImageServer.Dispose();
         }
         private void RegisterAuthMethods()
         {
@@ -57,7 +65,6 @@ namespace TMServer.Servers
             AuthServer.Register<RegisterRequest, RegisterResponse>(AuthHandler.Register);
             AuthServer.Register<VersionRequest, IntContainer>(e => AuthHandler.GetVersion());
         }
-
         private void RegisterApiMethods()
         {
             ApiServer.RegisterRequestHandler<AuthUpdateRequest, AuthorizationResponse>(AuthHandler.UpdateAuth);
@@ -83,6 +90,8 @@ namespace TMServer.Servers
             ApiServer.RegisterRequestHandler<UserRequest, SerializableArray<User>>(UsersHandler.GetUsers);
             ApiServer.RegisterDataHandler<ChangeNameRequest>(UsersHandler.ChangeUserName);
             ApiServer.RegisterRequestHandler<SearchRequest, SerializableArray<User>>(SearchHandler.GetUserByName);
+
+            ImageServer.RegisterDataHandler<ChangeUserProfileImageRequest>(ImageHandler.SetProfileImage);
         }
         private void RegisterFriendMethods()
         {
@@ -120,6 +129,7 @@ namespace TMServer.Servers
             AuthServer.Start();
             ApiServer.Start();
             LongPollServer.Start();
+            ImageServer.Start();
 
             Logger.Log("\nServer is ready\n");
         }
@@ -132,6 +142,7 @@ namespace TMServer.Servers
             AuthServer.Stop();
             ApiServer.Stop();
             LongPollServer.Stop();
+            ImageServer.Stop();
 
             Logger.Log("\n Server is down");
         }

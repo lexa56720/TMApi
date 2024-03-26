@@ -10,8 +10,7 @@ namespace TMServer.DataBase.Tables
     public partial class DBMessageMedia
     {
         public int Id { get; set; }
-        public MediaType MediaType { get; set; }
-        public byte[] Data { get; set; } = null!;
+        public int MediaId { get; set; }
 
         public int MessageId { get; set; }
 

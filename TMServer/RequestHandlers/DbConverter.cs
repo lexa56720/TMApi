@@ -1,5 +1,6 @@
 ﻿using ApiTypes.Communication.Chats;
 using ApiTypes.Communication.Friends;
+using ApiTypes.Communication.Medias;
 using ApiTypes.Communication.Messages;
 using ApiTypes.Communication.Users;
 using System;
@@ -7,7 +8,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TMServer.DataBase.Interaction;
 using TMServer.DataBase.Tables;
+
+
+using ApiImageSize = ApiTypes.Communication.Medias.ImageSize;
+using DBImageSize = TMServer.DataBase.Tables.ImageSize;
 
 namespace TMServer.RequestHandlers
 {
@@ -37,12 +43,15 @@ namespace TMServer.RequestHandlers
         public static Message Convert(DBMessage dbMessage, bool isReaded)
         {
             if (dbMessage.IsSystem && dbMessage.Action != null)
+            {
                 return new Message(dbMessage.Id, dbMessage.AuthorId, dbMessage.DestinationId,
-                                   dbMessage.Content, dbMessage.SendTime, isReaded, dbMessage.Action.Kind,
-                                   dbMessage.Action.ExecutorId, dbMessage.Action.TargetId == null ? -1 : dbMessage.Action.TargetId.Value);
-            else
-                return new Message(dbMessage.Id, dbMessage.AuthorId, dbMessage.DestinationId,
-                                   dbMessage.Content, dbMessage.SendTime, isReaded);
+                                 dbMessage.Content, dbMessage.SendTime, isReaded, dbMessage.Action.Kind,
+                                 dbMessage.Action.ExecutorId, dbMessage.Action.TargetId == null ? -1 : dbMessage.Action.TargetId.Value);
+            }
+
+            var images = Images.GetImage(dbMessage.Medias.Select(m => m.MediaId).ToArray());
+            return new Message(dbMessage.Id, dbMessage.AuthorId, dbMessage.DestinationId,
+                               dbMessage.Content, dbMessage.SendTime, isReaded, Convert(images));
         }
         public static Message[] Convert(DBMessage[] dbMessages, bool[] isReaded)
         {
@@ -53,21 +62,23 @@ namespace TMServer.RequestHandlers
             return result;
         }
 
-        public static User Convert(DBUser dBUser)
+        public static User Convert(DBUser dBUser, DBImageSet profilePic)
         {
             return new User()
             {
                 Name = dBUser.Name,
                 Id = dBUser.Id,
                 Login = dBUser.Login,
-                IsOnline = dBUser.IsOnline
+                IsOnline = dBUser.IsOnline,
+                ProfilePics = Convert(profilePic)
             };
         }
         public static User[] Convert(DBUser[] users)
         {
+            var profilePics = Images.GetImageSet(users.Select(u => u.ProfileImageId).ToArray());
             var result = new User[users.Length];
             for (int i = 0; i < users.Length; i++)
-                result[i] = Convert(users[i]);
+                result[i] = Convert(users[i], profilePics[i]);
             return result;
         }
 
@@ -96,6 +107,33 @@ namespace TMServer.RequestHandlers
             for (int i = 0; i < requests.Length; i++)
                 result[i] = Convert(requests[i]);
             return result;
+        }
+
+
+        public static Photo[] Convert(DBImageSet set)
+        {
+            return Convert(set.Images.ToArray());
+        }
+        public static Photo[] Convert(DBImage[] images)
+        {
+            var result = new Photo[images.Length];
+            for (int i = 0; i < result.Length; i++)
+            {
+                var url = $"images/{images[i].Url}/{images[i].Id}";
+                var size = Convert(images[i].Size);
+                result[i] = new Photo(url, size);
+            }
+            return result;
+        }
+        private static ApiImageSize Convert(DBImageSize imageSize)
+        {
+            return imageSize switch
+            {
+                DBImageSize.Small => ApiImageSize.Small,
+                DBImageSize.Medium => ApiImageSize.Medium,
+                DBImageSize.Large => ApiImageSize.Large,
+                _ => throw new NotImplementedException(),
+            };
         }
     }
 }

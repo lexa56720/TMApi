@@ -4,6 +4,7 @@ using AutoSerializer;
 using CSDTP;
 using CSDTP.Cryptography.Algorithms;
 using CSDTP.Cryptography.Providers;
+using CSDTP.Protocols;
 using CSDTP.Requests;
 using System.Net;
 
@@ -13,19 +14,20 @@ namespace TMApi
     {
         Auth,
         Request,
-        LongPoll
+        LongPoll,
+        File
     }
 
     internal class RequestSender : IDisposable
     {
 
-        public int AuthPort { get; init; }
+        public int AuthPort { get; }
 
-        public int ApiPort { get; init; }
+        public int ApiPort { get; }
 
-        public int LongPollPort { get; init; }
-
-        public IPAddress Server { get; init; }
+        public int LongPollPort { get; }
+        public int FilePort { get; }
+        public IPAddress Server { get; }
 
         public string Token { get; internal set; } = string.Empty;
 
@@ -36,24 +38,32 @@ namespace TMApi
 
         private readonly Requester LongPollRequester;
         private readonly Requester Requester;
+        private readonly Requester FileRequester;
 
         private readonly TimeSpan Timeout = TimeSpan.FromSeconds(15);
 
-        public RequestSender(IPAddress server, int authPort, int apiPort, int longPollPort, RequestKind kind, IEncrypter encrypter, IEncrypter decrypter, int cryptId)
+        public RequestSender(IPAddress server, int authPort, int apiPort, int longPollPort, int filePort,
+                             RequestKind kind, IEncrypter encrypter, IEncrypter decrypter, int cryptId)
         {
             Server = server;
             AuthPort = authPort;
             ApiPort = apiPort;
             LongPollPort = longPollPort;
+            FilePort = filePort;
             CryptId = cryptId;
             Requester = RequesterFactory.Create(new IPEndPoint(Server, GetPort(kind)),
                                                 new SimpleEncryptProvider(encrypter, decrypter),
                                                 typeof(TMPacket<>));
 
+            FileRequester = RequesterFactory.Create(new IPEndPoint(Server, GetPort(kind)),
+                                                    new SimpleEncryptProvider(encrypter, decrypter),
+                                                    typeof(TMPacket<>),
+                                                    Protocol.Http);
+
             LongPollRequester = RequesterFactory.Create(new IPEndPoint(Server, GetPort(RequestKind.LongPoll)),
                                                         new SimpleEncryptProvider(encrypter, decrypter),
                                                         typeof(TMPacket<>),
-                                                        CSDTP.Protocols.Protocol.Udp);
+                                                        Protocol.Udp);
         }
 
         public RequestSender(IPAddress server, int authPort, int apiPort, int longPollPort, RequestKind kind, int cryptId)
@@ -103,6 +113,11 @@ namespace TMApi
             return await Requester.SendAsync(new ApiData<TData>(Token, UserId, data, IdHolder.Value));
         }
 
+        public async Task<bool> SendFileAsync<TData>(TData data) where TData : ISerializable<TData>, new()
+        {
+            IdHolder.Value = CryptId;
+            return await FileRequester.SendAsync(new ApiData<TData>(Token, UserId, data, IdHolder.Value));
+        }
         public async Task<TResponse?> LongPollAsync<TResponse, TRequest>(TRequest data, TimeSpan timeout, CancellationToken token)
                                       where TResponse : ISerializable<TResponse>, new()
                                       where TRequest : ISerializable<TRequest>, new()
@@ -119,6 +134,7 @@ namespace TMApi
                 RequestKind.Auth => AuthPort,
                 RequestKind.Request => ApiPort,
                 RequestKind.LongPoll => LongPollPort,
+                RequestKind.File => FilePort,
                 _ => throw new NotImplementedException()
             };
         }

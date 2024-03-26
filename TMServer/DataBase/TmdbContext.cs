@@ -212,9 +212,14 @@ public partial class TmdbContext : DbContext
             entity.HasKey(e => e.Id).HasName("users_pkey");
             entity.Property(e => e.Id).HasColumnName("id");
 
-            entity.Property(e => e.LastRequest).HasColumnName("last_request");
+            entity.Property(e => e.LastRequest)
+                  .HasColumnName("last_request");
 
-            entity.Property(e => e.RegisterDate).HasColumnName("register_date");
+            entity.Property(e => e.RegisterDate)
+                  .HasColumnName("register_date");
+
+            entity.Property(e => e.ProfileImageId)
+                  .HasColumnName("profile_image_id");
 
             entity.Property(e => e.Login)
                   .HasMaxLength(128)
@@ -284,11 +289,8 @@ public partial class TmdbContext : DbContext
             entity.HasKey(e => e.Id).HasName("message_medias_pkey");
             entity.Property(e => e.Id).HasColumnName("id");
 
-            entity.Property(e => e.MediaType)
-                  .HasColumnName("type");
-
-            entity.Property(e => e.Data)
-                  .HasColumnName("data");
+            entity.Property(e => e.MediaId)
+                  .HasColumnName("media_id");
         });
         modelBuilder.Entity<DBUnreadMessage>(entity =>
         {

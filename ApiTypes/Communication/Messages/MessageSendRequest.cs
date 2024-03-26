@@ -9,8 +9,6 @@ namespace ApiTypes.Communication.Messages
 
         public int DestinationId { get; set; }
 
-
-        [SetsRequiredMembers]
         public MessageSendRequest(string text, int destinationId)
         {
             Text = text;
@@ -21,6 +19,5 @@ namespace ApiTypes.Communication.Messages
         {
 
         }
-
     }
 }

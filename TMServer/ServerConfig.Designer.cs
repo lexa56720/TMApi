@@ -144,5 +144,29 @@ namespace TMServer {
                 this["TMImagesDBConnetctionString"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("6668")]
+        public ushort FileUploadPort {
+            get {
+                return ((ushort)(this["FileUploadPort"]));
+            }
+            set {
+                this["FileUploadPort"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("6669")]
+        public ushort FileGetPort {
+            get {
+                return ((ushort)(this["FileGetPort"]));
+            }
+            set {
+                this["FileGetPort"] = value;
+            }
+        }
     }
 }

@@ -14,6 +14,9 @@ namespace TMServer.ServerComponent.Basics
         protected Responder Responder { get; }
         protected ILogger Logger { get; }
 
+
+        protected bool IsDisposed;
+
         protected Server(int port, IEncryptProvider encryptProvider, ILogger logger, Protocol protocol = Protocol.Udp)
         {
             Responder = ResponderFactory.Create(port, encryptProvider, typeof(TMPacket<>), protocol);
@@ -21,11 +24,17 @@ namespace TMServer.ServerComponent.Basics
         }
         public virtual void Dispose()
         {
+            if (IsDisposed)
+                return;
             Responder.Dispose();
+            GC.SuppressFinalize(this);
+            IsDisposed = true;
         }
 
         public override void Start()
         {
+            if (IsRunning)
+                return;
             base.Start();
 
             Responder.Start();
@@ -33,6 +42,8 @@ namespace TMServer.ServerComponent.Basics
         }
         public override void Stop()
         {
+            if (!IsRunning)
+                return;
             Responder.Stop();
             Logger.Log($"{GetType().Name} stopped on port {Responder.ListenPort} {Responder.Protocol}");
         }

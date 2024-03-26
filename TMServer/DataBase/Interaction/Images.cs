@@ -15,14 +15,26 @@ namespace TMServer.DataBase.Interaction
 {
     internal class Images
     {
-        public DBImageSet AddImage(byte[] imageData)
+        public static DBImage AddImage(Image largeImage)
         {
-            using var largeImage = Image.Load(imageData);
+            var largeImageData = GetImageBytes(largeImage);
+            using var db = new ImagesDBContext();
 
+            var image = new DBImage()
+            {
+                Url = GenerateUrl(),
+                Data = largeImageData,
+                Size = ImageSize.Large
+            };
+            db.Images.Add(image);
+            db.SaveChanges();
+            return image;
+        }
+        public static DBImageSet? AddImageAsSet(Image largeImage)
+        {
             using var smallImage = largeImage.Clone(image => image.Resize(128, 128));
             using var mediumImage = largeImage.Clone(image => image.Resize(512, 512));
             largeImage.Mutate(image => image.Resize(1024, 1024));
-
 
             var smallImageData = GetImageBytes(smallImage);
             var mediumImageData = GetImageBytes(mediumImage);
@@ -58,31 +70,67 @@ namespace TMServer.DataBase.Interaction
             return set;
         }
 
-        public DBImage GetImage(string url, int id)
+
+
+        public static DBImageSet[] GetImageSet(int[] setIds)
+        {
+            using var db = new ImagesDBContext();
+            var set = db.ImageSets.Include(s => s.Images)
+                                  .Where(s => setIds.Contains(s.Id))
+                                  .ToArray();
+            return setIds.Select(id => set.First(i => i.Id == id))
+                      .ToArray();
+        }
+        public static DBImageSet? GetImageSet(int setId)
+        {
+            using var db = new ImagesDBContext();
+            var set = db.ImageSets.Include(s => s.Images)
+                                  .SingleOrDefault(i => i.Id == setId);
+            return set;
+        }
+
+        public static DBImage? GetImage(int imageId)
         {
             using var db = new ImagesDBContext();
 
-            return db.ImageSets.Include(s => s.Images)
-                               .Single(i => i.Id == id)
-                               .Images.Single(i => i.Url==url);
-        }
+            var image = db.Images.SingleOrDefault(i => i.Id == imageId);
 
-        public string GetImageUrl(int id, ImageSize size)
+            return image;
+        }
+        public static DBImage[] GetImage(int[] imageIds)
         {
             using var db = new ImagesDBContext();
 
-            return db.ImageSets.Include(s => s.Images)
-                               .Single(i => i.Id == id)
-                               .Images.Single(i => i.Size == size)
-                                      .Url;
+            var images = db.Images.Where(i => imageIds.Contains(i.Id))
+                                  .ToArray();
+
+            return images;
         }
 
-        private string GenerateUrl()
+        public static string GetImageUrl(int id, ImageSize size)
+        {
+            using var db = new ImagesDBContext();
+
+            var set = db.ImageSets.Include(s => s.Images)
+                                  .SingleOrDefault(i => i.Id == id);
+            if (set == null)
+                return string.Empty;
+
+
+            var image = set.Images.SingleOrDefault(i => i.Size == size);
+
+            if (image == null)
+                return string.Empty;
+
+            return image.Url;
+        }
+
+        private static string GenerateUrl()
         {
             return RandomNumberGenerator.GetHexString(128, true);
         }
 
-        private byte[] GetImageBytes(Image image)
+        private static byte[] GetImageBytes(Image image)
         {
             using var ms = new MemoryStream();
             image.SaveAsJpeg(ms);
