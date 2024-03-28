@@ -2,6 +2,7 @@
 using CSDTP.Protocols;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -54,7 +55,7 @@ namespace TMServer.ServerComponent.Images
                 while (IsRunning)
                 {
                     var context = await Listener.GetContextAsync();
-                    if (Parse(context.Request.RawUrl, out var url, out var id))
+                    if (TryParse(context.Request.RawUrl, out var url, out var id))
                     {
                         var image = ImageHandler.GetImage(url, id);
                         await GetResponse(image, context.Response);
@@ -76,9 +77,17 @@ namespace TMServer.ServerComponent.Images
             using var ms = new MemoryStream(imageData);
             await ms.CopyToAsync(response.OutputStream);
         }
-        private bool Parse(string? rawUrl, out string url, out int id)
+        private bool TryParse(string? rawUrl, out string url, out int id)
         {
-            throw new NotImplementedException();
+            var urlParts = rawUrl.Split('/',StringSplitOptions.RemoveEmptyEntries);
+            if (urlParts[0]=="images"&& int.TryParse(urlParts[2],out id))
+            {
+                url = urlParts[1];
+                return true;
+            }
+            url = string.Empty;
+            id = 0;
+            return false;
         }
     }
 }
