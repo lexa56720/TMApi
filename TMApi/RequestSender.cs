@@ -55,7 +55,7 @@ namespace TMApi
                                                 new SimpleEncryptProvider(encrypter, decrypter),
                                                 typeof(TMPacket<>));
 
-            FileRequester = RequesterFactory.Create(new IPEndPoint(Server, GetPort(kind)),
+            FileRequester = RequesterFactory.Create(new IPEndPoint(Server, GetPort(RequestKind.File)),
                                                     new SimpleEncryptProvider(encrypter, decrypter),
                                                     typeof(TMPacket<>),
                                                     Protocol.Http);

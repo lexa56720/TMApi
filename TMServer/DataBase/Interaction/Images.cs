@@ -32,9 +32,9 @@ namespace TMServer.DataBase.Interaction
         }
         public static DBImageSet? AddImageAsSet(Image largeImage)
         {
-            using var smallImage = largeImage.Clone(image => image.Resize(128, 128));
-            using var mediumImage = largeImage.Clone(image => image.Resize(512, 512));
-            largeImage.Mutate(image => image.Resize(1024, 1024));
+            using var smallImage = largeImage.Clone(image => image.Resize(64, 64));
+            using var mediumImage = largeImage.Clone(image => image.Resize(128, 128));
+            largeImage.Mutate(image => image.Resize(256, 256));
 
             var smallImageData = GetImageBytes(smallImage);
             var mediumImageData = GetImageBytes(mediumImage);
