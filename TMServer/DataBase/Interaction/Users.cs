@@ -5,6 +5,11 @@ namespace TMServer.DataBase.Interaction
 {
     internal static class Users
     {
+        public static DBUser? GetUser(int id)
+        {
+            using var db = new TmdbContext();
+            return db.Users.SingleOrDefault(u => u.Id == id);
+        }
         public static DBUser? GetUserFull(int id)
         {
             using var db = new TmdbContext();
@@ -39,25 +44,27 @@ namespace TMServer.DataBase.Interaction
                 .Take(20).ToArray();
         }
 
-        public static bool SetProfileImage(int userId, int imageId)
+        public static DBUser? SetProfileImage(int userId, int imageId,out int prevSetId)
         {
             using var db = new TmdbContext();
 
-            db.Users.Single(u => u.Id == userId).ProfileImageId = imageId;
-
-            return db.SaveChanges(true) > 0;
+            var user = db.Users.Single(u => u.Id == userId);
+            user.ProfileImageId = imageId;
+            prevSetId=user.ProfileImageId;
+            db.SaveChanges(true);
+            return user;
         }
-
-        public static void ChangeName(int userId, string newName)
+        public static DBUser? ChangeName(int userId, string newName)
         {
             using var db = new TmdbContext();
 
             var user = db.Users.SingleOrDefault(u => u.Id == userId);
             if (user == null)
-                return;
+                return null;
 
             user.Name = newName;
             db.SaveChanges();
+            return user;
         }
 
         public static void UpdateLastRequest(int userId)

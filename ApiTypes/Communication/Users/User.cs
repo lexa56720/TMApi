@@ -14,15 +14,18 @@ namespace ApiTypes.Communication.Users
 
         public bool IsOnline { get; set; } = false;
 
+        public DateTime LastAction { get; set; }
+
         public Photo[] ProfilePics { get; set; } = [];
 
-        public User(string name, int id, string login, bool isOnline, Photo[] profilePics)
+        public User(string name, int id, string login, bool isOnline, DateTime lastAction, Photo[] profilePics)
         {
             Name = name;
             Id = id;
             Login = login;
             IsOnline = isOnline;
             ProfilePics = profilePics;
+            LastAction = lastAction;
         }
         public User()
         {

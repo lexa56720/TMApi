@@ -1,6 +1,7 @@
 ﻿using ApiTypes;
 using ApiTypes.Communication.BaseTypes;
 using ApiTypes.Communication.Users;
+using ApiTypes.Shared;
 using TMServer.DataBase.Interaction;
 using TMServer.DataBase.Tables;
 
@@ -22,7 +23,7 @@ namespace TMServer.RequestHandlers
                 Friends = friends,
                 FriendRequests = Friends.GetAllForUser(id.UserId),
                 ChatInvites = Chats.GetAllChatInvites(id.UserId),
-                MainInfo = DbConverter.Convert(user,Images.GetImageSet(user.ProfileImageId)),
+                MainInfo = DbConverter.Convert(user, Images.GetImageSet(user.ProfileImageId)),
             };
         }
 
@@ -34,9 +35,14 @@ namespace TMServer.RequestHandlers
             return new SerializableArray<User>(DbConverter.Convert(users));
         }
 
-        public static void ChangeUserName(ApiData<ChangeNameRequest> request)
+        public static User? ChangeUserName(ApiData<ChangeNameRequest> request)
         {
-            Users.ChangeName(request.UserId, request.Data.NewName);
+            if (!DataConstraints.IsNameLegal(request.Data.NewName))
+                return null;
+            var user = Users.ChangeName(request.UserId, request.Data.NewName);
+            if(user == null)
+                return null;
+            return DbConverter.Convert(user, null);
         }
 
     }

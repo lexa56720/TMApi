@@ -74,6 +74,7 @@ namespace TMServer.RequestHandlers
                 Id = dBUser.Id,
                 Login = dBUser.Login,
                 IsOnline = dBUser.IsOnline,
+                LastAction=dBUser.LastRequest,
                 ProfilePics = pics,
             };
         }

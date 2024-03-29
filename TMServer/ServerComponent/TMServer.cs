@@ -88,10 +88,10 @@ namespace TMServer.Servers
         {
             ApiServer.RegisterRequestHandler<UserFullRequest, UserInfo>(UsersHandler.GetUserInfo);
             ApiServer.RegisterRequestHandler<UserRequest, SerializableArray<User>>(UsersHandler.GetUsers);
-            ApiServer.RegisterDataHandler<ChangeNameRequest>(UsersHandler.ChangeUserName);
+            ApiServer.RegisterRequestHandler<ChangeNameRequest,User>(UsersHandler.ChangeUserName);
             ApiServer.RegisterRequestHandler<SearchRequest, SerializableArray<User>>(SearchHandler.GetUserByName);
 
-            ImageServer.RegisterDataHandler<ChangeUserProfileImageRequest>(ImageHandler.SetProfileImage);
+            ImageServer.RegisterRequestHandler<ChangeProfileImageRequest,User> (ImageHandler.SetProfileImage);
         }
         private void RegisterFriendMethods()
         {

@@ -15,19 +15,20 @@ namespace TMApi.ApiRequests.Users
         {
         }
 
-        public async Task<bool> SetProfileImage(byte[] imageData)
+        public async Task<User?> SetProfileImage(byte[] imageData)
         {
             if (imageData.Length == 0)
-                return false;
-           
-            return await Requester.SendFileAsync(new ChangeUserProfileImageRequest(imageData));
+                return null;
+
+            return await Requester.FileRequestAsync<User, ChangeProfileImageRequest>
+                                                   (new ChangeProfileImageRequest(imageData));
         }
 
-        public async Task<bool> ChangeName(string name)
+        public async Task<User?> ChangeName(string name)
         {
             if (DataConstraints.IsNameLegal(name))
-                return await Requester.ApiSendAsync(new ChangeNameRequest(name));
-            return false;
+                return await Requester.ApiRequestAsync<User,ChangeNameRequest>(new ChangeNameRequest(name));
+            return null;
         }
 
         public async Task<UserInfo?> GetUserInfo()

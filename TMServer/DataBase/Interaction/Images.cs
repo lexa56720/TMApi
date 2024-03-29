@@ -107,6 +107,19 @@ namespace TMServer.DataBase.Interaction
             return images;
         }
 
+        public static bool RemoveSet(int setId)
+        {
+            using var db = new ImagesDBContext();
+            var set = db.ImageSets.Include(s => s.Images)
+                                  .SingleOrDefault(i => i.Id == setId);
+            if (set == null)
+                return false;
+
+            db.Images.RemoveRange(set.Images);
+            db.ImageSets.Remove(set);
+            return db.SaveChanges() > 0;
+        }
+
         public static string GetImageUrl(int id, ImageSize size)
         {
             using var db = new ImagesDBContext();
@@ -129,7 +142,6 @@ namespace TMServer.DataBase.Interaction
         {
             return RandomNumberGenerator.GetHexString(128, true);
         }
-
         private static byte[] GetImageBytes(Image image)
         {
             using var ms = new MemoryStream();

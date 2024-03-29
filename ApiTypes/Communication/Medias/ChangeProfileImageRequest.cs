@@ -6,14 +6,14 @@ using System.Threading.Tasks;
 
 namespace ApiTypes.Communication.Medias
 {
-    public class ChangeUserProfileImageRequest:ISerializable<ChangeUserProfileImageRequest>
+    public class ChangeProfileImageRequest:ISerializable<ChangeProfileImageRequest>
     {
         public byte[] ImageData { get; set; } = [];
-        public ChangeUserProfileImageRequest(byte[] imageData)
+        public ChangeProfileImageRequest(byte[] imageData)
         {
             ImageData = imageData;
         }
-        public ChangeUserProfileImageRequest()
+        public ChangeProfileImageRequest()
         {
 
         }
