@@ -40,7 +40,8 @@ namespace ApiTypes.Communication.Users
                 Id = reader.ReadInt32(),
                 Login = reader.ReadString(),
                 IsOnline = reader.ReadBoolean(),
-                ProfilePics = reader.Read<Photo>()
+                ProfilePics = reader.Read<Photo>(),
+                LastAction = DateTime.FromBinary(reader.ReadInt64())
             };
         }
 
@@ -51,6 +52,7 @@ namespace ApiTypes.Communication.Users
             writer.Write(Login);
             writer.Write(IsOnline);
             writer.Write(ProfilePics);
+            writer.Write(LastAction.ToBinary());
         }
     }
 }

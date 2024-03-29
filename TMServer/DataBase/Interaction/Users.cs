@@ -49,8 +49,8 @@ namespace TMServer.DataBase.Interaction
             using var db = new TmdbContext();
 
             var user = db.Users.Single(u => u.Id == userId);
+            prevSetId = user.ProfileImageId;
             user.ProfileImageId = imageId;
-            prevSetId=user.ProfileImageId;
             db.SaveChanges(true);
             return user;
         }
@@ -70,7 +70,7 @@ namespace TMServer.DataBase.Interaction
         public static void UpdateLastRequest(int userId)
         {
             using var db = new TmdbContext();
-            var user = db.Users.Find(userId);
+            var user = db.Users.SingleOrDefault(u=>u.Id==userId);
             if (user == null)
                 return;
 
