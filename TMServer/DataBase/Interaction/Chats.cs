@@ -25,8 +25,9 @@ namespace TMServer.DataBase.Interaction
                 if (user != null)
                     chat.Members.Add(user);
             }
-            Messages.AddSystemMessage(chat.Id, usersId[0], ActionKind.ChatCreated, db);
+            Messages.AddSystemMessage(chat, usersId[0], ActionKind.ChatCreated, db);
             db.SaveChanges(true);
+
             return chat;
         }
         public static void InviteToChat(int inviterId, int chatId, params int[] userIds)
