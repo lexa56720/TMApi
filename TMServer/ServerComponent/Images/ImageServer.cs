@@ -17,11 +17,14 @@ namespace TMServer.ServerComponent.Images
     internal class ImageServer : ResponseServer
     {
         private HttpListener Listener;
-        public ImageServer(int imageLoadPort, int imageGetPort, IEncryptProvider encryptProvider, ILogger logger)
+        private readonly ImageHandler ImageHandler;
+
+        public ImageServer(int imageLoadPort, int imageGetPort,ImageHandler imageHandler ,IEncryptProvider encryptProvider, ILogger logger)
                            : base(imageLoadPort, encryptProvider, logger, Protocol.Http)
         {
             Listener = new HttpListener();
             Listener.Prefixes.Add($"http://127.0.0.1:{imageGetPort}/");
+            ImageHandler = imageHandler;
         }
 
         public override void Dispose()

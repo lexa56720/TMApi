@@ -12,7 +12,7 @@ public partial class DBMessage
     public required bool IsSystem { get; set; }
     public required string Content { get; set; }
 
-    public required int DestinationId { get; set; }
+    public int DestinationId { get; set; }
 
     public required DateTime SendTime { get; set; }
 

@@ -12,16 +12,22 @@ using Microsoft.EntityFrameworkCore;
 
 namespace TMServer.DataBase.Interaction
 {
-    internal static class Friends
+    public class Friends
     {
-        public static DBFriendRequest[] GetFriendRequest(int[] ids)
+        private readonly Chats Chats;
+
+        public Friends(Chats chats) 
+        {
+            Chats = chats;
+        }
+        public DBFriendRequest[] GetFriendRequest(int[] ids)
         {
             using var db = new TmdbContext();
             var requests = db.FriendRequests.Where(r => ids.Contains(r.Id));
             return requests.ToArray();
         }
 
-        public static DBFriendRequest RemoveFriendRequest(int requestId)
+        public DBFriendRequest RemoveFriendRequest(int requestId)
         {
             using var db = new TmdbContext();
             var request = db.FriendRequests.Single(r => r.Id == requestId);
@@ -29,7 +35,7 @@ namespace TMServer.DataBase.Interaction
             db.SaveChanges();
             return request;
         }
-        public static DBFriendRequest RemoveFriendRequest(int fromId, int toId)
+        public DBFriendRequest RemoveFriendRequest(int fromId, int toId)
         {
             using var db = new TmdbContext();
             var request = db.FriendRequests.Single(r => r.SenderId == fromId && r.ReceiverId == toId);
@@ -37,7 +43,7 @@ namespace TMServer.DataBase.Interaction
             db.SaveChanges();
             return request;
         }
-        public static void RegisterFriendRequest(int fromId, int toId)
+        public void RegisterFriendRequest(int fromId, int toId)
         {
             using var db = new TmdbContext();
 
@@ -49,7 +55,7 @@ namespace TMServer.DataBase.Interaction
             db.SaveChanges(true);
         }
 
-        public static void RegisterFriends(int senderId, int responderId)
+        public void RegisterFriends(int senderId, int responderId)
         {
             using var db = new TmdbContext();
             db.Friends.Add(new DBFriend()
@@ -70,7 +76,7 @@ namespace TMServer.DataBase.Interaction
             db.SaveChanges(true);
         }
 
-        public static int[] GetAllForUser(int userId)
+        public int[] GetAllForUser(int userId)
         {
             using var db = new TmdbContext();
             return db.FriendRequests.Where(i => i.ReceiverId == userId)
@@ -78,7 +84,7 @@ namespace TMServer.DataBase.Interaction
                                     .ToArray();
         }
 
-        public static bool RemoveFriend(int userId, int friendId)
+        public bool RemoveFriend(int userId, int friendId)
         {
             using var db = new TmdbContext();
             var friend = db.Friends.Single(f => (f.DestId == userId && f.SenderId == friendId) ||

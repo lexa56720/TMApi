@@ -9,6 +9,12 @@ namespace TMServer.ServerComponent.ApiResponser
 {
     internal class ApiEncryptProvider : IEncryptProvider
     {
+        private readonly Crypt Crypt;
+
+        public ApiEncryptProvider(Crypt crypt)
+        {
+            Crypt = crypt;
+        }
         public void Dispose()
         {
             return;
@@ -20,7 +26,7 @@ namespace TMServer.ServerComponent.ApiResponser
         }
         public IEncrypter? GetDecrypter(ReadOnlySpan<byte> bytes)
         {
-            var cryptId = BitConverter.ToInt32(bytes.Slice(bytes.Length-4,4));
+            var cryptId = BitConverter.ToInt32(bytes.Slice(bytes.Length - 4, 4));
             var key = Crypt.GetAesKey(cryptId);
             if (key == null)
                 return null;

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TMServer.ServerComponent.LongPolling
 {
-    internal class LongPollResponseInfo
+    public class LongPollResponseInfo
     {
         public int Id { get; init; }
 

@@ -6,38 +6,43 @@ using TMServer.DataBase.Tables;
 
 namespace TMServer.DataBase.Interaction
 {
-    internal static class Security
+    public class Security
     {
-        public static bool IsTokenCorrect(string token, int userId)
+        public bool IsTokenCorrect(string token, int userId)
         {
             using var db = new TmdbContext();
             return db.Tokens.Any(t => t.UserId == userId && token.Equals(t.AccessToken) && DateTime.UtcNow < t.Expiration);
         }
 
-        public static bool IsHaveAccessToChat(int chatId, int userId)
+        public bool IsHaveAccessToChat(int chatId, int userId)
         {
             return IsMemberOfChat(userId, chatId) || IsInvitedToChat(userId, chatId);
         }
-        public static bool IsHaveAccessToChat(int[] chatIds, int userId)
+        public bool IsHaveAccessToChat(int[] chatIds, int userId)
         {
             return chatIds.All(c => IsHaveAccessToChat(c, userId));
         }
 
-        public static bool IsInvitedToChat(int userId, int chatId)
+        public bool IsInvitedToChat(int userId, int chatId)
         {
             using var db = new TmdbContext();
 
             return db.ChatInvites.Any(i => i.ToUserId == userId && i.ChatId == chatId);
         }
-        public static bool IsMemberOfChat(int userId, int chatId)
+        public bool IsMemberOfChat(int userId, int chatId)
         {
             using var db = new TmdbContext();
 
             return db.Chats.Include(c => c.Members)
                            .Any(c => c.Id == chatId && c.Members.Any(m => m.Id == userId));
         }
+        public bool IsAdminOfChat(int userId, int chatId)
+        {
+            using var db = new TmdbContext();
+            return db.Chats.Any(c => c.Id == chatId && c.AdminId == userId);
+        }
 
-        public static bool IsCanInviteToChat(int inviterId, int[] userIds, int chatId)
+        public bool IsCanInviteToChat(int inviterId, int[] userIds, int chatId)
         {
             bool result = true;
             for (var i = 0; i < userIds.Length; i++)
@@ -48,7 +53,7 @@ namespace TMServer.DataBase.Interaction
                 }
             return result;
         }
-        public static bool IsCanInviteToChat(int inviterId, int userId, int chatId)
+        public bool IsCanInviteToChat(int inviterId, int userId, int chatId)
         {
             using var db = new TmdbContext();
 
@@ -67,20 +72,20 @@ namespace TMServer.DataBase.Interaction
                    !isAlreadyInvited && !isUserInChat && isFriends;
         }
 
-        public static bool IsInviteExist(int inviteId, int userId)
+        public bool IsInviteExist(int inviteId, int userId)
         {
             using var db = new TmdbContext();
 
             return db.ChatInvites.Any(i => (i.ToUserId == userId || i.InviterId == userId) && i.Id == inviteId);
         }
-        public static bool IsCanCreateChat(int userId, int[] memberIds)
+        public bool IsCanCreateChat(int userId, int[] memberIds)
         {
             using var db = new TmdbContext();
             var user = db.Users.Include(u => u.FriendsTwo).ThenInclude(f => f.Sender)
                                .Include(u => u.FriendsOne).ThenInclude(f => f.Receiver)
                                .SingleOrDefault(u => u.Id == userId);
 
-            var frinendsId = user?.GetFriends().Select(f=>f.Id);
+            var frinendsId = user?.GetFriends().Select(f => f.Id);
             if (user == null || memberIds.Distinct().Count() != memberIds.Length ||
                 memberIds.Contains(userId) || !memberIds.All(f => frinendsId.Contains(f)))
                 return false;
@@ -88,38 +93,38 @@ namespace TMServer.DataBase.Interaction
             return true;
         }
 
-        public static bool IsFriendshipPossible(int fromId, int toId)
+        public bool IsFriendshipPossible(int fromId, int toId)
         {
             using var db = new TmdbContext();
             return toId != fromId && !IsFriends(fromId, toId) &&
                    !db.FriendRequests.Any(r => r.SenderId == fromId && r.ReceiverId == toId);
         }
-        public static bool IsFriends(int idOne, int idTwo)
+        public bool IsFriends(int idOne, int idTwo)
         {
             using var db = new TmdbContext();
             return db.Friends.Any(f => (f.SenderId == idOne && f.DestId == idTwo)
                                     || (f.SenderId == idTwo && f.DestId == idOne));
         }
-        public static bool IsHaveAccessToRequest(int userId, params int[] requestIds)
+        public bool IsHaveAccessToRequest(int userId, params int[] requestIds)
         {
             using var db = new TmdbContext();
 
             return db.FriendRequests.Where(r => requestIds.Contains(r.Id))
                                     .All(r => r.SenderId == userId || r.ReceiverId == userId);
         }
-        public static bool IsExistOppositeRequest(int fromId, int toId)
+        public bool IsExistOppositeRequest(int fromId, int toId)
         {
             using var db = new TmdbContext();
             return db.FriendRequests.Any(r => r.ReceiverId == fromId && r.SenderId == toId);
         }
-        public static bool IsExistFriendRequest(int requestId, int userId)
+        public bool IsExistFriendRequest(int requestId, int userId)
         {
             using var db = new TmdbContext();
             var request = db.FriendRequests.SingleOrDefault(r => r.Id == requestId);
             return request != null && (request.SenderId == userId || request.ReceiverId == userId);
         }
 
-        public static bool IsHaveAccessToMessages(int userId, params int[] messagesIds)
+        public bool IsHaveAccessToMessages(int userId, params int[] messagesIds)
         {
             using var db = new TmdbContext();
 
@@ -131,7 +136,7 @@ namespace TMServer.DataBase.Interaction
                                    .DistinctBy(c => c.Id);
             return chats.All(c => c.Members.Any(m => m.Id == userId));
         }
-        public static bool IsCanMarkAsReaded(int userId, params int[] messagesIds)
+        public bool IsCanMarkAsReaded(int userId, params int[] messagesIds)
         {
             using var db = new TmdbContext();
             if (!db.Messages.Where(m => messagesIds.Contains(m.Id)).All(m => m.AuthorId != userId))

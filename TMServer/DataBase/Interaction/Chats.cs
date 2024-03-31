@@ -7,9 +7,15 @@ using TMServer.DataBase.Tables;
 
 namespace TMServer.DataBase.Interaction
 {
-    internal static class Chats
+    public class Chats
     {
-        public static DBChat CreateChat(string name, params int[] usersId)
+        private readonly Messages Messages;
+
+        public Chats(Messages messages)
+        {
+            Messages = messages;
+        }
+        public DBChat CreateChat(string name, params int[] usersId)
         {
             using var db = new TmdbContext();
             var chat = new DBChat()
@@ -25,12 +31,12 @@ namespace TMServer.DataBase.Interaction
                 if (user != null)
                     chat.Members.Add(user);
             }
-            Messages.AddSystemMessage(chat, usersId[0], ActionKind.ChatCreated, db);
+            Messages.AddCreateMessage(chat, usersId[0], db);
             db.SaveChanges(true);
 
             return chat;
         }
-        public static void InviteToChat(int inviterId, int chatId, params int[] userIds)
+        public void InviteToChat(int inviterId, int chatId, params int[] userIds)
         {
             using var db = new TmdbContext();
 
@@ -42,11 +48,11 @@ namespace TMServer.DataBase.Interaction
                     ToUserId = userId,
                 });
 
-            Messages.AddSystemMessage(chatId, inviterId, ActionKind.UserInvite, userIds, db);
+            Messages.AddInviteMessages(chatId, inviterId, userIds, db);
             db.SaveChanges(true);
         }
 
-        public static DBChat[] GetChat(int[] chatIds)
+        public DBChat[] GetChat(int[] chatIds)
         {
             using var db = new TmdbContext();
 
@@ -56,7 +62,7 @@ namespace TMServer.DataBase.Interaction
                                 .ToArray();
             return chats;
         }
-        public static int[] GetUnreadCount(int userId, int[] chatIds)
+        public int[] GetUnreadCount(int userId, int[] chatIds)
         {
             using var db = new TmdbContext();
 
@@ -66,7 +72,7 @@ namespace TMServer.DataBase.Interaction
                                       .Count()).ToArray();
         }
 
-        public static DBChat[] GetAllChats(int userId)
+        public DBChat[] GetAllChats(int userId)
         {
             using var db = new TmdbContext();
 
@@ -77,14 +83,14 @@ namespace TMServer.DataBase.Interaction
             return chats;
         }
 
-        public static DBChatInvite[] GetInvite(int[] inviteIds, int userId)
+        public DBChatInvite[] GetInvite(int[] inviteIds, int userId)
         {
             using var db = new TmdbContext();
             return db.ChatInvites
                   .Where(i => (i.ToUserId == userId || i.InviterId == userId) && inviteIds.Contains(i.Id))
                   .ToArray();
         }
-        public static void InviteResponse(int inviteId, int userId, bool isAccepted)
+        public void InviteResponse(int inviteId, int userId, bool isAccepted)
         {
             using var db = new TmdbContext();
             var invite = db.ChatInvites.SingleOrDefault(i => i.Id == inviteId);
@@ -101,7 +107,7 @@ namespace TMServer.DataBase.Interaction
             db.ChatInvites.Remove(invite);
             db.SaveChanges(true);
         }
-        public static DBChatInvite? RemoveInvite(int inviteId)
+        public DBChatInvite? RemoveInvite(int inviteId)
         {
             using var db = new TmdbContext();
             var invite = db.ChatInvites.SingleOrDefault(i => i.Id == inviteId);
@@ -110,7 +116,7 @@ namespace TMServer.DataBase.Interaction
             db.SaveChanges();
             return invite;
         }
-        public static void AddUserToChat(int userId, int chatId)
+        public void AddUserToChat(int userId, int chatId)
         {
             using var db = new TmdbContext();
 
@@ -119,11 +125,11 @@ namespace TMServer.DataBase.Interaction
             if (user != null && chat != null)
                 chat.Members.Add(user);
 
-            Messages.AddSystemMessage(chatId, userId, ActionKind.UserEnter, db);
+            Messages.AddEnterMessage(chatId, userId, db);
             db.SaveChanges(true);
         }
 
-        public static bool LeaveChat(int userId, int chatId)
+        public bool LeaveChat(int userId, int chatId)
         {
             using var db = new TmdbContext();
 
@@ -142,13 +148,13 @@ namespace TMServer.DataBase.Interaction
                 if (newAdmin != null)
                     chat.AdminId = newAdmin.Id;
                 else
-                    Chats.RemoveChat(chat.Id, db);
+                    RemoveChat(chat.Id, db);
             }
 
-            Messages.AddSystemMessage(chatId, userId, ActionKind.UserLeave, db);
+            Messages.AddLeaveMessage(chatId, userId, db);
             return db.SaveChanges(true) > 0;
         }
-        public static int[] GetAllChatInvites(int userId)
+        public int[] GetAllChatInvites(int userId)
         {
             using var db = new TmdbContext();
             return db.ChatInvites.Where(i => i.ToUserId == userId)
@@ -156,7 +162,7 @@ namespace TMServer.DataBase.Interaction
                                  .ToArray();
         }
 
-        public static void RemoveChat(int chatId, TmdbContext? db)
+        public void RemoveChat(int chatId, TmdbContext? db)
         {
             bool needToDispose = false;
             if (db == null)
@@ -174,6 +180,50 @@ namespace TMServer.DataBase.Interaction
                 db.SaveChanges();
                 db.Dispose();
             }
+        }
+
+        public bool Rename(int chatId, string newName)
+        {
+            using var db = new TmdbContext();
+            var chat = db.Chats.SingleOrDefault(c => c.Id == chatId);
+            if (chat == null)
+                return false;
+
+            chat.Name = newName;
+            return db.SaveChanges(true) > 0;
+        }
+
+        public bool Kick(int chatId, int userId, int kickId)
+        {
+            using var db = new TmdbContext();
+            var chat = db.Chats.Include(c => c.Members)
+                               .SingleOrDefault(c => c.Id == chatId);
+            if (chat == null)
+                return false;
+
+            var member = chat.Members.SingleOrDefault(m => m.Id == kickId);
+            if (member == null)
+                return false;
+
+            chat.Members.Remove(member);
+            Messages.AddKickMessage(chat.Id, userId, kickId, db);
+            return db.SaveChanges(true) > 0;
+        }
+
+        public DBChat? SetCover(int userId, int chatId,int imageId, out int prevSetId)
+        {
+            using var db = new TmdbContext();
+
+            var chat = db.Chats.SingleOrDefault(u => u.Id == chatId);
+            if (chat == null)
+            {
+                prevSetId = -1;
+                return null;
+            }
+            prevSetId = chat.CoverImageId;
+            chat.CoverImageId = imageId;
+            db.SaveChanges(true);
+            return chat;
         }
     }
 }

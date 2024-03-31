@@ -1,18 +1,24 @@
 ﻿using ApiTypes.Communication.Friends;
 using ApiTypes.Communication.LongPolling;
+using System;
 using TMServer.DataBase.Interaction;
 using TMServer.DataBase.Tables.LongPolling;
 using TMServer.ServerComponent.LongPolling;
 
 namespace TMServer.RequestHandlers
 {
-    internal static class LongPollHandler
+    public class LongPollHandler
     {
-        private static readonly Random Random = new();
-        public static (Notification notification, LongPollResponseInfo info) GetUpdates(int userId)
+        private readonly Random Random = new();
+        private readonly LongPolling LongPolling;
+
+        public LongPollHandler(LongPolling longPolling)
+        {
+            LongPolling = longPolling;
+        }
+        public (Notification notification, LongPollResponseInfo info) GetUpdates(int userId)
         {
             var id = Random.Next();
-
 
             var newMessages = LongPolling.GetMessageUpdate(userId);
             var readedMessages = LongPolling.GetMessagesWithUpdatedStatus(userId);
@@ -66,7 +72,7 @@ namespace TMServer.RequestHandlers
             return (notification, info);
         }
 
-        public static (int[] added, int[] removed) Split(IEnumerable<IGrouping<int, ListUpdate>> groupByForeignKey)
+        private (int[] added, int[] removed) Split(IEnumerable<IGrouping<int, ListUpdate>> groupByForeignKey)
         {
             var added = new List<int>();
             var removed = new List<int>();
@@ -90,15 +96,15 @@ namespace TMServer.RequestHandlers
             return (added.ToArray(), removed.ToArray());
         }
 
-        private static int[] ExtractIds(IEnumerable<Update> updates)
+        private int[] ExtractIds(IEnumerable<Update> updates)
         {
             return updates.Select(u => u.Id).ToArray();
         }
-        public static void Clear(LongPollResponseInfo info)
+        public void Clear(LongPollResponseInfo info)
         {
             LongPolling.ClearUpdatesByIds(info);
         }
-        public static bool IsHaveNotifications(int userId)
+        public bool IsHaveNotifications(int userId)
         {
             return LongPolling.IsHaveUpdates(userId);
         }

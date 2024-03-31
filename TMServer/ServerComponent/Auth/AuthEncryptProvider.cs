@@ -10,6 +10,12 @@ namespace TMServer.ServerComponent.Auth
 {
     internal class AuthEncryptProvider : IEncryptProvider
     {
+        private readonly Crypt Crypt;
+
+        public AuthEncryptProvider(Crypt crypt) 
+        {
+            Crypt = crypt;
+        }
         public void Dispose()
         {
             throw new NotImplementedException();

@@ -24,7 +24,7 @@ namespace TMServer.Services
             if (IsRunning)
                 return;
             IsRunning = true;
-            Logger.Log($"{this.GetType().Name} started");
+            Logger.Log($"{GetType().Name} started");
 
             Task.Run(async () =>
             {
@@ -40,7 +40,7 @@ namespace TMServer.Services
         public override void Stop()
         {
             base.Stop();
-            Logger.Log($"{this.GetType().Name} stopped");
+            Logger.Log($"{GetType().Name} stopped");
         }
 
         protected abstract Task Work(ILogger logger);

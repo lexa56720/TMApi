@@ -16,8 +16,15 @@ namespace TMServer.RequestHandlers
 {
     public class ChangeHandler
     {
+        private readonly Changes Changes;
+
         public event EventHandler<int>? UpdateForUser;
         public bool IsUpdateTracked => UpdateForUser != null;
+
+        public ChangeHandler(Changes changes) 
+        {
+            Changes = changes;
+        }
 
         public void HandleChanges((EntityEntry entity, EntityState state)[] entities)
         {

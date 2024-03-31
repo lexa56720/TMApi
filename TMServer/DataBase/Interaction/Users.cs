@@ -3,14 +3,14 @@ using TMServer.DataBase.Tables;
 
 namespace TMServer.DataBase.Interaction
 {
-    internal static class Users
+    public class Users
     {
-        public static DBUser? GetUser(int id)
+        public DBUser? GetUser(int id)
         {
             using var db = new TmdbContext();
             return db.Users.SingleOrDefault(u => u.Id == id);
         }
-        public static DBUser? GetUserFull(int id)
+        public DBUser? GetUserFull(int id)
         {
             using var db = new TmdbContext();
             return db.Users
@@ -19,7 +19,7 @@ namespace TMServer.DataBase.Interaction
                 .Include(u => u.FriendsOne).ThenInclude(f => f.Receiver)
                 .SingleOrDefault(u => u.Id == id);
         }
-        public static DBUser[] GetUserMain(int[] ids)
+        public DBUser[] GetUserMain(int[] ids)
         {
             using var db = new TmdbContext();
 
@@ -27,7 +27,7 @@ namespace TMServer.DataBase.Interaction
             return users.ToArray();
         }
 
-        public static DBUser[] GetUserByName(string name)
+        public DBUser[] GetUserByName(string name)
         {
             using var db = new TmdbContext();
 
@@ -35,7 +35,7 @@ namespace TMServer.DataBase.Interaction
                 .Where(u => u.Name.Contains(name))
                 .Take(20).ToArray();
         }
-        public static DBUser[] GetUserByLogin(string login)
+        public DBUser[] GetUserByLogin(string login)
         {
             using var db = new TmdbContext();
 
@@ -44,17 +44,22 @@ namespace TMServer.DataBase.Interaction
                 .Take(20).ToArray();
         }
 
-        public static DBUser? SetProfileImage(int userId, int imageId,out int prevSetId)
+        public DBUser? SetProfileImage(int userId, int imageId, out int prevSetId)
         {
             using var db = new TmdbContext();
 
-            var user = db.Users.Single(u => u.Id == userId);
+            var user = db.Users.SingleOrDefault(u => u.Id == userId);
+            if (user == null)
+            {
+                prevSetId= -1;
+                return null;
+            }
             prevSetId = user.ProfileImageId;
             user.ProfileImageId = imageId;
             db.SaveChanges(true);
             return user;
         }
-        public static DBUser? ChangeName(int userId, string newName)
+        public DBUser? ChangeName(int userId, string newName)
         {
             using var db = new TmdbContext();
 
@@ -67,10 +72,10 @@ namespace TMServer.DataBase.Interaction
             return user;
         }
 
-        public static void UpdateLastRequest(int userId)
+        public void UpdateLastRequest(int userId)
         {
             using var db = new TmdbContext();
-            var user = db.Users.SingleOrDefault(u=>u.Id==userId);
+            var user = db.Users.SingleOrDefault(u => u.Id == userId);
             if (user == null)
                 return;
 

@@ -9,9 +9,20 @@ using TMServer.DataBase.Interaction;
 
 namespace TMServer.RequestHandlers
 {
-    internal static class AuthHandler
+    public class AuthHandler
     {
-        public static RsaPublicKey RsaKeyTrade(RsaPublicKey clientKey)
+        private readonly Crypt Crypt;
+        private readonly LongPolling LongPolling;
+        private readonly Authentication Authentication;
+
+        public AuthHandler(Crypt crypt,LongPolling longPolling,Authentication authentication) 
+        {
+            Crypt = crypt;
+            LongPolling = longPolling;
+            Authentication = authentication;
+        }
+
+        public RsaPublicKey RsaKeyTrade(RsaPublicKey clientKey)
         {
             using var encrypter = new RsaEncrypter();
             var serverKey = encrypter.PublicKey;
@@ -22,7 +33,7 @@ namespace TMServer.RequestHandlers
             return new RsaPublicKey(serverKey, id);
         }
 
-        public static AuthorizationResponse Login(AuthorizationRequest request)
+        public AuthorizationResponse Login(AuthorizationRequest request)
         {
             var id = Authentication.GetUserId(request.Login, request.Password);
             if (id < 0)
@@ -33,7 +44,7 @@ namespace TMServer.RequestHandlers
             LongPolling.ClearAllUpdates(id);
             return GetAuthData(id);
         }
-        private static AuthorizationResponse GetAuthData(int userId)
+        private AuthorizationResponse GetAuthData(int userId)
         {
             var token = HashGenerator.GetRandomString();
             var aesCrypter = new AesEncrypter();
@@ -52,7 +63,7 @@ namespace TMServer.RequestHandlers
             };
         }
 
-        public static RegisterResponse Register(RegisterRequest request)
+        public RegisterResponse Register(RegisterRequest request)
         {
             var isSuccsessful = DataConstraints.IsLoginLegal(request.Login) &&
                                 Authentication.IsLoginAvailable(request.Login);
@@ -66,12 +77,12 @@ namespace TMServer.RequestHandlers
             return new RegisterResponse(isSuccsessful);
         }
 
-        public static IntContainer GetVersion()
+        public IntContainer GetVersion()
         {
             return new IntContainer(GlobalSettings.Version);
         }
 
-        public static AuthorizationResponse UpdateAuth(ApiData<AuthUpdateRequest> request)
+        public AuthorizationResponse UpdateAuth(ApiData<AuthUpdateRequest> request)
         {
             Crypt.SetDeprecated(request.CryptId);
             var newAuth = GetAuthData(request.UserId);

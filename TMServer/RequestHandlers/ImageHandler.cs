@@ -1,6 +1,8 @@
 ﻿using ApiTypes;
+using ApiTypes.Communication.Chats;
 using ApiTypes.Communication.Medias;
 using ApiTypes.Communication.Users;
+using CSDTP.Requests;
 using SixLabors.ImageSharp;
 using System;
 using System.Collections.Generic;
@@ -11,11 +13,25 @@ using TMServer.DataBase.Interaction;
 
 namespace TMServer.RequestHandlers
 {
-    internal static class ImageHandler
+    public class ImageHandler
     {
-        public static User? SetProfileImage(ApiData<ChangeProfileImageRequest> request)
+        private readonly Images Images;
+        private readonly Chats Chats;
+        private readonly Users Users;
+        private readonly DbConverter Converter;
+        private readonly Security Security;
+
+        public ImageHandler(Images images, Chats chats, Users users, Security security, DbConverter converter)
         {
-            var image = IsValideProfileImage(request.Data.ImageData);
+            Images = images;
+            Chats = chats;
+            Users = users;
+            Converter = converter;
+            Security = security;
+        }
+        public User? SetProfileImage(ApiData<ChangeProfileImageRequest> request)
+        {
+            var image = IsValideImage(request.Data.ImageData);
             if (image == null)
                 return null;
 
@@ -31,10 +47,10 @@ namespace TMServer.RequestHandlers
             if (prevId > 0)
                 Images.RemoveSet(prevId);
 
-            return DbConverter.Convert(user, set);
+            return Converter.Convert(user, set);
         }
 
-        public static byte[] GetImage(string url, int id)
+        public byte[] GetImage(string url, int id)
         {
             var image = Images.GetImage(id);
 
@@ -43,7 +59,7 @@ namespace TMServer.RequestHandlers
             return image.Data;
         }
 
-        private static Image? IsValideProfileImage(byte[] imageData)
+        private Image? IsValideImage(byte[] imageData)
         {
             try
             {
@@ -55,5 +71,25 @@ namespace TMServer.RequestHandlers
             }
         }
 
+        internal void SetChatCover(ApiData<ChagneCoverRequest> request)
+        {
+            if (!Security.IsAdminOfChat(request.UserId, request.Data.ChatId))
+                return;
+
+            var image = IsValideImage(request.Data.NewCover);
+            if (image == null)
+                return;
+
+            var set = Images.AddImageAsSet(image);
+            if (set == null)
+                return;
+
+            var chat = Chats.SetCover(request.UserId, request.Data.ChatId, set.Id, out var prevId);
+            if (chat == null)
+                return;
+
+            if (prevId > 0)
+                Images.RemoveSet(prevId);
+        }
     }
 }

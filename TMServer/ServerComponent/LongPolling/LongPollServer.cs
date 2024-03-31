@@ -28,6 +28,7 @@ namespace TMServer.ServerComponent.LongPolling
 
         private readonly LifeTimeDictionary<int, LongPollResponseInfo> ResponseInfos = new();
 
+        private readonly LongPollHandler LongPollHandler;
 
         private readonly TimeSpan LongPollLifetime;
 
@@ -36,6 +37,7 @@ namespace TMServer.ServerComponent.LongPolling
         {
             TmdbContext.ChangeHandler.UpdateForUser += DBUpdateForUser;
             LongPollLifetime = longPollLifetime;
+            LongPollHandler = new LongPollHandler(new DataBase.Interaction.LongPolling());
         }
 
         public override void Dispose()

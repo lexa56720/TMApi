@@ -76,6 +76,20 @@ namespace TMApi.ApiRequests.Chats
             return chats.Values;
         }
 
+        public async Task<bool> ChangeCover(int chatId, byte[] newCover)
+        {
+            return await Requester.SendFileAsync(new ChagneCoverRequest(chatId, newCover));
+        }
+
+        public async Task<bool> RenameChat(int chatId,string newName)
+        {
+            return await Requester.ApiSendAsync(new ChatChangeNameRequest(newName,chatId));
+        }
+        public async Task<bool> KickUserFromChat(int chatId, int userId)
+        {
+            return await Requester.ApiSendAsync(new ChatKickRequest(chatId,userId));
+        }
+
         public async Task<bool> LeaveChat(int chatId)
         {
             return await Requester.ApiSendAsync(new ChatLeaveRequest(chatId));

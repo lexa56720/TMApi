@@ -5,9 +5,9 @@ using TMServer.DataBase.Tables;
 
 namespace TMServer.DataBase.Interaction
 {
-    internal static class Messages
+    public class Messages
     {
-        public static DBMessage AddMessage(int authorId, string content, int destinationId)
+        public DBMessage AddMessage(int authorId, string content, int destinationId)
         {
             using var db = new TmdbContext();
             var message = new DBMessage()
@@ -23,50 +23,45 @@ namespace TMServer.DataBase.Interaction
 
             return message;
         }
-        public static void AddSystemMessage(int chatId, int executorId, ActionKind kind, IEnumerable<int> targetIds, TmdbContext db)
-        {
-            foreach (var targetId in targetIds)
-            {
-                var message = new DBMessage()
-                {
-                    AuthorId = executorId,
-                    DestinationId = chatId,
-                    Content = string.Empty,
-                    IsSystem = true,
-                    SendTime = DateTime.UtcNow,
-                };
-                var action = new DBMessageAction()
-                {
-                    ExecutorId = executorId,
-                    TargetId = targetId,
-                    Kind = kind,
-                    Message = message,
-                };
-                db.Messages.Add(message);
-                db.MessageActions.Add(action);
-            }
-        }
-        public static void AddSystemMessage(int chatId, int executorId, ActionKind kind, TmdbContext db)
+
+        public void AddSystemMessage(int chatId, int executorId, ActionKind kind, int? targetId, string text, TmdbContext db)
         {
             var message = new DBMessage()
             {
                 AuthorId = executorId,
                 DestinationId = chatId,
-                Content = string.Empty,
+                Content = text,
                 IsSystem = true,
                 SendTime = DateTime.UtcNow,
             };
+            AddSystemMessagToDB(executorId, kind, targetId, message, db);
+        }
+        public void AddSystemMessage(DBChat chat, int executorId, ActionKind kind, int? targetId, string text, TmdbContext db)
+        {
+            var message = new DBMessage()
+            {
+                AuthorId = executorId,
+                Destination = chat,
+                Content = text,
+                IsSystem = true,
+                SendTime = DateTime.UtcNow,
+            };
+            AddSystemMessagToDB(executorId, kind, targetId, message, db);
+        }
+        private void AddSystemMessagToDB(int executorId, ActionKind kind, int? targetId, DBMessage message, TmdbContext db)
+        {
             var action = new DBMessageAction()
             {
                 ExecutorId = executorId,
+                TargetId = targetId,
                 Kind = kind,
                 Message = message,
-                TargetId=null,
             };
             db.Messages.Add(message);
             db.MessageActions.Add(action);
         }
-        public static bool AddToUnread(int messageId, int chatId)
+
+        public bool AddToUnread(int messageId, int chatId)
         {
             using var db = new TmdbContext();
             var members = db.Chats.Include(c => c.Members)
@@ -83,7 +78,7 @@ namespace TMServer.DataBase.Interaction
 
 
 
-        public static DBMessage[] GetMessages(int chatId, int offset, int count)
+        public DBMessage[] GetMessages(int chatId, int offset, int count)
         {
             using var db = new TmdbContext();
 
@@ -96,7 +91,7 @@ namespace TMServer.DataBase.Interaction
                 .Take(count)
                 .ToArray();
         }
-        public static DBMessage[] GetLastMessages(int[] chatId)
+        public DBMessage[] GetLastMessages(int[] chatId)
         {
             using var db = new TmdbContext();
 
@@ -106,7 +101,7 @@ namespace TMServer.DataBase.Interaction
                          .Where(m => m != null)
                          .ToArray();
         }
-        public static DBMessage[] GetMessages(int chatId, int offset, int count, int lastMessageId)
+        public DBMessage[] GetMessages(int chatId, int offset, int count, int lastMessageId)
         {
             using var db = new TmdbContext();
 
@@ -119,7 +114,7 @@ namespace TMServer.DataBase.Interaction
                               .Take(count)
                               .ToArray();
         }
-        public static DBMessage[] GetMessages(int[] ids)
+        public DBMessage[] GetMessages(int[] ids)
         {
             using var db = new TmdbContext();
 
@@ -129,7 +124,7 @@ namespace TMServer.DataBase.Interaction
                               .Where(m => ids.Contains(m.Id))
                               .ToArray();
         }
-        public static bool ReadAllInChat(int userId, int chatId)
+        public bool ReadAllInChat(int userId, int chatId)
         {
             using var db = new TmdbContext();
             //Чтение всех собщений в чате для юзера userId и отметка о прочитке собщений их авторам 
@@ -141,7 +136,7 @@ namespace TMServer.DataBase.Interaction
             db.UnreadMessages.RemoveRange(messsagesToMark);
             return db.SaveChanges(true) > 0;
         }
-        public static bool MarkAsReaded(int userId, int[] ids)
+        public bool MarkAsReaded(int userId, int[] ids)
         {
             using var db = new TmdbContext();
 
@@ -159,13 +154,13 @@ namespace TMServer.DataBase.Interaction
                 return true;
             }
         }
-        public static bool IsMessageReaded(int userId, int messageId)
+        public bool IsMessageReaded(int userId, int messageId)
         {
             using var db = new TmdbContext();
-            return db.UnreadMessages.Include(m=>m.Message).
-                All(m => (m.UserId != userId || m.MessageId != messageId) || (m.UserId==m.Message.AuthorId && m.UserId !=userId ));
+            return db.UnreadMessages.Include(m => m.Message).
+                All(m => (m.UserId != userId || m.MessageId != messageId) || (m.UserId == m.Message.AuthorId && m.UserId != userId));
         }
-        public static bool[] IsMessageReaded(int userId, IEnumerable<int> messageIds)
+        public bool[] IsMessageReaded(int userId, IEnumerable<int> messageIds)
         {
             return messageIds.Select(id => IsMessageReaded(userId, id))
                              .ToArray();

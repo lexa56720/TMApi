@@ -17,10 +17,25 @@ using DBImageSize = TMServer.DataBase.Tables.ImageSize;
 
 namespace TMServer.RequestHandlers
 {
-    public static class DbConverter
+    public class DbConverter
     {
-        public static Chat Convert(DBChat chat, int unreadCount)
+        private readonly Images Images;
+
+        public DbConverter(Images images)
         {
+            Images = images;
+        }
+
+        public Chat Convert(DBChat chat, int unreadCount)
+        {
+            return Convert(chat, unreadCount, Images.GetImageSet(chat.CoverImageId));
+        }
+        public Chat Convert(DBChat chat, int unreadCount, DBImageSet? cover)
+        {
+            Photo[] coverPics = [];
+            if (cover != null)
+                coverPics = Convert(cover);
+
             return new Chat()
             {
                 Id = chat.Id,
@@ -28,19 +43,21 @@ namespace TMServer.RequestHandlers
                 Name = chat.Name,
                 MemberIds = chat.Members.Select(m => m.Id)
                                         .ToArray(),
+                ChatCover = coverPics,
                 UnreadCount = unreadCount,
                 IsDialogue = chat.IsDialogue,
             };
         }
-        public static Chat[] Convert(DBChat[] chats, int[] unreadCounts)
+        public Chat[] Convert(DBChat[] chats, int[] unreadCounts)
         {
+            var covers = Images.GetImageSet(chats.Select(u => u.CoverImageId).ToArray());
             var result = new Chat[chats.Length];
             for (int i = 0; i < chats.Length; i++)
-                result[i] = Convert(chats[i], unreadCounts[i]);
+                result[i] = Convert(chats[i], unreadCounts[i], covers[i]);
             return result;
         }
 
-        public static Message Convert(DBMessage dbMessage, bool isReaded)
+        public Message Convert(DBMessage dbMessage, bool isReaded)
         {
             if (dbMessage.IsSystem && dbMessage.Action != null)
             {
@@ -53,7 +70,7 @@ namespace TMServer.RequestHandlers
             return new Message(dbMessage.Id, dbMessage.AuthorId, dbMessage.DestinationId,
                                dbMessage.Content, dbMessage.SendTime, isReaded, Convert(images));
         }
-        public static Message[] Convert(DBMessage[] dbMessages, bool[] isReaded)
+        public Message[] Convert(DBMessage[] dbMessages, bool[] isReaded)
         {
             var result = new Message[dbMessages.Length];
             for (int i = 0; i < dbMessages.Length; i++)
@@ -62,9 +79,13 @@ namespace TMServer.RequestHandlers
             return result;
         }
 
-        public static User Convert(DBUser dBUser, DBImageSet? profilePic)
+        public User Convert(DBUser user)
         {
-            Photo[] pics=[];
+            return Convert(user, Images.GetImageSet(user.ProfileImageId));
+        }
+        public User Convert(DBUser dBUser, DBImageSet? profilePic)
+        {
+            Photo[] pics = [];
             if (profilePic != null)
                 pics = Convert(profilePic);
 
@@ -74,11 +95,11 @@ namespace TMServer.RequestHandlers
                 Id = dBUser.Id,
                 Login = dBUser.Login,
                 IsOnline = dBUser.IsOnline,
-                LastAction=dBUser.LastRequest,
+                LastAction = dBUser.LastRequest,
                 ProfilePics = pics,
             };
         }
-        public static User[] Convert(DBUser[] users)
+        public User[] Convert(DBUser[] users)
         {
             var profilePics = Images.GetImageSet(users.Select(u => u.ProfileImageId).ToArray());
             var result = new User[users.Length];
@@ -87,14 +108,14 @@ namespace TMServer.RequestHandlers
             return result;
         }
 
-        public static ChatInvite Convert(DBChatInvite inivite)
+        public ChatInvite Convert(DBChatInvite inivite)
         {
             return new ChatInvite(inivite.ChatId,
                                   inivite.ToUserId,
                                   inivite.InviterId,
                                   inivite.Id);
         }
-        public static ChatInvite[] Convert(DBChatInvite[] invites)
+        public ChatInvite[] Convert(DBChatInvite[] invites)
         {
             var result = new ChatInvite[invites.Length];
             for (int i = 0; i < invites.Length; i++)
@@ -102,11 +123,11 @@ namespace TMServer.RequestHandlers
             return result;
         }
 
-        public static FriendRequest Convert(DBFriendRequest request)
+        public FriendRequest Convert(DBFriendRequest request)
         {
             return new FriendRequest(request.ReceiverId, request.SenderId, request.Id);
         }
-        public static FriendRequest[] Convert(DBFriendRequest[] requests)
+        public FriendRequest[] Convert(DBFriendRequest[] requests)
         {
             var result = new FriendRequest[requests.Length];
             for (int i = 0; i < requests.Length; i++)
@@ -114,12 +135,11 @@ namespace TMServer.RequestHandlers
             return result;
         }
 
-
-        public static Photo[] Convert(DBImageSet set)
+        public Photo[] Convert(DBImageSet set)
         {
             return Convert(set.Images.ToArray());
         }
-        public static Photo[] Convert(DBImage[] images)
+        public Photo[] Convert(DBImage[] images)
         {
             var result = new Photo[images.Length];
             for (int i = 0; i < result.Length; i++)
@@ -130,7 +150,8 @@ namespace TMServer.RequestHandlers
             }
             return result;
         }
-        private static ApiImageSize Convert(DBImageSize imageSize)
+
+        private ApiImageSize Convert(DBImageSize imageSize)
         {
             return imageSize switch
             {

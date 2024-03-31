@@ -5,9 +5,9 @@ using TMServer.ServerComponent.LongPolling;
 
 namespace TMServer.DataBase.Interaction
 {
-    internal static class LongPolling
+    public class LongPolling
     {
-        public static DBNewMessageUpdate[] GetMessageUpdate(int userId)
+        public DBNewMessageUpdate[] GetMessageUpdate(int userId)
         {
             using var db = new TmdbContext();
             var result = db.NewMessageUpdates
@@ -16,7 +16,7 @@ namespace TMServer.DataBase.Interaction
             return result;
         }
 
-        public static DBMessageStatusUpdate[] GetMessagesWithUpdatedStatus(int userId)
+        public DBMessageStatusUpdate[] GetMessagesWithUpdatedStatus(int userId)
         {
             using var db = new TmdbContext();
             var result = db.MessageStatusUpdates
@@ -24,7 +24,7 @@ namespace TMServer.DataBase.Interaction
                            .ToArray();
             return result;
         }
-        public static DBFriendRequestUpdate[] GetFriendRequestUpdates(int userId)
+        public DBFriendRequestUpdate[] GetFriendRequestUpdates(int userId)
         {
             using var db = new TmdbContext();
             var result = db.FriendRequestUpdates
@@ -32,7 +32,7 @@ namespace TMServer.DataBase.Interaction
                            .ToArray();
             return result;
         }
-        public static DBFriendListUpdate[] GetFriendListUpdates(int userId)
+        public DBFriendListUpdate[] GetFriendListUpdates(int userId)
         {
             using var db = new TmdbContext();
             var result = db.FriendListUpdates
@@ -42,7 +42,7 @@ namespace TMServer.DataBase.Interaction
             return result;
         }
 
-        public static DBChatListUpdate[] GetChatListUpdates(int userId)
+        public DBChatListUpdate[] GetChatListUpdates(int userId)
         {
             using var db = new TmdbContext();
             var result = db.ChatListUpdates
@@ -51,7 +51,7 @@ namespace TMServer.DataBase.Interaction
             return result;
         }
 
-        public static DBUserProfileUpdate[] GetRelatedUsersUpdates(int userId)
+        public DBUserProfileUpdate[] GetRelatedUsersUpdates(int userId)
         {
             using var db = new TmdbContext();
             var result = db.UserProfileUpdates
@@ -60,7 +60,7 @@ namespace TMServer.DataBase.Interaction
             return result;
         }
 
-        public static DBChatInviteUpdate[] GetChatInvites(int userId)
+        public DBChatInviteUpdate[] GetChatInvites(int userId)
         {
             using var db = new TmdbContext();
             var result = db.ChatInviteUpdates
@@ -69,7 +69,7 @@ namespace TMServer.DataBase.Interaction
             return result;
         }
 
-        public static DBChatUpdate[] GetChatUpdates(int userId)
+        public DBChatUpdate[] GetChatUpdates(int userId)
         {
             using var db = new TmdbContext();
             var result = db.ChatUpdates
@@ -79,7 +79,7 @@ namespace TMServer.DataBase.Interaction
         }
 
 
-        public static void ClearAllUpdates(int userId)
+        public void ClearAllUpdates(int userId)
         {
             using var db = new TmdbContext();
             db.NewMessageUpdates.Where(u => u.UserId == userId).ExecuteDelete();
@@ -92,7 +92,7 @@ namespace TMServer.DataBase.Interaction
             db.FriendListUpdates.Where(fl => fl.UserId == userId).ExecuteDelete();
             db.SaveChanges();
         }
-        public static void ClearUpdatesByIds(LongPollResponseInfo info)
+        public void ClearUpdatesByIds(LongPollResponseInfo info)
         {
             using var db = new TmdbContext();
             ExecuteDeleteByIds(db.NewMessageUpdates, info.NewMessages);
@@ -106,12 +106,12 @@ namespace TMServer.DataBase.Interaction
             db.SaveChanges();
         }
 
-        private static void ExecuteDeleteByIds<T>(DbSet<T> dbSet, int[] ids) where T : Update
+        private void ExecuteDeleteByIds<T>(DbSet<T> dbSet, int[] ids) where T : Update
         {
             dbSet.Where(x => ids.Contains(x.Id)).ExecuteDelete();
         }
 
-        public static bool IsHaveUpdates(int userId)
+        public bool IsHaveUpdates(int userId)
         {
             using var db = new TmdbContext();
             return db.NewMessageUpdates.Any(u => u.UserId == userId) ||

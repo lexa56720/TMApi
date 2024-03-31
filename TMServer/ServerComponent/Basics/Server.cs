@@ -14,6 +14,9 @@ namespace TMServer.ServerComponent.Basics
         protected Responder Responder { get; }
         protected ILogger Logger { get; }
 
+        public required Security Security { private get; init; }
+        public required Users Users{ private get; init; }
+
 
         protected bool IsDisposed;
 

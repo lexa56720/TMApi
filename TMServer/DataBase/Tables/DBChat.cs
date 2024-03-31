@@ -6,6 +6,8 @@ public partial class DBChat
 
     public required int AdminId { get; set; }
 
+    public int CoverImageId { get; set; }
+
     public required bool IsDialogue { get; set; }
     public string Name { get; set; }=string.Empty;
 

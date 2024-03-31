@@ -13,9 +13,9 @@ using TMServer.DataBase.Tables;
 
 namespace TMServer.DataBase.Interaction
 {
-    internal class Images
+    public class Images
     {
-        public static DBImage AddImage(Image largeImage)
+        public DBImage AddImage(Image largeImage)
         {
             var largeImageData = GetImageBytes(largeImage);
             using var db = new ImagesDBContext();
@@ -30,7 +30,7 @@ namespace TMServer.DataBase.Interaction
             db.SaveChanges();
             return image;
         }
-        public static DBImageSet? AddImageAsSet(Image largeImage)
+        public DBImageSet? AddImageAsSet(Image largeImage)
         {
             using var smallImage = largeImage.Clone(image => image.Resize(64, 64));
             using var mediumImage = largeImage.Clone(image => image.Resize(128, 128));
@@ -72,7 +72,7 @@ namespace TMServer.DataBase.Interaction
 
 
 
-        public static DBImageSet?[] GetImageSet(int[] setIds)
+        public DBImageSet?[] GetImageSet(int[] setIds)
         {
             using var db = new ImagesDBContext();
             var set = db.ImageSets.Include(s => s.Images)
@@ -81,7 +81,7 @@ namespace TMServer.DataBase.Interaction
             return setIds.Select(id => set.FirstOrDefault(i => i.Id == id))
                          .ToArray();
         }
-        public static DBImageSet? GetImageSet(int setId)
+        public DBImageSet? GetImageSet(int setId)
         {
             using var db = new ImagesDBContext();
             var set = db.ImageSets.Include(s => s.Images)
@@ -89,7 +89,7 @@ namespace TMServer.DataBase.Interaction
             return set;
         }
 
-        public static DBImage? GetImage(int imageId)
+        public DBImage? GetImage(int imageId)
         {
             using var db = new ImagesDBContext();
 
@@ -97,7 +97,7 @@ namespace TMServer.DataBase.Interaction
 
             return image;
         }
-        public static DBImage[] GetImage(int[] imageIds)
+        public DBImage[] GetImage(int[] imageIds)
         {
             using var db = new ImagesDBContext();
 
@@ -107,7 +107,7 @@ namespace TMServer.DataBase.Interaction
             return images;
         }
 
-        public static bool RemoveSet(int setId)
+        public bool RemoveSet(int setId)
         {
             using var db = new ImagesDBContext();
             var set = db.ImageSets.Include(s => s.Images)
@@ -120,7 +120,7 @@ namespace TMServer.DataBase.Interaction
             return db.SaveChanges() > 0;
         }
 
-        public static string GetImageUrl(int id, ImageSize size)
+        public string GetImageUrl(int id, ImageSize size)
         {
             using var db = new ImagesDBContext();
 
@@ -138,11 +138,11 @@ namespace TMServer.DataBase.Interaction
             return image.Url;
         }
 
-        private static string GenerateUrl()
+        private string GenerateUrl()
         {
             return RandomNumberGenerator.GetHexString(128, true);
         }
-        private static byte[] GetImageBytes(Image image)
+        private byte[] GetImageBytes(Image image)
         {
             using var ms = new MemoryStream();
             image.SaveAsJpeg(ms);

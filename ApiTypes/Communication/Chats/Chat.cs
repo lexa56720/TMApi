@@ -1,4 +1,5 @@
-﻿using ApiTypes.Communication.Users;
+﻿using ApiTypes.Communication.Medias;
+using ApiTypes.Communication.Users;
 using CSDTP;
 using CSDTP.Utils;
 using System.Diagnostics.CodeAnalysis;
@@ -14,6 +15,9 @@ namespace ApiTypes.Communication.Chats
         public int UnreadCount { get; set; }
         public bool IsDialogue { get; set; }
         public string Name { get; set; } = string.Empty;
+
+        public Photo[] ChatCover { get; set; } = [];
+
 
         public Chat(int id, int adminId, bool isDialogue, string name, params int[] userIds)
         {

@@ -7,15 +7,29 @@ using TMServer.DataBase.Tables;
 
 namespace TMServer.RequestHandlers
 {
-    internal static class UsersHandler
+    public class UsersHandler
     {
-        public static UserInfo? GetUserInfo(ApiData<UserFullRequest> id)
+        private readonly Users Users;
+        private readonly Chats Chats;
+        private readonly Friends Friends;
+        private readonly Images Images;
+        private readonly DbConverter Converter;
+
+        public UsersHandler(Users users, Chats chats, Friends friends, Images images, DbConverter converter)
+        {
+            Users = users;
+            Chats = chats;
+            Friends = friends;
+            Images = images;
+            Converter = converter;
+        }
+        public UserInfo? GetUserInfo(ApiData<UserFullRequest> id)
         {
             var user = Users.GetUserFull(id.UserId);
             if (user == null)
                 return null;
 
-            var friends = DbConverter.Convert(user.GetFriends().ToArray());
+            var friends = Converter.Convert(user.GetFriends().ToArray());
 
             return new UserInfo()
             {
@@ -23,28 +37,26 @@ namespace TMServer.RequestHandlers
                 Friends = friends,
                 FriendRequests = Friends.GetAllForUser(id.UserId),
                 ChatInvites = Chats.GetAllChatInvites(id.UserId),
-                MainInfo = DbConverter.Convert(user, Images.GetImageSet(user.ProfileImageId)),
+                MainInfo = Converter.Convert(user),
             };
         }
 
-        public static SerializableArray<User> GetUsers(ApiData<UserRequest> ids)
+        public SerializableArray<User> GetUsers(ApiData<UserRequest> ids)
         {
             var users = Users.GetUserMain(ids.Data.Ids);
             if (users.Length == 0)
                 return new SerializableArray<User>([]);
-            return new SerializableArray<User>(DbConverter.Convert(users));
+            return new SerializableArray<User>(Converter.Convert(users));
         }
 
-        public static User? ChangeUserName(ApiData<ChangeNameRequest> request)
+        public User? ChangeUserName(ApiData<ChangeNameRequest> request)
         {
             if (!DataConstraints.IsNameLegal(request.Data.NewName))
                 return null;
             var user = Users.ChangeName(request.UserId, request.Data.NewName);
-            if(user == null)
+            if (user == null)
                 return null;
-            return DbConverter.Convert(user, null);
+            return Converter.Convert(user, null);
         }
-
     }
-
 }

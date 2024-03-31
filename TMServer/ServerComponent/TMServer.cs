@@ -12,7 +12,9 @@ using ApiTypes.Communication.Users;
 using CSDTP.Cryptography.Algorithms;
 using CSDTP.Cryptography.Providers;
 using CSDTP.Requests;
+using System.Diagnostics.CodeAnalysis;
 using TMServer.DataBase;
+using TMServer.DataBase.Interaction;
 using TMServer.Logger;
 using TMServer.RequestHandlers;
 using TMServer.ServerComponent.ApiResponser;
@@ -21,35 +23,38 @@ using TMServer.ServerComponent.Basics;
 using TMServer.ServerComponent.Images;
 using TMServer.ServerComponent.LongPolling;
 
-namespace TMServer.Servers
+namespace TMServer.ServerComponent
 {
-    internal class TMServer : Startable, IDisposable
+    internal class TMServer : Startable,IDisposable
     {
-        private readonly AuthorizationServer AuthServer;
+        public required AuthorizationServer AuthServer { private get; init; }
+        public required ResponseServer ApiServer { private get; init; }
+        public required LongPollServer LongPollServer { private get; init; }
+        public required ImageServer ImageServer { private get; init; }
 
-        private readonly ResponseServer ApiServer;
-
-        private readonly LongPollServer LongPollServer;
-
-        private readonly ImageServer ImageServer;
-
+        public required AuthHandler AuthHandler { private get; init; }
+        public required ChatsHandler ChatsHandler { private get; init; }
+        public required FriendsHandler FriendsHandler { private get; init; }
+        public required ImageHandler ImageHandler { private get; init; }
+        public required MessagesHandler MessagesHandler { private get; init; }
+        public required SearchHandler SearchHandler { private get; init; }
+        public required UsersHandler UsersHandler { private get; init; }
 
         private readonly ILogger Logger;
 
-        public TMServer(TimeSpan longPollLifetime, int authPort, int responsePort, 
-                        int longPollPort,int imageLoadPort,int imageGetPort, ILogger logger)
-        {
-            AuthServer = new AuthorizationServer(authPort, new AuthEncryptProvider(), logger);
-            ApiServer = new ResponseServer(responsePort, new ApiEncryptProvider(), logger);
-            LongPollServer = new LongPollServer(longPollLifetime, longPollPort, new ApiEncryptProvider(), logger);
-            ImageServer = new ImageServer(imageLoadPort, imageGetPort, new ApiEncryptProvider(), logger);
 
+        public TMServer(ILogger logger)
+        {
+            Logger = logger;
+        }
+
+        public void Init()
+        {
             RegisterAuthMethods();
             RegisterApiMethods();
             RegisterLongPollMethods();
-
-            Logger = logger;
         }
+
         public void Dispose()
         {
             Stop();
@@ -88,10 +93,10 @@ namespace TMServer.Servers
         {
             ApiServer.RegisterRequestHandler<UserFullRequest, UserInfo>(UsersHandler.GetUserInfo);
             ApiServer.RegisterRequestHandler<UserRequest, SerializableArray<User>>(UsersHandler.GetUsers);
-            ApiServer.RegisterRequestHandler<ChangeNameRequest,User>(UsersHandler.ChangeUserName);
+            ApiServer.RegisterRequestHandler<ChangeNameRequest, User>(UsersHandler.ChangeUserName);
             ApiServer.RegisterRequestHandler<SearchRequest, SerializableArray<User>>(SearchHandler.GetUserByName);
 
-            ImageServer.RegisterRequestHandler<ChangeProfileImageRequest,User> (ImageHandler.SetProfileImage);
+            ImageServer.RegisterRequestHandler<ChangeProfileImageRequest, User>(ImageHandler.SetProfileImage);
         }
         private void RegisterFriendMethods()
         {
@@ -111,7 +116,13 @@ namespace TMServer.Servers
             ApiServer.RegisterRequestHandler<InviteRequestAll, IntArrayContainer>(ChatsHandler.GetAllChatInvites);
             ApiServer.RegisterRequestHandler<ChatRequestAll, IntArrayContainer>(ChatsHandler.GetAllChats);
 
+            ApiServer.RegisterDataHandler<ChatChangeNameRequest>(ChatsHandler.ChangeName);
+            ApiServer.RegisterDataHandler<ChatKickRequest>(ChatsHandler.KickUser);
+
             ApiServer.RegisterDataHandler<ChatLeaveRequest>(ChatsHandler.LeaveChat);
+
+            ImageServer.RegisterDataHandler<ChagneCoverRequest>(ImageHandler.SetChatCover);
+
         }
 
         private void RegisterLongPollMethods()

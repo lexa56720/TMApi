@@ -1,6 +1,8 @@
 ﻿using ApiTypes.Communication.BaseTypes;
 using TMServer.DataBase;
 using TMServer.Logger;
+using TMServer.ServerComponent;
+using TMServer.ServerComponent.Basics;
 using TMServer.Services;
 
 namespace TMServer
@@ -22,13 +24,7 @@ namespace TMServer
             db.Database.EnsureCreated();
             db.SaveChanges();
 
-            using var server = new Servers.TMServer(TimeSpan.FromMinutes(3),
-                                                    GlobalSettings.AuthPort,
-                                                    GlobalSettings.ApiPort,
-                                                    GlobalSettings.LongPollPort,
-                                                    GlobalSettings.FileUploadPort,
-                                                    GlobalSettings.FileGetPort,
-                                                    logger);
+            using var server = Create(logger);
             server.Start();
 
             var tokenCleaner = new TokenCleaner(TimeSpan.FromMinutes(15), logger);
@@ -40,6 +36,19 @@ namespace TMServer
             Thread.Sleep(1000);
             logger.Log("\n\n" + new string('*', 10) + "INITIALIZATION OVER" + new string('*', 10));
             Console.ReadLine();
+        }
+
+        private static ServerComponent.TMServer Create(ILogger logger)
+        {
+            var factory = new ServerFactory(GlobalSettings.PasswordSalt, logger);
+
+            var authServer = factory.CreateAuthServer(GlobalSettings.AuthPort);
+            var apiServer = factory.CreateApiServer(GlobalSettings.ApiPort);
+
+            var longPollServer = factory.CreateLongPollServer(GlobalSettings.LongPollPort, GlobalSettings.LongPollLifeTime);
+            var imageServer = factory.CreateImageServer(GlobalSettings.FileUploadPort, GlobalSettings.FileGetPort);
+
+            return factory.CreateMainServer(apiServer,authServer,longPollServer,imageServer);
         }
     }
 }

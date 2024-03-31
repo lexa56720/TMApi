@@ -8,8 +8,12 @@ namespace TMServer.DataBase;
 
 public partial class TmdbContext : DbContext
 {
-    public static ChangeHandler ChangeHandler { get; private set; } = new ChangeHandler();
+    public static ChangeHandler ChangeHandler { get; private set; } 
 
+    static TmdbContext()
+    {
+        ChangeHandler = new ChangeHandler(new Interaction.Changes());
+    }
     public TmdbContext()
     {
     }
@@ -32,7 +36,6 @@ public partial class TmdbContext : DbContext
     public virtual DbSet<DBUnreadMessage> UnreadMessages { get; set; }
     public virtual DbSet<DBChatUpdate> ChatUpdates { get; set; }
     public virtual DbSet<DBMessageAction> MessageActions { get; set; }
-
 
     public virtual DbSet<DBChatInviteUpdate> ChatInviteUpdates { get; set; }
     public virtual DbSet<DBFriendRequestUpdate> FriendRequestUpdates { get; set; }
@@ -75,10 +78,17 @@ public partial class TmdbContext : DbContext
             entity.HasKey(e => e.Id).HasName("chats_pkey");
             entity.Property(e => e.Id).HasColumnName("id");
 
-            entity.Property(e => e.AdminId).HasColumnName("admin_id");
-            entity.Property(e => e.Name).HasColumnName("name");
+            entity.Property(e => e.AdminId)
+                  .HasColumnName("admin_id");
 
-            entity.Property(e => e.IsDialogue).HasColumnName("is_dialogue");
+            entity.Property(e => e.Name)
+                  .HasColumnName("name");
+
+            entity.Property(e => e.CoverImageId)
+                  .HasColumnName("cover_image_id");
+
+            entity.Property(e => e.IsDialogue)
+                  .HasColumnName("is_dialogue");
 
             entity.HasOne(e => e.Admin)
                   .WithMany()

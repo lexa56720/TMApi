@@ -7,9 +7,9 @@ using TMServer.DataBase.Tables;
 
 namespace TMServer.DataBase.Interaction
 {
-    internal static class Crypt
+    public class Crypt
     {
-        public static int SaveRsaKeyPair(string serverPrivateKey, string clientPublicKey, DateTime expiration)
+        public int SaveRsaKeyPair(string serverPrivateKey, string clientPublicKey, DateTime expiration)
         {
             using var db = new TmdbContext();
 
@@ -25,14 +25,14 @@ namespace TMServer.DataBase.Interaction
             return rsa.Id;
         }
 
-        public static DBRsa? GetRsaKeysById(int rsaId)
+        public DBRsa? GetRsaKeysById(int rsaId)
         {
             using var db = new TmdbContext();
             var now = DateTime.UtcNow;
             return db.RsaCrypts.SingleOrDefault(rsa => rsa.Id == rsaId && rsa.Expiration > now);
         }
 
-        public static void SetDeprecated(int cryptId)
+        public void SetDeprecated(int cryptId)
         {
             using var db = new TmdbContext();
 
@@ -44,7 +44,7 @@ namespace TMServer.DataBase.Interaction
             db.SaveChanges();
         }
 
-        public static byte[]? GetAesKey(int cryptId)
+        public byte[]? GetAesKey(int cryptId)
         {
             using var db = new TmdbContext();
 
