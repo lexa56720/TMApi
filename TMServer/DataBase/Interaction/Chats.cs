@@ -31,9 +31,10 @@ namespace TMServer.DataBase.Interaction
                 if (user != null)
                     chat.Members.Add(user);
             }
-            Messages.AddCreateMessage(chat, usersId[0], db);
-            db.SaveChanges(true);
 
+            Messages.AddCreateMessage(chat, usersId[0], db);
+            Messages.AddInviteMessages(chat, usersId[0], chat.Members.Skip(1).Select(i => i.Id), db);
+            db.SaveChanges(true);
             return chat;
         }
         public void InviteToChat(int inviterId, int chatId, params int[] userIds)
@@ -123,9 +124,11 @@ namespace TMServer.DataBase.Interaction
             var user = db.Users.SingleOrDefault(u => u.Id == userId);
             var chat = db.Chats.SingleOrDefault(c => c.Id == chatId);
             if (user != null && chat != null)
+            {
                 chat.Members.Add(user);
+                Messages.AddEnterMessage(chatId, userId, db);
+            }
 
-            Messages.AddEnterMessage(chatId, userId, db);
             db.SaveChanges(true);
         }
 
@@ -210,7 +213,7 @@ namespace TMServer.DataBase.Interaction
             return db.SaveChanges(true) > 0;
         }
 
-        public DBChat? SetCover(int userId, int chatId,int imageId, out int prevSetId)
+        public DBChat? SetCover(int userId, int chatId, int imageId, out int prevSetId)
         {
             using var db = new TmdbContext();
 

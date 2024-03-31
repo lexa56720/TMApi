@@ -15,7 +15,11 @@ namespace TMServer.DataBase.Interaction
             foreach (var targetId in targetIds)
                 messages.AddSystemMessage(chatId, inviterId, ActionKind.UserInvite, targetId, string.Empty, context);
         }
-
+        public static void AddInviteMessages(this Messages messages, DBChat chat, int inviterId, IEnumerable<int> targetIds, TmdbContext context)
+        {
+            foreach (var targetId in targetIds)
+                messages.AddSystemMessage(chat, inviterId, ActionKind.UserInvite, targetId, string.Empty, context);
+        }
         public static void AddCreateMessage(this Messages messages, DBChat chat, int userId, TmdbContext context)
         {
             messages.AddSystemMessage(chat, userId, ActionKind.ChatCreated, null, string.Empty, context);

@@ -10,7 +10,7 @@ namespace TMClient
     {
         private static async Task Main(string[] args)
         {
-            ApiProvider apiProvider = new ApiProvider(new IPAddress([127, 0, 0, 1]), 6665, 6666, 6667, TimeSpan.FromMinutes(3));
+            ApiProvider apiProvider = new ApiProvider(new IPAddress([127, 0, 0, 1]), 6665, 6666, 6667,6668, TimeSpan.FromMinutes(3));
 
             var peterApi = await apiProvider.GetApiRegistration("peter alexandros", "peter", "peter");
             var ramsulApi = await apiProvider.GetApiRegistration("ramsul abdulHalif", "ramsul", "ramsul");
