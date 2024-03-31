@@ -102,7 +102,8 @@ namespace TMServer.RequestHandlers
 
         internal void ChangeName(ApiData<ChatChangeNameRequest> request)
         {
-            if (!Security.IsAdminOfChat(request.UserId, request.Data.ChatId))
+            if (!Security.IsAdminOfChat(request.UserId, request.Data.ChatId) ||
+                !DataConstraints.IsNameLegal(request.Data.NewName))
                 return;
             Chats.Rename(request.Data.ChatId, request.Data.NewName);
         }

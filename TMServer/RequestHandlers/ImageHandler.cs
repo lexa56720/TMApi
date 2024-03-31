@@ -31,7 +31,7 @@ namespace TMServer.RequestHandlers
         }
         public User? SetProfileImage(ApiData<ChangeProfileImageRequest> request)
         {
-            var image = IsValideImage(request.Data.ImageData);
+            using var image = IsValideImage(request.Data.ImageData);
             if (image == null)
                 return null;
 
@@ -63,7 +63,13 @@ namespace TMServer.RequestHandlers
         {
             try
             {
-                return Image.Load(imageData);
+                var image = Image.Load(imageData);
+                if (image.Width < 64 || image.Height < 64)
+                {
+                    image.Dispose();
+                    return null;
+                }
+                return image;
             }
             catch
             {
@@ -76,7 +82,7 @@ namespace TMServer.RequestHandlers
             if (!Security.IsAdminOfChat(request.UserId, request.Data.ChatId))
                 return;
 
-            var image = IsValideImage(request.Data.NewCover);
+            using var image = IsValideImage(request.Data.NewCover);
             if (image == null)
                 return;
 
