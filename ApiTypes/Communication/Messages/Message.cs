@@ -12,7 +12,8 @@ namespace ApiTypes.Communication.Messages
         UserLeave,
         UserKicked,
         ChatCreated, 
-        ChatRenamed,
+        ChatRenamed, 
+        NewCover,
     }
     public class Message : ISerializable<Message>
     {

@@ -126,6 +126,7 @@ namespace TMApi
             return await FileRequester.RequestAsync<TResponse, ApiData<TRequest>>
                          (new ApiData<TRequest>(Token, UserId, data, IdHolder.Value), Timeout);
         }
+
         public async Task<TResponse?> LongPollAsync<TResponse, TRequest>(TRequest data, TimeSpan timeout, CancellationToken token)
                                       where TResponse : ISerializable<TResponse>, new()
                                       where TRequest : ISerializable<TRequest>, new()

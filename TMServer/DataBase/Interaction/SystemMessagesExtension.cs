@@ -37,5 +37,9 @@ namespace TMServer.DataBase.Interaction
         {
             messages.AddSystemMessage(chatId, userId, ActionKind.ChatRenamed, null, newName, context);
         }
+        public static void AddUpdateCoverMessage(this Messages messages, int chatId, int userId, TmdbContext context)
+        {
+            messages.AddSystemMessage(chatId, userId, ActionKind.NewCover, null, string.Empty, context);
+        }
     }
 }

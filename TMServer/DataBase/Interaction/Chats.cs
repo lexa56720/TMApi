@@ -222,6 +222,7 @@ namespace TMServer.DataBase.Interaction
             }
             prevSetId = chat.CoverImageId;
             chat.CoverImageId = imageId;
+            Messages.AddUpdateCoverMessage(chatId, userId, db);
             db.SaveChanges(true);
             return chat;
         }
