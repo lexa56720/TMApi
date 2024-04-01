@@ -17,7 +17,7 @@ using TMServer.DataBase;
 using TMServer.DataBase.Interaction;
 using TMServer.Logger;
 using TMServer.RequestHandlers;
-using TMServer.ServerComponent.ApiResponser;
+using TMServer.ServerComponent.Api;
 using TMServer.ServerComponent.Auth;
 using TMServer.ServerComponent.Basics;
 using TMServer.ServerComponent.Images;
@@ -27,10 +27,10 @@ namespace TMServer.ServerComponent
 {
     internal class TMServer : Startable,IDisposable
     {
-        public required AuthorizationServer AuthServer { private get; init; }
-        public required ResponseServer ApiServer { private get; init; }
-        public required LongPollServer LongPollServer { private get; init; }
-        public required ImageServer ImageServer { private get; init; }
+        public required AuthorizationServer AuthServer {  get; init; }
+        public required ApiServer ApiServer {  get; init; }
+        public required LongPollServer LongPollServer {  get; init; }
+        public required ImageServer ImageServer {  get; init; }
 
         public required AuthHandler AuthHandler { private get; init; }
         public required ChatsHandler ChatsHandler { private get; init; }
@@ -68,7 +68,7 @@ namespace TMServer.ServerComponent
             AuthServer.Register<RsaPublicKey, RsaPublicKey>(AuthHandler.RsaKeyTrade);
             AuthServer.Register<AuthorizationRequest, AuthorizationResponse>(AuthHandler.Login);
             AuthServer.Register<RegisterRequest, RegisterResponse>(AuthHandler.Register);
-            AuthServer.Register<VersionRequest, IntContainer>(e => AuthHandler.GetVersion());
+            AuthServer.Register<ServerInfoRequest, IntContainer>(e => AuthHandler.GetVersion());
         }
         private void RegisterApiMethods()
         {
@@ -142,7 +142,7 @@ namespace TMServer.ServerComponent
             LongPollServer.Start();
             ImageServer.Start();
 
-            Logger.Log("\nServer is ready\n");
+            Logger.Log("Server is ready\n");
         }
         public override void Stop()
         {

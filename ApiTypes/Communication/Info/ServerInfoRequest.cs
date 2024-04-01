@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ApiTypes.Communication.Info
 {
-    public class VersionRequest : ISerializable<VersionRequest>
+    public class ServerInfoRequest : ISerializable<ServerInfoRequest>
     {
     }
 }

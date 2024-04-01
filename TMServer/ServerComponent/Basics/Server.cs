@@ -14,15 +14,23 @@ namespace TMServer.ServerComponent.Basics
         protected Responder Responder { get; }
         protected ILogger Logger { get; }
 
+        public virtual int ListenPort => Responder.ListenPort;
+
         public required Security Security { private get; init; }
         public required Users Users{ private get; init; }
 
 
         protected bool IsDisposed;
 
-        protected Server(int port, IEncryptProvider encryptProvider, ILogger logger, Protocol protocol = Protocol.Udp)
+        protected Server(int port, ILogger logger, Protocol protocol = Protocol.Udp)
         {
-            Responder = ResponderFactory.Create(port, encryptProvider, typeof(TMPacket<>), protocol);
+            Responder = ResponderFactory.Create(port, protocol);
+            Logger = logger;
+        }
+
+        protected Server(IEncryptProvider encryptProvider, ILogger logger, Protocol protocol = Protocol.Udp)
+        {
+            Responder = ResponderFactory.Create(encryptProvider, typeof(TMPacket<>), protocol);
             Logger = logger;
         }
         public virtual void Dispose()

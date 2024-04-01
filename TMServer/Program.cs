@@ -1,54 +1,83 @@
 ﻿using ApiTypes.Communication.BaseTypes;
+using Microsoft.Extensions.Logging;
 using TMServer.DataBase;
 using TMServer.Logger;
 using TMServer.ServerComponent;
 using TMServer.ServerComponent.Basics;
+using TMServer.ServerComponent.Info;
 using TMServer.Services;
 
 namespace TMServer
 {
     internal class Program
     {
+        public static ServerFactory Factory { get; private set; }
+        public static ConsoleLogger Logger { get; private set; }
+
+        public Program()
+        {
+
+        }
+
         private static void Main(string[] args)
         {
             Serializer.SerializerProvider = new ApiTypes.SerializerProvider();
+            Logger = new ConsoleLogger();
+            Factory = new ServerFactory(GlobalSettings.PasswordSalt, Logger);
 
-            var logger = new ConsoleLogger();
+            DataBaseInit();
 
-            using var db = new TmdbContext();
-            using var idb = new ImagesDBContext();
+            using var mainServer = Create(GlobalSettings.LongPollLifeTime);
 
-            idb.Database.EnsureCreated();
-            idb.SaveChanges();
+            using var infoServer = Create(GlobalSettings.InfoPort, GlobalSettings.Version);
+            infoServer.Add(mainServer.ApiServer);
+            infoServer.Add(mainServer.AuthServer);
+            infoServer.Add(mainServer.LongPollServer);
+            infoServer.Add(mainServer.ImageServer);
 
-            db.Database.EnsureCreated();
-            db.SaveChanges();
+            infoServer.Start();
+            mainServer.Start();
 
-            using var server = Create(logger);
-            server.Start();
+            RunServices();
 
-            var tokenCleaner = new TokenCleaner(TimeSpan.FromMinutes(15), logger);
-            tokenCleaner.Start();
-
-            var keyCleaner = new KeyCleaner(TimeSpan.FromMinutes(15), logger);
-            keyCleaner.Start();
-
-            Thread.Sleep(1000);
-            logger.Log("\n\n" + new string('*', 10) + "INITIALIZATION OVER" + new string('*', 10));
+            Thread.Sleep(1200);
+            Logger.Log("\n\n" + new string('*', 10) + "INITIALIZATION OVER" + new string('*', 10));
             Console.ReadLine();
         }
 
-        private static ServerComponent.TMServer Create(ILogger logger)
+        private static void RunServices()
         {
-            var factory = new ServerFactory(GlobalSettings.PasswordSalt, logger);
+            var tokenCleaner = new TokenCleaner(TimeSpan.FromMinutes(15), Logger);
+            tokenCleaner.Start();
 
-            var authServer = factory.CreateAuthServer(GlobalSettings.AuthPort);
-            var apiServer = factory.CreateApiServer(GlobalSettings.ApiPort);
+            var keyCleaner = new KeyCleaner(TimeSpan.FromMinutes(15), Logger);
+            keyCleaner.Start();
+        }
 
-            var longPollServer = factory.CreateLongPollServer(GlobalSettings.LongPollPort, GlobalSettings.LongPollLifeTime);
-            var imageServer = factory.CreateImageServer(GlobalSettings.FileUploadPort, GlobalSettings.FileGetPort);
+        private static void DataBaseInit()
+        {
+            using var db = new TmdbContext();
+            using var idb = new ImagesDBContext();
+            idb.Database.EnsureCreated();
+            idb.SaveChanges();
+            db.Database.EnsureCreated();
+            db.SaveChanges();
+        }
 
-            return factory.CreateMainServer(apiServer,authServer,longPollServer,imageServer);
+
+        private static InfoServer Create(int port,int version)
+        {
+            return Factory.CreateInfoServer(port, version);
+        }
+        private static ServerComponent.TMServer Create(TimeSpan longPollPeriod)
+        {
+            var authServer = Factory.CreateAuthServer();
+            var apiServer = Factory.CreateApiServer();
+
+            var longPollServer = Factory.CreateLongPollServer(longPollPeriod);
+            var imageServer = Factory.CreateImageServer();
+
+            return Factory.CreateMainServer(apiServer,authServer,longPollServer,imageServer);
         }
     }
 }

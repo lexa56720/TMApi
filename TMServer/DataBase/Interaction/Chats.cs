@@ -185,7 +185,7 @@ namespace TMServer.DataBase.Interaction
             }
         }
 
-        public bool Rename(int chatId, string newName)
+        public bool Rename(int chatId,int userId, string newName)
         {
             using var db = new TmdbContext();
             var chat = db.Chats.SingleOrDefault(c => c.Id == chatId);
@@ -193,6 +193,7 @@ namespace TMServer.DataBase.Interaction
                 return false;
 
             chat.Name = newName;
+            Messages.AddRenameMessage(chat.Id, userId, newName, db);
             return db.SaveChanges(true) > 0;
         }
 

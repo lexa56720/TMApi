@@ -2,15 +2,6 @@
 <SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="TMServer" GeneratedClassName="ServerConfig">
   <Profiles />
   <Settings>
-    <Setting Name="AuthPort" Type="System.UInt16" Scope="User">
-      <Value Profile="(Default)">6665</Value>
-    </Setting>
-    <Setting Name="ApiPort" Type="System.UInt16" Scope="User">
-      <Value Profile="(Default)">6666</Value>
-    </Setting>
-    <Setting Name="LongPollPort" Type="System.UInt16" Scope="User">
-      <Value Profile="(Default)">6667</Value>
-    </Setting>
     <Setting Name="LongPollLifeTimeSeconds" Type="System.UInt16" Scope="User">
       <Value Profile="(Default)">120</Value>
     </Setting>
@@ -23,8 +14,8 @@
     <Setting Name="PasswordSalt" Type="System.String" Scope="User">
       <Value Profile="(Default)">NySzq6hatK</Value>
     </Setting>
-    <Setting Name="Version" Type="System.String" Scope="User">
-      <Value Profile="(Default)">0.0.1</Value>
+    <Setting Name="Version" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">1</Value>
     </Setting>
     <Setting Name="TMDBConnectionString" Type="System.String" Scope="User">
       <Value Profile="(Default)">Host=localhost;Port=5432;Database=tmdb;Username=tmadmin;Password=1234;Include Error Detail=True;</Value>
@@ -32,11 +23,8 @@
     <Setting Name="TMImagesDBConnetctionString" Type="System.String" Scope="User">
       <Value Profile="(Default)">Host=localhost;Port=5432;Database=tmimagesdb;Username=tmadmin;Password=1234;Include Error Detail=True;</Value>
     </Setting>
-    <Setting Name="FileUploadPort" Type="System.UInt16" Scope="User">
-      <Value Profile="(Default)">6668</Value>
-    </Setting>
-    <Setting Name="FileGetPort" Type="System.UInt16" Scope="User">
-      <Value Profile="(Default)">6669</Value>
+    <Setting Name="InfoPort" Type="System.UInt16" Scope="User">
+      <Value Profile="(Default)">6660</Value>
     </Setting>
   </Settings>
 </SettingsFile>

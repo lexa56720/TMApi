@@ -105,12 +105,13 @@ namespace TMServer.RequestHandlers
             if (!Security.IsAdminOfChat(request.UserId, request.Data.ChatId) ||
                 !DataConstraints.IsNameLegal(request.Data.NewName))
                 return;
-            Chats.Rename(request.Data.ChatId, request.Data.NewName);
+            Chats.Rename(request.Data.ChatId, request.UserId, request.Data.NewName);
         }
 
         internal void KickUser(ApiData<ChatKickRequest> request)
         {
-            if (!Security.IsAdminOfChat(request.UserId, request.Data.ChatId))
+            if (!Security.IsAdminOfChat(request.UserId, request.Data.ChatId) ||
+                                        request.UserId == request.Data.UserId)
                 return;
             Chats.Kick(request.Data.ChatId, request.UserId, request.Data.UserId);
         }

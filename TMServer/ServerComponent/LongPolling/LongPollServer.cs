@@ -30,10 +30,10 @@ namespace TMServer.ServerComponent.LongPolling
 
         private readonly LongPollHandler LongPollHandler;
 
-        private readonly TimeSpan LongPollLifetime;
+        public TimeSpan LongPollLifetime { get; }
 
-        public LongPollServer(TimeSpan longPollLifetime, int port, IEncryptProvider encryptProvider, ILogger logger)
-                                                                : base(port, encryptProvider, logger, Protocol.Udp)
+        public LongPollServer(TimeSpan longPollLifetime, IEncryptProvider encryptProvider, ILogger logger)
+                                                                : base(encryptProvider, logger, Protocol.Udp)
         {
             TmdbContext.ChangeHandler.UpdateForUser += DBUpdateForUser;
             LongPollLifetime = longPollLifetime;
@@ -68,7 +68,7 @@ namespace TMServer.ServerComponent.LongPolling
             Requests.TryAdd(request.UserId, (IPacket<IRequestContainer>)info, LongPollLifetime);
             return null;
         }
-        public void RespondOnSaved(int userId)
+        private void RespondOnSaved(int userId)
         {
             if (!Requests.TryRemove(userId, out var packet))
                 return;

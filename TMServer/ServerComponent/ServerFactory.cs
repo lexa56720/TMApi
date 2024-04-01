@@ -7,10 +7,11 @@ using System.Threading.Tasks;
 using TMServer.DataBase.Interaction;
 using TMServer.Logger;
 using TMServer.RequestHandlers;
-using TMServer.ServerComponent.ApiResponser;
+using TMServer.ServerComponent.Api;
 using TMServer.ServerComponent.Auth;
 using TMServer.ServerComponent.Basics;
 using TMServer.ServerComponent.Images;
+using TMServer.ServerComponent.Info;
 using TMServer.ServerComponent.LongPolling;
 
 namespace TMServer.ServerComponent
@@ -62,40 +63,48 @@ namespace TMServer.ServerComponent
             Logger = logger;
         }
 
-        public ResponseServer CreateApiServer(int apiPort)
+        public ApiServer CreateApiServer()
         {
-            return new ResponseServer(apiPort, new ApiEncryptProvider(Crypt), Logger)
+            return new ApiServer(new ApiEncryptProvider(Crypt), Logger)
             {
                 Security = Security,
                 Users = Users
             };
         }
-        public AuthorizationServer CreateAuthServer(int authPort)
+        public AuthorizationServer CreateAuthServer()
         {
-            return new AuthorizationServer(authPort, new AuthEncryptProvider(Crypt), Logger)
+            return new AuthorizationServer(new AuthEncryptProvider(Crypt), Logger)
             {
                 Security = Security,
                 Users = Users
             };
         }
-        public LongPollServer CreateLongPollServer(int longPollPort, TimeSpan longPollLifetime)
+        public LongPollServer CreateLongPollServer(TimeSpan longPollLifetime)
         {
-            return new LongPollServer(longPollLifetime, longPollPort, new ApiEncryptProvider(Crypt), Logger)
+            return new LongPollServer(longPollLifetime, new ApiEncryptProvider(Crypt), Logger)
             {
                 Security = Security,
                 Users = Users
             }; ;
         }
-        public ImageServer CreateImageServer(int imageLoadPort, int imageGetPort)
+        public ImageServer CreateImageServer()
         {
-            return new ImageServer(imageLoadPort, imageGetPort, ImageHandler, new ApiEncryptProvider(Crypt), Logger)
+            return new ImageServer(ImageHandler, new ApiEncryptProvider(Crypt), Logger)
             {
                 Security = Security,
                 Users = Users
             }; ;
         }
-
-        public TMServer CreateMainServer(ResponseServer responseServer, AuthorizationServer authServer, LongPollServer longPollServer, ImageServer imageServer)
+        public InfoServer CreateInfoServer(int port, int version)
+        {
+            return new InfoServer(port, version,  Logger)
+            {
+                Security = Security,
+                Users = Users
+            }; ;
+        }
+        public TMServer CreateMainServer(ApiServer responseServer, AuthorizationServer authServer,
+                                         LongPollServer longPollServer, ImageServer imageServer)
         {
             var server = new TMServer(Logger)
             {

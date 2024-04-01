@@ -25,42 +25,6 @@ namespace TMServer {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("6665")]
-        public ushort AuthPort {
-            get {
-                return ((ushort)(this["AuthPort"]));
-            }
-            set {
-                this["AuthPort"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("6666")]
-        public ushort ApiPort {
-            get {
-                return ((ushort)(this["ApiPort"]));
-            }
-            set {
-                this["ApiPort"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("6667")]
-        public ushort LongPollPort {
-            get {
-                return ((ushort)(this["LongPollPort"]));
-            }
-            set {
-                this["LongPollPort"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("120")]
         public ushort LongPollLifeTimeSeconds {
             get {
@@ -109,10 +73,10 @@ namespace TMServer {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0.0.1")]
-        public string Version {
+        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        public int Version {
             get {
-                return ((string)(this["Version"]));
+                return ((int)(this["Version"]));
             }
             set {
                 this["Version"] = value;
@@ -147,25 +111,13 @@ namespace TMServer {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("6668")]
-        public ushort FileUploadPort {
+        [global::System.Configuration.DefaultSettingValueAttribute("6660")]
+        public ushort InfoPort {
             get {
-                return ((ushort)(this["FileUploadPort"]));
+                return ((ushort)(this["InfoPort"]));
             }
             set {
-                this["FileUploadPort"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("6669")]
-        public ushort FileGetPort {
-            get {
-                return ((ushort)(this["FileGetPort"]));
-            }
-            set {
-                this["FileGetPort"] = value;
+                this["InfoPort"] = value;
             }
         }
     }

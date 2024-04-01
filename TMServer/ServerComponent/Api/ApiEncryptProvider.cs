@@ -5,7 +5,7 @@ using CSDTP.Packets;
 using System.Net.Sockets;
 using TMServer.DataBase.Interaction;
 
-namespace TMServer.ServerComponent.ApiResponser
+namespace TMServer.ServerComponent.Api
 {
     internal class ApiEncryptProvider : IEncryptProvider
     {

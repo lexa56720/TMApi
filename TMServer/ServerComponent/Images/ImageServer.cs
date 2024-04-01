@@ -9,21 +9,23 @@ using System.Text;
 using System.Threading.Tasks;
 using TMServer.Logger;
 using TMServer.RequestHandlers;
-using TMServer.ServerComponent.ApiResponser;
+using TMServer.ServerComponent.Api;
 using TMServer.ServerComponent.Basics;
 
 namespace TMServer.ServerComponent.Images
 {
-    internal class ImageServer : ResponseServer
+    internal class ImageServer : ApiServer
     {
         private HttpListener Listener;
         private readonly ImageHandler ImageHandler;
 
-        public ImageServer(int imageLoadPort, int imageGetPort,ImageHandler imageHandler ,IEncryptProvider encryptProvider, ILogger logger)
-                           : base(imageLoadPort, encryptProvider, logger, Protocol.Http)
+        public int DownloadPort { get; }
+        public ImageServer(ImageHandler imageHandler, IEncryptProvider encryptProvider, ILogger logger)
+                           : base(encryptProvider, logger, Protocol.Http)
         {
             Listener = new HttpListener();
-            Listener.Prefixes.Add($"http://127.0.0.1:{imageGetPort}/");
+            DownloadPort = CSDTP.Utils.PortUtils.GetFreePort(6666);
+            Listener.Prefixes.Add($"http://127.0.0.1:{DownloadPort}/");
             ImageHandler = imageHandler;
         }
 
@@ -44,12 +46,6 @@ namespace TMServer.ServerComponent.Images
 
             Listen();
         }
-
-        public override void Stop()
-        {
-            base.Stop();
-        }
-
 
         private Task Listen()
         {
@@ -82,8 +78,15 @@ namespace TMServer.ServerComponent.Images
         }
         private bool TryParse(string? rawUrl, out string url, out int id)
         {
-            var urlParts = rawUrl.Split('/',StringSplitOptions.RemoveEmptyEntries);
-            if (urlParts[0]=="images"&& int.TryParse(urlParts[2],out id))
+            if (rawUrl == null)
+            {          
+                url = string.Empty;
+                id=-1;
+                return false;
+            }
+
+            var urlParts = rawUrl.Split('/', StringSplitOptions.RemoveEmptyEntries);
+            if (urlParts[0] == "images" && int.TryParse(urlParts[2], out id))
             {
                 url = urlParts[1];
                 return true;

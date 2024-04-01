@@ -10,9 +10,10 @@ using TMServer.DataBase.Interaction;
 using TMServer.Logger;
 using TMServer.ServerComponent.Basics;
 
-namespace TMServer.ServerComponent.ApiResponser
+namespace TMServer.ServerComponent.Api
 {
-    internal class ResponseServer(int port, IEncryptProvider encryptProvider, ILogger logger,Protocol protocol=Protocol.Udp) : Server(port, encryptProvider, logger,protocol)
+    internal class ApiServer(IEncryptProvider encryptProvider, ILogger logger,Protocol protocol=Protocol.Udp)
+                   : Server(encryptProvider, logger,protocol)
     {
         public void RegisterRequestHandler<TRequest, TResponse>(Func<ApiData<TRequest>, TResponse?> func)
                     where TRequest : ISerializable<TRequest>, new()
@@ -20,7 +21,6 @@ namespace TMServer.ServerComponent.ApiResponser
         {
             Responder.RegisterRequestHandler(Invoke(func));
         }
-
 
         public void RegisterDataHandler<TRequest>(Action<ApiData<TRequest>> func)
                     where TRequest : ISerializable<TRequest>, new()
@@ -41,7 +41,6 @@ namespace TMServer.ServerComponent.ApiResponser
             });
         }
 
-
         private Func<ApiData<TRequest>, TResponse?> Invoke<TRequest, TResponse>(Func<ApiData<TRequest>, TResponse?> func)
                                                     where TRequest : ISerializable<TRequest>, new()
                                                     where TResponse : ISerializable<TResponse>, new()
@@ -56,6 +55,5 @@ namespace TMServer.ServerComponent.ApiResponser
                 return default;
             });
         }
-
     }
 }
