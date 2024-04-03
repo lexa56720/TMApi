@@ -73,6 +73,7 @@ namespace TMServer.ServerComponent
         private void RegisterApiMethods()
         {
             ApiServer.RegisterRequestHandler<AuthUpdateRequest, AuthorizationResponse>(AuthHandler.UpdateAuth);
+            ApiServer.RegisterRequestHandler<ChangePasswordRequest, AuthorizationResponse>(AuthHandler.ChangePassword);
 
             RegisterMessageMethods();
             RegisterUserMethods();

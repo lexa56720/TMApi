@@ -150,5 +150,7 @@ namespace TMServer.DataBase.Interaction
                                    .DistinctBy(c => c.Id);
             return chats.All(c => c.Members.Any(m => m.Id == userId));
         }
+
+
     }
 }

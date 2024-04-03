@@ -30,10 +30,9 @@ namespace TMApi
         public IPAddress Server { get; }
 
         public string Token { get; internal set; } = string.Empty;
-
         public int UserId { get; internal set; }
 
-        private readonly int CryptId;
+        private int CryptId;
 
 
         private readonly Requester LongPollRequester;
@@ -76,7 +75,7 @@ namespace TMApi
             Requester = RequesterFactory.Create(new IPEndPoint(Server, GetPort(kind)), typeof(TMPacket<>));
             LongPollRequester = RequesterFactory.Create(new IPEndPoint(Server, GetPort(RequestKind.LongPoll)),
                                                         typeof(TMPacket<>),
-                                                        CSDTP.Protocols.Protocol.Udp);
+                                                        Protocol.Udp);
         }
 
         public void Dispose()
@@ -85,6 +84,11 @@ namespace TMApi
             LongPollRequester.Dispose();
         }
 
+        public void UpdateAuth(int cryptId,string token)
+        {
+            Token = token;
+            CryptId = cryptId;
+        }
 
         public async Task<TResponse?> RequestAsync<TResponse, TRequest>(TRequest data)
                                       where TResponse : ISerializable<TResponse>, new()

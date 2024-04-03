@@ -61,7 +61,7 @@ namespace TMApi
             {
                 Username = username,
                 Login = login,
-                Password = GetPasswordHash(password, login),
+                Password = HashGenerator.GetPasswordHash(password, login),
             });
 
 
@@ -84,7 +84,7 @@ namespace TMApi
 
         private async Task<Api?> Login(string login, string password, RsaEncrypter inputDecoder, RsaEncrypter outputEncoder, int cryptId)
         {
-            password = GetPasswordHash(password, login);
+            password = HashGenerator.GetPasswordHash(password, login);
             var rsaRequester = new RequestSender(Server, AuthPort, ApiPort, LongPollPort, ImageUploadPort,
                                                    RequestKind.Auth, outputEncoder, inputDecoder, cryptId);
 
@@ -159,9 +159,6 @@ namespace TMApi
             return (serverRsaPublicKey, response.Id);
         }
 
-        private string GetPasswordHash(string password, string login)
-        {
-            return HashGenerator.GenerateHash(password + login);
-        }
+
     }
 }

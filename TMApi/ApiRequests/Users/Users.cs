@@ -1,4 +1,5 @@
 ﻿using ApiTypes;
+using ApiTypes.Communication.Auth;
 using ApiTypes.Communication.BaseTypes;
 using ApiTypes.Communication.Medias;
 using ApiTypes.Communication.Messages;
@@ -27,10 +28,23 @@ namespace TMApi.ApiRequests.Users
         public async Task<User?> ChangeName(string name)
         {
             if (DataConstraints.IsNameLegal(name))
-                return await Requester.ApiRequestAsync<User,ChangeNameRequest>(new ChangeNameRequest(name));
+                return await Requester.ApiRequestAsync<User, ChangeNameRequest>(new ChangeNameRequest(name));
             return null;
         }
-
+        public async Task<bool> ChangePassword(string login, string oldPass, string newPass)
+        {
+            if (!DataConstraints.IsPasswordLegal(newPass))
+                return false;
+            var result = await Requester.ApiRequestAsync<AuthorizationResponse, ChangePasswordRequest>
+                 (new ChangePasswordRequest()
+                 {
+                     CurrentPasswordHash = HashGenerator.GetPasswordHash(oldPass, login),
+                     NewPasswordHash = HashGenerator.GetPasswordHash(newPass, login)
+                 });
+            if (result != null)
+                Api.UpdateApiData(result);
+            return result != null;
+        }
         public async Task<UserInfo?> GetUserInfo()
         {
             return await Requester.ApiRequestAsync<UserInfo, UserFullRequest>(new UserFullRequest());

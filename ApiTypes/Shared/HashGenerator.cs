@@ -10,7 +10,10 @@ namespace ApiTypes.Shared
         {
             return Convert.ToBase64String(RandomNumberGenerator.GetBytes(128));
         }
-
+        public static string GetPasswordHash(string password, string login)
+        {
+            return GenerateHash(password + login);
+        }
         public static string GenerateHash(byte[] bytes)
         {
             return Convert.ToBase64String(Hasher.ComputeHash(bytes));

@@ -74,6 +74,25 @@ namespace TMServer.DataBase.Interaction
             db.SaveChanges();
         }
 
+        public bool IsPasswordMatch(int userId, string password)
+        {
+            using var db = new TmdbContext();
+
+            var user = db.Users.SingleOrDefault(u => u.Id == userId);
+            if (user == null)
+                return false;
+            return user.Password.Equals( GetPasswordWithSalt(password));
+        }
+        public bool ChangePassword(int userId, string newPassword)
+        {
+            using var db = new TmdbContext();
+
+            var user = db.Users.SingleOrDefault(u => u.Id == userId);
+            if (user == null)
+                return false;
+            user.Password=GetPasswordWithSalt(newPassword);
+            return db.SaveChanges() > 0;
+        }
         private string GetPasswordWithSalt(string password)
         {
             return HashGenerator.GenerateHash(password + Salt);

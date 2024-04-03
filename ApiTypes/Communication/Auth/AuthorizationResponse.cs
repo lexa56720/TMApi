@@ -21,7 +21,6 @@ namespace ApiTypes.Communication.Auth
             if (IsSuccessful)
             {
                 writer.WriteBytes(AesKey);
-
                 writer.Write(UserId);
                 writer.Write(CryptId);
                 writer.Write(AccessToken);

@@ -39,14 +39,16 @@ namespace TMApi
         public LongPolling LongPolling { get; private set; }
         private RequestSender Requester { get; set; }
 
+        private AuthUpdater AuthUpdater { get; set; }
+
         internal Api(string token, DateTime tokenTime, int userId, int cryptId, byte[] aesKey,
-                     IPAddress server, int authPort, int apiPort, int longPollPort,int imageUploadPort)
+                     IPAddress server, int authPort, int apiPort, int longPollPort, int imageUploadPort)
         {
             Id = userId;
             AccesToken = token;
             Expiration = tokenTime;
             Encrypter = new AesEncrypter(aesKey);
-
+            AuthUpdater = new(this);
             Requester = new RequestSender(server, authPort, apiPort, longPollPort, imageUploadPort, RequestKind.Request, Encrypter, Encrypter, cryptId)
             {
                 Token = token,
@@ -63,7 +65,8 @@ namespace TMApi
             LongPolling = new LongPolling(longPollPeriod, Requester, this);
 
             UserInfo = await Users.GetUserInfo();
-
+            if (UserInfo != null)
+                await AuthUpdater.StartUpdate(Expiration - DateTime.UtcNow - TimeSpan.FromHours(2));
             return UserInfo != null;
         }
 
@@ -94,15 +97,16 @@ namespace TMApi
 
             return ms.ToArray();
         }
-        public void UpdateApiData(AuthorizationResponse response)
+        public async void UpdateApiData(AuthorizationResponse response)
         {
-            IdHolder.Value = response.CryptId;
-
+            Requester.UpdateAuth(response.CryptId, response.AccessToken);
             Encrypter.Key = response.AesKey;
             Requester.Token = response.AccessToken;
             AccesToken = response.AccessToken;
             Id = Requester.UserId = response.UserId;
             Expiration = response.Expiration;
+            await AuthUpdater.StartUpdate(Expiration - DateTime.UtcNow - TimeSpan.FromHours(2));
         }
+
     }
 }

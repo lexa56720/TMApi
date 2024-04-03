@@ -1,6 +1,7 @@
 ﻿using ApiTypes;
 using ApiTypes.Communication.Auth;
 using ApiTypes.Communication.BaseTypes;
+using ApiTypes.Communication.Users;
 using ApiTypes.Shared;
 using CSDTP.Cryptography.Algorithms;
 using CSDTP.Packets;
@@ -15,7 +16,7 @@ namespace TMServer.RequestHandlers
         private readonly LongPolling LongPolling;
         private readonly Authentication Authentication;
 
-        public AuthHandler(Crypt crypt,LongPolling longPolling,Authentication authentication) 
+        public AuthHandler(Crypt crypt, LongPolling longPolling, Authentication authentication)
         {
             Crypt = crypt;
             LongPolling = longPolling;
@@ -82,11 +83,24 @@ namespace TMServer.RequestHandlers
             return new IntContainer(GlobalSettings.Version);
         }
 
-        public AuthorizationResponse UpdateAuth(ApiData<AuthUpdateRequest> request)
+        public AuthorizationResponse? UpdateAuth(ApiData<AuthUpdateRequest> request)
         {
             Crypt.SetDeprecated(request.CryptId);
             var newAuth = GetAuthData(request.UserId);
             return newAuth;
+        }
+
+        public AuthorizationResponse? ChangePassword(ApiData<ChangePasswordRequest> request)
+        {
+            if (!Authentication.IsPasswordMatch(request.UserId, request.Data.CurrentPasswordHash))
+                return null;
+            var result = Authentication.ChangePassword(request.UserId, request.Data.NewPasswordHash);
+            if (result)
+            {
+                Crypt.SetDeprecated(request.CryptId);
+                return GetAuthData(request.UserId);
+            }
+            return null;
         }
     }
 }
