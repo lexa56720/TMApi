@@ -51,11 +51,11 @@ namespace TMServer.ServerComponent.Auth
 
         private DBRsa? GetKeys(IPacketInfo packet)
         {
-            return Crypt.GetRsaKeysById(((ITMPacket)packet).Id.InstanceValue);
+            return Crypt.GetRsaKeysById(((ITMPacket)packet).Id);
         }
         private bool IsInitPacket(IPacketInfo packet)
         {
-            if (packet is ITMPacket castedPacket && castedPacket.Id.InstanceValue <= 0)
+            if (packet is ITMPacket castedPacket && castedPacket.Id <= 0)
                 return true;
             return false;
         }

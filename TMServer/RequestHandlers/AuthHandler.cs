@@ -15,11 +15,12 @@ namespace TMServer.RequestHandlers
         private readonly Crypt Crypt;
         private readonly LongPolling LongPolling;
         private readonly Authentication Authentication;
-
-        public AuthHandler(Crypt crypt, LongPolling longPolling, Authentication authentication)
+        private readonly Security Security;
+        public AuthHandler(Crypt crypt, LongPolling longPolling, Security security, Authentication authentication)
         {
             Crypt = crypt;
             LongPolling = longPolling;
+            Security = security;
             Authentication = authentication;
         }
 
@@ -78,13 +79,10 @@ namespace TMServer.RequestHandlers
             return new RegisterResponse(isSuccsessful);
         }
 
-        public IntContainer GetVersion()
-        {
-            return new IntContainer(GlobalSettings.Version);
-        }
-
         public AuthorizationResponse? UpdateAuth(ApiData<AuthUpdateRequest> request)
         {
+            if(!Security.IsCryptIdCorrect(request.UserId, request.CryptId))
+                return null;
             Crypt.SetDeprecated(request.CryptId);
             var newAuth = GetAuthData(request.UserId);
             return newAuth;
@@ -92,7 +90,8 @@ namespace TMServer.RequestHandlers
 
         public AuthorizationResponse? ChangePassword(ApiData<ChangePasswordRequest> request)
         {
-            if (!Authentication.IsPasswordMatch(request.UserId, request.Data.CurrentPasswordHash))
+            if (!Authentication.IsPasswordMatch(request.UserId, request.Data.CurrentPasswordHash)||
+                !Security.IsCryptIdCorrect(request.UserId,request.CryptId))
                 return null;
             var result = Authentication.ChangePassword(request.UserId, request.Data.NewPasswordHash);
             if (result)

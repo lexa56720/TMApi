@@ -35,10 +35,10 @@ namespace TMServer.ServerComponent.Api
 
         public IEncrypter? GetEncrypter(IPacketInfo responsePacket, IPacketInfo? requestPacket = null)
         {
-            if (requestPacket is not ITMPacket)
+            if (requestPacket is not ITMPacket reqPacket || responsePacket is not ITMPacket resPacket)
                 return null;
-            var cryptId = ((ITMPacket)requestPacket).Id.InstanceValue;
-            var key = Crypt.GetAesKey(cryptId);
+            resPacket.Id = reqPacket.Id;
+            var key = Crypt.GetAesKey(resPacket.Id);
             if (key == null)
                 return null;
             return new AesEncrypter(key);

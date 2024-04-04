@@ -53,7 +53,7 @@ namespace TMServer.ServerComponent
             Users = new Users();
             var Converter = new DbConverter(Images);
 
-            AuthHandler = new AuthHandler(Crypt, LongPolling, Authentication);
+            AuthHandler = new AuthHandler(Crypt, LongPolling,Security, Authentication);
             ChatsHandler = new ChatsHandler(Security, Chats, Converter);
             FriendsHandler = new FriendsHandler(Security, Friends, Converter);
             ImageHandler = new ImageHandler(Images, Chats, Users, Security, Converter);

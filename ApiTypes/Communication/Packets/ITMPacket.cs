@@ -2,6 +2,6 @@
 {
     public interface ITMPacket
     {
-        public IdHolder Id { get; }
+        public int Id { get; set; }
     }
 }

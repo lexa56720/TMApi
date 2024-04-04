@@ -4,6 +4,7 @@ using ApiTypes.Communication.Info;
 using ApiTypes.Communication.Packets;
 using ApiTypes.Shared;
 using CSDTP.Cryptography.Algorithms;
+using CSDTP.Cryptography.Providers;
 using CSDTP.Protocols;
 using CSDTP.Requests;
 using System.Diagnostics.CodeAnalysis;
@@ -39,23 +40,21 @@ namespace TMApi
                 AuthPort = response.AuthPort,
                 ApiPort = response.ApiPort,
                 ImageUploadPort = response.FileUploadPort,
-                ImageGetPort=response.FileGetPort,
+                ImageGetPort = response.FileGetPort,
                 LongPollPort = response.LongPollPort,
                 LongPollPeriod = TimeSpan.FromSeconds(response.LongPollPeriodSeconds),
-                Version=response.Version,
+                Version = response.Version,
             };
         }
 
         public async Task<Api?> GetApiRegistration(string username, string login, string password)
         {
-            var coderDecoder = await GetCoderDecoder();
-            if (coderDecoder == null)
+            using var rsaEncryptProvider = await GetCoderDecoder();
+            if (rsaEncryptProvider == null)
                 return null;
-            using var inputDecoder = coderDecoder.Value.decoder;
-            using var outputEncoder = coderDecoder.Value.encoder;
 
-            using var rsaRequester = new RequestSender(Server, AuthPort, ApiPort, LongPollPort, ImageUploadPort, RequestKind.Auth,
-                                                                          outputEncoder, inputDecoder, coderDecoder.Value.cryptId);
+            using var rsaRequester = new RequestSender(Server, AuthPort, ApiPort, 
+                LongPollPort, ImageUploadPort, RequestKind.Auth,rsaEncryptProvider);
 
             RegisterResponse? registerResult = await rsaRequester.RequestAsync<RegisterResponse, RegisterRequest>(new RegisterRequest()
             {
@@ -66,27 +65,24 @@ namespace TMApi
 
 
             if (registerResult != null && registerResult.IsAccepted)
-                return await Login(login, password, inputDecoder, outputEncoder, coderDecoder.Value.cryptId);
+                return await Login(login, password, rsaRequester);
 
             return null;
         }
 
         public async Task<Api?> GetApiLogin(string login, string password)
         {
-            var coderDecoder = await GetCoderDecoder();
-            if (coderDecoder == null)
+            using var rsaEncryptProvider = await GetCoderDecoder();
+            if (rsaEncryptProvider == null)
                 return null;
-            using var inputDecoder = coderDecoder.Value.decoder;
-            using var outputEncoder = coderDecoder.Value.encoder;
-
-            return await Login(login, password, inputDecoder, outputEncoder, coderDecoder.Value.cryptId);
+            using var rsaRequester = new RequestSender(Server, AuthPort, ApiPort,
+                 LongPollPort, ImageUploadPort, RequestKind.Auth, rsaEncryptProvider);
+            return await Login(login, password, rsaRequester);
         }
 
-        private async Task<Api?> Login(string login, string password, RsaEncrypter inputDecoder, RsaEncrypter outputEncoder, int cryptId)
+        private async Task<Api?> Login(string login, string password, RequestSender rsaRequester)
         {
             password = HashGenerator.GetPasswordHash(password, login);
-            var rsaRequester = new RequestSender(Server, AuthPort, ApiPort, LongPollPort, ImageUploadPort,
-                                                   RequestKind.Auth, outputEncoder, inputDecoder, cryptId);
 
             var authResult = await rsaRequester.RequestAsync<AuthorizationResponse, AuthorizationRequest>
                                                               (new AuthorizationRequest(login, password));
@@ -132,7 +128,7 @@ namespace TMApi
                 return api;
             return null;
         }
-        private async Task<(RsaEncrypter decoder, RsaEncrypter encoder, int cryptId)?> GetCoderDecoder()
+        private async Task<AuthEncryptProvider?> GetCoderDecoder()
         {
             try
             {
@@ -141,7 +137,7 @@ namespace TMApi
                 var (publicKey, id) = await GetRsaKey(inputDecoder);
                 var outputEncoder = new RsaEncrypter(publicKey);
 
-                return (inputDecoder, outputEncoder, id);
+                return new AuthEncryptProvider(outputEncoder, inputDecoder, id);
             }
             catch
             {
@@ -150,7 +146,7 @@ namespace TMApi
         }
         private async Task<(string publicKey, int id)> GetRsaKey(RsaEncrypter inputDecoder)
         {
-            using var uncryptRequester = new RequestSender(Server, AuthPort, ApiPort, LongPollPort, RequestKind.Auth, 0);
+            using var uncryptRequester = new RequestSender(Server, AuthPort, ApiPort, LongPollPort, RequestKind.Auth);
             var request = new RsaPublicKey(inputDecoder.PublicKey);
             var response = await uncryptRequester.RequestAsync<RsaPublicKey, RsaPublicKey>(request)
                 ?? throw new Exception("no response");

@@ -6,6 +6,8 @@ namespace ApiTypes.Shared
     public static class HashGenerator
     {
         private static readonly SHA512 Hasher = SHA512.Create();
+
+        private static readonly SHA256 HasherSmall = SHA256.Create();
         public static string GetRandomString()
         {
             return Convert.ToBase64String(RandomNumberGenerator.GetBytes(128));
@@ -24,7 +26,10 @@ namespace ApiTypes.Shared
             return Convert.ToBase64String(Hasher.ComputeHash(Encoding.UTF8.GetBytes(str)));
         }
 
-
+        public static string GenerateHashSmall(string str)
+        {
+            return Convert.ToBase64String(HasherSmall.ComputeHash(Encoding.UTF8.GetBytes(str)));
+        }
         public static string BytesToString(byte[] bytes)
         {
             return Convert.ToBase64String(bytes);

@@ -152,5 +152,12 @@ namespace TMServer.DataBase.Interaction
         }
 
 
+        public bool IsCryptIdCorrect(int userId, int cryptId)
+        {
+            using var db = new TmdbContext();
+
+            var result = db.AesCrypts.SingleOrDefault(c => c.UserId == userId && c.Id == cryptId);
+            return result!=null;
+        }
     }
 }

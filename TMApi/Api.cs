@@ -28,7 +28,7 @@ namespace TMApi
         private string accesToken = string.Empty;
         private DateTime Expiration { get; set; }
 
-        private AesEncrypter Encrypter { get; set; }
+        private ApiEncryptProvider Encrypter { get; set; }
 
         public UserInfo UserInfo { get; private set; }
         public Users Users { get; private set; }
@@ -47,9 +47,10 @@ namespace TMApi
             Id = userId;
             AccesToken = token;
             Expiration = tokenTime;
-            Encrypter = new AesEncrypter(aesKey);
+            Encrypter = new ApiEncryptProvider(cryptId,aesKey);
             AuthUpdater = new(this);
-            Requester = new RequestSender(server, authPort, apiPort, longPollPort, imageUploadPort, RequestKind.Request, Encrypter, Encrypter, cryptId)
+            Requester = new RequestSender(server, authPort, apiPort, longPollPort, imageUploadPort, 
+                                         RequestKind.Request, Encrypter)
             {
                 Token = token,
                 UserId = userId,
@@ -87,11 +88,12 @@ namespace TMApi
         {
             using var ms = new MemoryStream();
             using var bw = new BinaryWriter(ms);
+            (int cryptId, AesEncrypter encrypter) = Encrypter.GetLast();
 
             bw.Write(AccesToken);
             bw.Write(Expiration.ToBinary());
-            bw.Write(Encrypter.Key);
-            bw.Write(IdHolder.Value);
+            bw.Write(encrypter.Key);
+            bw.Write(cryptId);
             bw.Write(Id);
             bw.Flush();
 
@@ -99,8 +101,7 @@ namespace TMApi
         }
         public async void UpdateApiData(AuthorizationResponse response)
         {
-            Requester.UpdateAuth(response.CryptId, response.AccessToken);
-            Encrypter.Key = response.AesKey;
+            Encrypter.Add(response.CryptId, response.AesKey);
             Requester.Token = response.AccessToken;
             AccesToken = response.AccessToken;
             Id = Requester.UserId = response.UserId;

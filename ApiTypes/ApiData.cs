@@ -3,15 +3,12 @@ using AutoSerializer;
 using System.Diagnostics.CodeAnalysis;
 namespace ApiTypes
 {
-    public class ApiData<T> : ISerializable<ApiData<T>> where T : ISerializable<T>,new()
+    public class ApiData<T> :IApiData, ISerializable<ApiData<T>> where T : ISerializable<T>,new()
     {
         public required string Token { get; set; }
-
         public required int UserId { get; set; }
-
-        public required int CryptId { get; set; }
-
         public required T Data { get; set; }
+        public int CryptId { get; set; } = -1;
 
         [SetsRequiredMembers]
         public ApiData(string token, int id, T data)
