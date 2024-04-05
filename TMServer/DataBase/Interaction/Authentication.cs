@@ -16,8 +16,10 @@ namespace TMServer.DataBase.Interaction
         {
             var saltedPassword = GetPasswordWithSalt(password);
             using var db = new TmdbContext();
-            var user = db.Users.SingleOrDefault(u => u.Login == login && u.Password == saltedPassword);
-            return user == null ? -1 : user.Id;
+            var user = db.Users.SingleOrDefault(u => u.Login == login );
+            if (user != null && user.Password == saltedPassword)
+                return user.Id;
+            return -1;
         }
         public bool IsLoginAvailable(string login)
         {
