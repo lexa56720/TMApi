@@ -6,7 +6,7 @@ public partial class DBUser
 {
     public int Id { get; set; }
 
-    public bool IsOnline =>  (DateTime.UtcNow - LastRequest).Duration()<2*GlobalSettings.LongPollLifeTime;
+    public bool IsOnline =>  (DateTime.UtcNow - LastRequest).Duration()<GlobalSettings.OnlineTimeout;
 
     public int ProfileImageId { get; set; }
 

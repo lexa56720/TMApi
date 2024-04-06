@@ -38,6 +38,7 @@ namespace TMServer.ServerComponent.Basics
             if (IsDisposed)
                 return;
             Responder.Dispose();
+            Users.Dispose();
             GC.SuppressFinalize(this);
             IsDisposed = true;
         }

@@ -1,12 +1,28 @@
 ﻿using ApiTypes.Communication.Users;
 using Microsoft.EntityFrameworkCore;
+using PerformanceUtils.Collections;
 using TMServer.DataBase.Tables;
 using TMServer.DataBase.Tables.LongPolling;
 
 namespace TMServer.DataBase.Interaction
 {
-    public class Users
+    public class Users : IDisposable
     {
+        private readonly LifeTimeDictionary<int, int> OnlineUsers;
+
+        private bool IsDisposed = false;
+        public Users()
+        {
+            OnlineUsers = new(SetOffline);
+        }
+        public void Dispose()
+        {
+            if (IsDisposed)
+                return;
+
+            OnlineUsers.Clear();
+            IsDisposed = true;
+        }
         public DBUser? GetUser(int id)
         {
             using var db = new TmdbContext();
@@ -43,7 +59,7 @@ namespace TMServer.DataBase.Interaction
 
             return chatMembers.Union(invited)
                               .Union(requested)
-                              .Union(user.GetFriends().Select(f=>f.Id))
+                              .Union(user.GetFriends().Select(f => f.Id))
                               .ToArray();
         }
         public DBUser[] GetUserMain(int[] ids)
@@ -113,8 +129,27 @@ namespace TMServer.DataBase.Interaction
                 return;
             }
 
-            var related = GetAllRelatedUsers(userId);
+            if (!OnlineUsers.TryAdd(userId, userId, GlobalSettings.OnlineTimeout))
+                OnlineUsers.UpdateLifetime(userId, GlobalSettings.OnlineTimeout);
 
+            StatusUpdate(userId, user.IsOnline, db);
+            db.SaveChanges(true);
+        }
+
+        private void SetOffline(int userId)
+        {
+            using var db = new TmdbContext();
+            var user = db.Users.SingleOrDefault(u => u.Id == userId);
+            if (user == null)
+                return;
+            db.Entry(user).State = EntityState.Modified;
+            StatusUpdate(userId, false, db);
+            db.SaveChanges(true);
+        }
+
+        private void StatusUpdate(int userId, bool isOnline, TmdbContext db)
+        {
+            var related = GetAllRelatedUsers(userId);
             foreach (var relatedUser in related)
             {
                 db.UserOnlineUpdates.Where(u => u.UserId == userId && u.RelatedUserId == relatedUser)
@@ -122,12 +157,11 @@ namespace TMServer.DataBase.Interaction
                 db.UserOnlineUpdates.Add(new DBUserOnlineUpdate()
                 {
                     Date = DateTime.UtcNow,
-                    IsAdded = user.IsOnline,
+                    IsAdded = isOnline,
                     RelatedUserId = userId,
                     UserId = relatedUser
                 });
             }
-            db.SaveChanges(true);
         }
 
     }

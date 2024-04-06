@@ -62,6 +62,7 @@ namespace TMServer.ServerComponent
             ApiServer.Dispose();
             LongPollServer.Dispose();
             ImageServer.Dispose();
+            
         }
         private void RegisterAuthMethods()
         {

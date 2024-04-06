@@ -21,6 +21,7 @@ namespace TMServer
 
         public static string PasswordSalt { get; set; } = string.Empty;
         public static int Version { get; set; }
+        public static TimeSpan OnlineTimeout { get; set; }
 
         static GlobalSettings()
         {
@@ -39,6 +40,7 @@ namespace TMServer
             ImagesDBConnectionString = ServerConfig.Default.TMImagesDBConnetctionString;
             PasswordSalt = ServerConfig.Default.PasswordSalt;
             Version = ServerConfig.Default.Version;
+            OnlineTimeout = 2 * LongPollLifeTime;
         }
     }
 }
