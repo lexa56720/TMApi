@@ -9,7 +9,7 @@ namespace TMServer.DataBase.Tables.LongPolling
     public abstract class ListUpdate : Update
     {
         public required bool IsAdded { get; set; }
-
+        public required DateTime Date { get; set; }
         public abstract int TargetId { get; }
     }
 }

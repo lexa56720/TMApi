@@ -47,9 +47,9 @@ namespace TMServer.ServerComponent.LongPolling
             Requests.Clear();
             ResponseInfos.Clear();
         }
-        private void DBUpdateForUser(object? sender, int userId)
+        private async void DBUpdateForUser(object? sender, int userId)
         {
-            RespondOnSaved(userId);
+           await RespondOnSaved(userId);
         }
 
         public Notification? LongPollArrived(ApiData<LongPollingRequest> request, IPacketInfo info)
@@ -68,12 +68,11 @@ namespace TMServer.ServerComponent.LongPolling
             Requests.TryAdd(request.UserId, (IPacket<IRequestContainer>)info, LongPollLifetime);
             return null;
         }
-        private void RespondOnSaved(int userId)
+        private async Task RespondOnSaved(int userId)
         {
             if (!Requests.TryRemove(userId, out var packet))
                 return;
-
-            Responder.ResponseManually(packet, GetNotification(userId));
+            await Responder.ResponseManually(packet, GetNotification(userId));
         }
 
         private Notification GetNotification(int userId)

@@ -56,7 +56,7 @@ namespace TMServer.ServerComponent.Images
                     var context = await Listener.GetContextAsync();
                     if (TryParse(context.Request.RawUrl, out var url, out var id))
                     {
-                        var image = ImageHandler.GetImage(url, id);
+                        var image = await ImageHandler.GetImageAsync(url, id);
                         await GetResponse(image, context.Response);
                         await context.Response.OutputStream.FlushAsync();
                     }

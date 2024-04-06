@@ -14,6 +14,7 @@ namespace TMServer.ServerComponent.LongPolling
         public int[] ReadedMessages { get; init; } = [];
         public int[] FriendRequests { get; init; } = [];
         public int[] FriendListUpdates { get; init; } = [];
+        public int[] OnlineUpdates { get; init; } = [];
         public int[] ChatListUpdates { get; init; } = [];
         public int[] RelatedUsersChanged { get; init; } = [];
         public int[] ChatsChanged { get; init; } = [];

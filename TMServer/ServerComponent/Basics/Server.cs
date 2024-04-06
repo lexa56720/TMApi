@@ -66,7 +66,7 @@ namespace TMServer.ServerComponent.Basics
             if (!isLegal)
                 Logger.Log($"illegal request from {request.UserId}");
             else
-                Users.UpdateLastRequest(request.UserId);
+                Users.UpdateOnlineStatus(request.UserId);
             return isLegal;
         }
 

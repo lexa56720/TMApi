@@ -89,11 +89,11 @@ namespace TMServer.DataBase.Interaction
             return set;
         }
 
-        public DBImage? GetImage(int imageId)
+        public async Task<DBImage?> GetImageAsync(int imageId)
         {
             using var db = new ImagesDBContext();
 
-            var image = db.Images.SingleOrDefault(i => i.Id == imageId);
+            var image = await db.Images.SingleOrDefaultAsync(i => i.Id == imageId);
 
             return image;
         }

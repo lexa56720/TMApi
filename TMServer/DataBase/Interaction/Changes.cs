@@ -19,28 +19,7 @@ namespace TMServer.DataBase.Interaction
         }
         public IEnumerable<int> HandleModifiedUser(DBUser user, TmdbContext context)
         {
-
-            user = context.Users.Include(u => u.FriendsTwo).ThenInclude(f => f.Sender)
-                                .Include(u => u.FriendsOne).ThenInclude(f => f.Receiver)
-                                .Include(u => u.Chats).ThenInclude(c => c.Members)
-                                .Single(u => u.Id == user.Id);
-
-
-            var chatMembers = user.Chats.SelectMany(c => c.Members.Where(m => m.Id != user.Id)
-                                                                  .Select(m => m.Id));
-
-            var invited = context.ChatInvites.Where(i => i.InviterId == user.Id)
-                                             .Select(i => i.ToUserId);
-
-            var requested = context.FriendRequests.Where(r => r.SenderId == user.Id)
-                                                  .Select(r => r.ReceiverId);
-
-            var result = new List<int>(chatMembers.Count() + invited.Count() + requested.Count());
-            result.AddRange(chatMembers);
-            result.AddRange(invited);
-            result.AddRange(requested);
-
-            return result;
+            return Users.GetAllRelatedUsers(user.Id);
         }
 
         public IEnumerable<int> HandleRemovedFriend(DBFriend entity, TmdbContext context)
@@ -64,6 +43,7 @@ namespace TMServer.DataBase.Interaction
                 FriendId = friendId,
                 UserId = userId,
                 IsAdded = isAdded,
+                Date= DateTime.UtcNow,
             });
         }
 
@@ -117,6 +97,7 @@ namespace TMServer.DataBase.Interaction
                 ChatId = chatId,
                 IsAdded = isAdded,
                 UserId = userId,
+                Date = DateTime.UtcNow,
             });
             var usersToNotify = GetUsersForChatUpdate(chatId, context);
             UpdateChatForUsers(chatId, usersToNotify, context);
@@ -157,7 +138,8 @@ namespace TMServer.DataBase.Interaction
                 {
                     ChatId = chat.Id,
                     UserId = member.Id,
-                    IsAdded = true
+                    IsAdded = true,
+                    Date = DateTime.UtcNow,
                 });
             return members.Select(m => m.Id);
         }
@@ -170,5 +152,6 @@ namespace TMServer.DataBase.Interaction
             });
             return [invite.ToUserId];
         }
+
     }
 }

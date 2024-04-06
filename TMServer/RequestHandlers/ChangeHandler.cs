@@ -72,7 +72,7 @@ namespace TMServer.RequestHandlers
 
 
         private IEnumerable<int> HandleAddedEntity(string className, EntityEntry entity, TmdbContext context)
-        {
+        {        
             return className switch
             {
                 nameof(DBMessage) => Changes.HandleNewMessage((DBMessage)entity.Entity, context),

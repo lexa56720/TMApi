@@ -25,7 +25,7 @@ namespace TMServer.RequestHandlers
         }
         public UserInfo? GetUserInfo(ApiData<UserFullRequest> id)
         {
-            var user = Users.GetUserFull(id.UserId);
+            var user = Users.GetUserWithFriends(id.UserId);
             if (user == null)
                 return null;
 

@@ -14,7 +14,7 @@ namespace TMClient
             if (apiProvider == null)
                 return;
 
-            var peterApi = await apiProvider.GetApiRegistration("peter alexandros", "peters1", "peters1");
+            var peterApi = await apiProvider.GetApiRegistration("peter alexandros", "peter", "peter");
             var ramsulApi = await apiProvider.GetApiRegistration("ramsul abdulHalif", "ramsul", "ramsul");
             var adminApi = await apiProvider.GetApiRegistration("adminstarotr", "admin", "admin");
             var mudakApi = await apiProvider.GetApiRegistration("mudak", "mudak", "mudak");

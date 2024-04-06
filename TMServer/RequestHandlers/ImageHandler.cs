@@ -50,9 +50,9 @@ namespace TMServer.RequestHandlers
             return Converter.Convert(user, set);
         }
 
-        public byte[] GetImage(string url, int id)
+        public async Task<byte[]> GetImageAsync(string url, int id)
         {
-            var image = Images.GetImage(id);
+            var image = await Images.GetImageAsync(id);
 
             if (image == null || image.Url != url)
                 return [];

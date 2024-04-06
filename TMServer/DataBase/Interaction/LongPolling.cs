@@ -78,6 +78,15 @@ namespace TMServer.DataBase.Interaction
             return result;
         }
 
+        public DBUserOnlineUpdate[] GetOnlineUpdates(int userId)
+        {
+            using var db = new TmdbContext();
+            var result = db.UserOnlineUpdates
+                           .Where(c => c.UserId == userId)
+                           .ToArray();
+            return result;
+        }
+
 
         public void ClearAllUpdates(int userId)
         {
@@ -90,6 +99,7 @@ namespace TMServer.DataBase.Interaction
             db.ChatUpdates.Where(c => c.UserId == userId).ExecuteDelete();
             db.UserProfileUpdates.Where(p => p.UserId == userId).ExecuteDelete();
             db.FriendListUpdates.Where(fl => fl.UserId == userId).ExecuteDelete();
+            db.UserOnlineUpdates.Where(c => c.UserId == userId).ExecuteDelete();
             db.SaveChanges();
         }
         public void ClearUpdatesByIds(LongPollResponseInfo info)
@@ -103,6 +113,7 @@ namespace TMServer.DataBase.Interaction
             ExecuteDeleteByIds(db.ChatListUpdates, info.ChatListUpdates);
             ExecuteDeleteByIds(db.UserProfileUpdates, info.RelatedUsersChanged);
             ExecuteDeleteByIds(db.FriendListUpdates, info.FriendListUpdates);
+            ExecuteDeleteByIds(db.UserOnlineUpdates, info.OnlineUpdates);
             db.SaveChanges();
         }
 
@@ -124,7 +135,8 @@ namespace TMServer.DataBase.Interaction
                    db.UserProfileUpdates.Any(u => u.UserId == userId) ||
 
                    db.FriendRequestUpdates.Any(u => u.UserId == userId) ||
-                   db.FriendListUpdates.Any(u => u.UserId == userId);
+                   db.FriendListUpdates.Any(u => u.UserId == userId) ||
+                   db.UserOnlineUpdates.Any(u => u.UserId == userId);
         }
     }
 }

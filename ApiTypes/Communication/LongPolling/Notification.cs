@@ -7,6 +7,9 @@ namespace ApiTypes.Communication.LongPolling
     {
         public int LongPollId { get; set; }
 
+        public int[] RelatedUserOnlineIds { get; set; } = [];
+        public int[] RelatedUserOfflineIds { get; set; } = [];
+
         public int[] NewMessagesIds { get; set; } = [];
         public int[] ReadedMessagesIds { get; set; } = [];
 

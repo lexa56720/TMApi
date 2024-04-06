@@ -25,7 +25,7 @@ namespace TMServer.RequestHandlers
 
             var friendRequests = LongPolling.GetFriendRequestUpdates(userId);
             var friendListUpdates = LongPolling.GetFriendListUpdates(userId);
-
+            var onlineUpdates = LongPolling.GetOnlineUpdates(userId);
             var relatedUsersChanged = LongPolling.GetRelatedUsersUpdates(userId);
 
             var chatListUpdates = LongPolling.GetChatListUpdates(userId);
@@ -35,7 +35,7 @@ namespace TMServer.RequestHandlers
             var info = new LongPollResponseInfo()
             {
                 Id = id,
-
+                OnlineUpdates = ExtractIds(onlineUpdates),
                 NewMessages = ExtractIds(newMessages),
                 ReadedMessages = ExtractIds(readedMessages),
                 FriendRequests = ExtractIds(friendRequests),
@@ -46,8 +46,9 @@ namespace TMServer.RequestHandlers
                 ChatInvites = ExtractIds(chatInvites),
             };
 
-            var friendListSplitted = Split(friendListUpdates.GroupBy(f => f.FriendId));
-            var chatListSplitted = Split(chatListUpdates.GroupBy(f => f.ChatId));
+            var friendListSplitted = Split(friendListUpdates);
+            var chatListSplitted = Split(chatListUpdates);
+            var onlineSplitted = Split(onlineUpdates);
 
             var notification = new Notification()
             {
@@ -64,6 +65,9 @@ namespace TMServer.RequestHandlers
                 NewChatIds = chatListSplitted.added,
                 RemovedChatIds = chatListSplitted.removed,
 
+                RelatedUserOnlineIds = onlineSplitted.added,
+                RelatedUserOfflineIds = onlineSplitted.removed,
+
                 RelatedUserChangedIds = relatedUsersChanged.Select(u => u.ProfileId).ToArray(),
                 ChatChangedIds = chatsChanged.Select(c => c.ChatId).ToArray(),
                 ChatInviteIds = chatInvites.Select(i => i.ChatInviteId).ToArray(),
@@ -72,26 +76,22 @@ namespace TMServer.RequestHandlers
             return (notification, info);
         }
 
-        private (int[] added, int[] removed) Split(IEnumerable<IGrouping<int, ListUpdate>> groupByForeignKey)
+        private (int[] added, int[] removed) Split(IEnumerable<ListUpdate> list)
         {
             var added = new List<int>();
             var removed = new List<int>();
 
-
-            foreach (var friendGroup in groupByForeignKey)
+            var groupped = list.GroupBy(l => l.TargetId)
+                               .Select(g => g.OrderBy(e => e.Date)
+                                             .Last());
+            foreach (var group in groupped)
             {
-                if (friendGroup.Count() != 1)
-                    Add(friendGroup.MaxBy(f => f.Id));
+                if (group == null)
+                    continue;
+                if (group.IsAdded)
+                    added.Add(group.TargetId);
                 else
-                    Add(friendGroup.First());
-            }
-
-            void Add(ListUpdate friendListUpdate)
-            {
-                if (friendListUpdate.IsAdded)
-                    added.Add(friendListUpdate.TargetId);
-                else
-                    removed.Add(friendListUpdate.TargetId);
+                    removed.Add(group.TargetId);
             }
             return (added.ToArray(), removed.ToArray());
         }

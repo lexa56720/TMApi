@@ -41,6 +41,7 @@ public partial class TmdbContext : DbContext
     public virtual DbSet<DBFriendRequestUpdate> FriendRequestUpdates { get; set; }
     public virtual DbSet<DBUserProfileUpdate> UserProfileUpdates { get; set; }
     public virtual DbSet<DBFriendListUpdate> FriendListUpdates { get; set; }
+    public virtual DbSet<DBUserOnlineUpdate> UserOnlineUpdates { get; set; }
     public virtual DbSet<DBChatListUpdate> ChatListUpdates { get; set; }
     public virtual DbSet<DBNewMessageUpdate> NewMessageUpdates { get; set; }
     public virtual DbSet<DBMessageStatusUpdate> MessageStatusUpdates { get; set; }
@@ -472,6 +473,12 @@ public partial class TmdbContext : DbContext
             entity.Property(e => e.UserId)
                   .HasColumnName("user_id");
 
+            entity.Property(e => e.IsAdded)
+                  .HasColumnName("is_added");
+
+            entity.Property(e => e.Date)
+                  .HasColumnName("date");
+
             entity.HasOne(e => e.User)
                   .WithMany()
                   .HasForeignKey(u => u.UserId);
@@ -479,6 +486,33 @@ public partial class TmdbContext : DbContext
             entity.HasOne(e => e.Friend)
                   .WithMany()
                   .HasForeignKey(u => u.FriendId);
+        });
+        modelBuilder.Entity<DBUserOnlineUpdate>(entity =>
+        {
+            entity.ToTable("user_online_updates");
+
+            entity.HasKey(e => e.Id).HasName("user_online_pkey");
+            entity.Property(e => e.Id).HasColumnName("id");
+
+            entity.Property(e => e.RelatedUserId)
+                  .HasColumnName("related_user_id");
+
+            entity.Property(e => e.UserId)
+                  .HasColumnName("user_id");
+
+            entity.Property(e => e.IsAdded)
+                  .HasColumnName("is_added");
+
+            entity.Property(e => e.Date)
+                  .HasColumnName("date");
+
+            entity.HasOne(e => e.User)
+                  .WithMany()
+                  .HasForeignKey(u => u.UserId);
+
+            entity.HasOne(e => e.RelatedUser)
+                  .WithMany()
+                  .HasForeignKey(u => u.RelatedUserId);
         });
 
         modelBuilder.Entity<DBChatListUpdate>(entity =>
@@ -495,7 +529,10 @@ public partial class TmdbContext : DbContext
                   .HasColumnName("user_id");
 
             entity.Property(e => e.IsAdded)
-                  .HasColumnName("is_added5");
+                  .HasColumnName("is_added");
+
+            entity.Property(e => e.Date)
+                  .HasColumnName("date");
 
             entity.HasOne(e => e.User)
                   .WithMany()
