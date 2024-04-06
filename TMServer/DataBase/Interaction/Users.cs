@@ -99,6 +99,7 @@ namespace TMServer.DataBase.Interaction
             }
             prevSetId = user.ProfileImageId;
             user.ProfileImageId = imageId;
+            UpdateProfile(userId, db);
             db.SaveChanges(true);
             return user;
         }
@@ -111,7 +112,8 @@ namespace TMServer.DataBase.Interaction
                 return null;
 
             user.Name = newName;
-            db.SaveChanges();
+            UpdateProfile(userId, db);
+            db.SaveChanges(true);
             return user;
         }
 
@@ -147,13 +149,24 @@ namespace TMServer.DataBase.Interaction
             db.SaveChanges(true);
         }
 
+        private void UpdateProfile(int userId,TmdbContext db)
+        {
+            var related = GetAllRelatedUsers(userId);
+            foreach (var relatedUser in related)
+            {
+                db.UserProfileUpdates.Add(new DBUserProfileUpdate()
+                { 
+                    UserId = relatedUser,
+                    ProfileId=userId,
+                });
+            }
+        }
+
         private void StatusUpdate(int userId, bool isOnline, TmdbContext db)
         {
             var related = GetAllRelatedUsers(userId);
             foreach (var relatedUser in related)
             {
-                db.UserOnlineUpdates.Where(u => u.UserId == userId && u.RelatedUserId == relatedUser)
-                                    .ExecuteDelete();
                 db.UserOnlineUpdates.Add(new DBUserOnlineUpdate()
                 {
                     Date = DateTime.UtcNow,
