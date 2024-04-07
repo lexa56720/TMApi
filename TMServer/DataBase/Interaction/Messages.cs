@@ -41,7 +41,8 @@ namespace TMServer.DataBase.Interaction
 
             foreach (var image in images)
             {
-                db.MessageAttachments.Add(new DBMessageAttachments()
+
+                message.Attachments.Add(new DBMessageAttachments()
                 { 
                     AttachmentId=image.Id,
                     Kind=AttachmentKind.Image,
@@ -50,7 +51,7 @@ namespace TMServer.DataBase.Interaction
             }
             foreach (var file in files)
             {
-                db.MessageAttachments.Add(new DBMessageAttachments()
+                message.Attachments.Add(new DBMessageAttachments()
                 {
                     AttachmentId = file.Id,
                     Kind = AttachmentKind.File,
@@ -121,6 +122,7 @@ namespace TMServer.DataBase.Interaction
 
             return db.Messages
                 .Include(m => m.Action)
+                .Include(m=>m.Attachments)
                 .Where(m => m.DestinationId == chatId)
                 .OrderByDescending(m => m.SendTime)
                 .ThenByDescending(m => m.Id)
@@ -143,6 +145,7 @@ namespace TMServer.DataBase.Interaction
             using var db = new TmdbContext();
 
             return db.Messages.Include(m => m.Action)
+                              .Include(m => m.Attachments)
                               .Where(m => m.DestinationId == chatId)
                               .OrderByDescending(m => m.SendTime)
                               .ThenByDescending(m => m.Id)
@@ -156,6 +159,7 @@ namespace TMServer.DataBase.Interaction
             using var db = new TmdbContext();
 
             return db.Messages.Include(m => m.Action)
+                              .Include(m => m.Attachments)
                               .OrderByDescending(m => m.SendTime)
                               .ThenByDescending(m => m.Id)
                               .Where(m => ids.Contains(m.Id))
@@ -177,9 +181,10 @@ namespace TMServer.DataBase.Interaction
         {
             using var db = new TmdbContext();
 
-            var messsagesToMark = db.UnreadMessages.Include(um => um.Message)
-                                   .Where(um => (um.UserId == userId || um.UserId == um.Message.AuthorId) &&
-                                          ids.Contains(um.MessageId));
+            var messsagesToMark = db.UnreadMessages
+                                    .Include(um => um.Message)
+                                    .Where(um => (um.UserId == userId || um.UserId == um.Message.AuthorId) &&
+                                           ids.Contains(um.MessageId));
 
             db.UnreadMessages.RemoveRange(messsagesToMark);
             try

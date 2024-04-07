@@ -182,11 +182,11 @@ namespace TMServer.RequestHandlers
             {
                 if (attachment.Kind == AttachmentKind.Image)
                 {
-                    images.Add(attachment.Id);
+                    images.Add(attachment.AttachmentId);
                 }
                 else if (attachment.Kind == AttachmentKind.File)
                 {
-                    files.Add(attachment.Id);
+                    files.Add(attachment.AttachmentId);
                 }
             }
             return (Convert(Images.GetImage(images)), Convert(Files.GetFiles(files)));
