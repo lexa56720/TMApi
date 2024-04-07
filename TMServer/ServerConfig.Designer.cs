@@ -98,8 +98,8 @@ namespace TMServer {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Host=localhost;Port=5432;Database=tmimagesdb;Username=tmadmin;Password=1234;Inclu" +
-            "de Error Detail=True;")]
+        [global::System.Configuration.DefaultSettingValueAttribute("Host=localhost;Port=5432;Database=tmfilesdb;Username=tmadmin;Password=1234;Includ" +
+            "e Error Detail=True;")]
         public string TMDBFilesConnetctionString {
             get {
                 return ((string)(this["TMDBFilesConnetctionString"]));

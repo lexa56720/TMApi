@@ -43,13 +43,13 @@ namespace TMServer.DataBase.Interaction
             return files;
         }
 
-        public async Task<DBImage?> GetFileAsync(int fileId)
+        public async Task<DBBinaryFile?> GetFileAsync(int fileId)
         {
             using var db = new FilesDBContext();
 
-            var image = await db.Images.SingleOrDefaultAsync(i => i.Id == fileId);
+            var file = await db.Files.SingleOrDefaultAsync(f => f.Id == fileId);
 
-            return image;
+            return file;
         }
 
 

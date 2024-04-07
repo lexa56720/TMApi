@@ -302,7 +302,7 @@ public partial class TmdbContext : DbContext
 
 
             entity.Property(e => e.Kind)
-                  .HasColumnName("attachment_kind");
+                  .HasColumnName("kind");
 
             entity.Property(e => e.AttachmentId)
                   .HasColumnName("attachment_id");

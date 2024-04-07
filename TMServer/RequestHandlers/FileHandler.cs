@@ -13,6 +13,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TMServer.DataBase.Interaction;
+using TMServer.DataBase.Tables.FileTables;
 
 namespace TMServer.RequestHandlers
 {
@@ -66,13 +67,13 @@ namespace TMServer.RequestHandlers
             return image.Data;
         }
 
-        public async Task<byte[]> GetFileAsync(string url, int id)
+        public async Task<DBBinaryFile?> GetFileAsync(string url, int id)
         {
             var file = await Files.GetFileAsync(id);
 
             if (file == null || file.Url != url)
-                return [];
-            return file.Data;
+                return null;
+            return file;
         }
         private Image? IsValidImage(byte[] imageData)
         {

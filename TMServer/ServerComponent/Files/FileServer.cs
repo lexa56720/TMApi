@@ -5,8 +5,10 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net;
+using System.Net.Mime;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 using TMServer.Logger;
 using TMServer.RequestHandlers;
 using TMServer.ServerComponent.Api;
@@ -60,11 +62,13 @@ namespace TMServer.ServerComponent.Files
                         {
                             case "images":
                                 var image = await FileHandler.GetImageAsync(url, id);
-                                await WriteResponse(image, context.Response, true);
+                                await WriteImageResponse(image, context.Response);
                                 break;
                             case "files":
                                 var file = await FileHandler.GetFileAsync(url, id);
-                                await WriteResponse(file, context.Response, true);
+                                if (file == null)
+                                    continue;
+                                await WriteFileResponse(file.Data,file.Name, context.Response);
                                 break;
                             default:
                                 continue;
@@ -75,18 +79,34 @@ namespace TMServer.ServerComponent.Files
                 Listener.Stop();
             });
         }
-        private async Task WriteResponse(byte[] imageData, HttpListenerResponse response, bool isImage)
+        private async Task WriteImageResponse(byte[] imageData, HttpListenerResponse response)
         {
             if (imageData.Length == 0)
-                response.StatusCode = 400;
+                response.StatusCode = (int)HttpStatusCode.BadRequest;
 
+            response.StatusCode = (int)HttpStatusCode.OK;
             response.ContentLength64 = imageData.Length;
-            response.ContentType = isImage ? "image/jpeg" : "application/x-binary";
-            response.StatusCode = 200;
+            response.ContentType = MediaTypeNames.Image.Jpeg;
 
             using var ms = new MemoryStream(imageData);
             await ms.CopyToAsync(response.OutputStream);
         }
+
+        private async Task WriteFileResponse(byte[] fileData,string fileName, HttpListenerResponse response)
+        {
+            if (fileData.Length == 0)
+                response.StatusCode = (int)HttpStatusCode.BadRequest;
+
+            response.StatusCode= (int)HttpStatusCode.OK;
+            string fileNameUrlEncoded = HttpUtility.UrlEncode(fileName, Encoding.UTF8);
+            response.AddHeader("Content-Disposition", "attachment; filename*=UTF-8''" + fileNameUrlEncoded);
+            response.ContentLength64 = fileData.Length;
+            response.ContentType= MediaTypeNames.Application.Octet;
+
+            using var ms = new MemoryStream(fileData);
+            await ms.CopyToAsync(response.OutputStream);
+        }
+
         private bool TryParse(string? rawUrl, out string type, out string url, out int id)
         {
             url = string.Empty;

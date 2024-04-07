@@ -21,7 +21,7 @@
       <Value Profile="(Default)">Host=localhost;Port=5432;Database=tmdb;Username=tmadmin;Password=1234;Include Error Detail=True;</Value>
     </Setting>
     <Setting Name="TMDBFilesConnetctionString" Type="System.String" Scope="User">
-      <Value Profile="(Default)">Host=localhost;Port=5432;Database=tmimagesdb;Username=tmadmin;Password=1234;Include Error Detail=True;</Value>
+      <Value Profile="(Default)">Host=localhost;Port=5432;Database=tmfilesdb;Username=tmadmin;Password=1234;Include Error Detail=True;</Value>
     </Setting>
     <Setting Name="InfoPort" Type="System.UInt16" Scope="User">
       <Value Profile="(Default)">6660</Value>

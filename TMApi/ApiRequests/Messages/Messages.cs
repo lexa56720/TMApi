@@ -58,13 +58,13 @@ namespace TMApi.ApiRequests.Messages
             return await Requester.ApiRequestAsync<Message, MessageSendRequest>(new MessageSendRequest(text, destinationId));
         }
 
-        public async Task<Message?> SendMessage(string text, int destinationId, byte[][]images)
+        public async Task<Message?> SendMessage(string text, int destinationId, params SerializableFile[] files)
         {
             if (!DataConstraints.IsMessageLegal(text))
                 return null;
 
             return await Requester.FileRequestAsync<Message, MessageWithFilesSendRequest>
-                          (new MessageWithFilesSendRequest(text, destinationId,images));
+                          (new MessageWithFilesSendRequest(text, destinationId,files));
         }
 
 
