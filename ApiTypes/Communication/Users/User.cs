@@ -16,9 +16,9 @@ namespace ApiTypes.Communication.Users
 
         public DateTime LastAction { get; set; }
 
-        public Photo[] ProfilePics { get; set; } = [];
+        public PhotoLink[] ProfilePics { get; set; } = [];
 
-        public User(string name, int id, string login, bool isOnline, DateTime lastAction, Photo[] profilePics)
+        public User(string name, int id, string login, bool isOnline, DateTime lastAction, PhotoLink[] profilePics)
         {
             Name = name;
             Id = id;
@@ -40,7 +40,7 @@ namespace ApiTypes.Communication.Users
                 Id = reader.ReadInt32(),
                 Login = reader.ReadString(),
                 IsOnline = reader.ReadBoolean(),
-                ProfilePics = reader.Read<Photo>(),
+                ProfilePics = reader.Read<PhotoLink>(),
                 LastAction = DateTime.FromBinary(reader.ReadInt64())
             };
         }

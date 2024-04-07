@@ -10,20 +10,21 @@ using System.Text;
 using System.Threading.Tasks;
 using TMServer.DataBase.Interaction;
 using TMServer.DataBase.Tables;
-
-
+using TMServer.DataBase.Tables.FileTables;
 using ApiImageSize = ApiTypes.Communication.Medias.ImageSize;
-using DBImageSize = TMServer.DataBase.Tables.ImageSize;
+using DBImageSize = TMServer.DataBase.Tables.FileTables.ImageSize;
 
 namespace TMServer.RequestHandlers
 {
     public class DbConverter
     {
         private readonly Images Images;
+        private readonly Files Files;
 
-        public DbConverter(Images images)
+        public DbConverter(Images images, Files files)
         {
             Images = images;
+            Files = files;
         }
 
         public Chat Convert(DBChat chat, int unreadCount)
@@ -32,7 +33,7 @@ namespace TMServer.RequestHandlers
         }
         public Chat Convert(DBChat chat, int unreadCount, DBImageSet? cover)
         {
-            Photo[] coverPics = [];
+            PhotoLink[] coverPics = [];
             if (cover != null)
                 coverPics = Convert(cover);
 
@@ -66,9 +67,9 @@ namespace TMServer.RequestHandlers
                                  dbMessage.Action.ExecutorId, dbMessage.Action.TargetId == null ? -1 : dbMessage.Action.TargetId.Value);
             }
 
-            var images = Images.GetImage(dbMessage.Medias.Select(m => m.MediaId).ToArray());
+            var (images, files) = GetMessageAttachments(dbMessage.Attachments.ToArray());
             return new Message(dbMessage.Id, dbMessage.AuthorId, dbMessage.DestinationId,
-                               dbMessage.Content, dbMessage.SendTime, isReaded, Convert(images));
+                               dbMessage.Content, dbMessage.SendTime, isReaded, images, files);
         }
         public Message[] Convert(DBMessage[] dbMessages, bool[] isReaded)
         {
@@ -85,7 +86,7 @@ namespace TMServer.RequestHandlers
         }
         public User Convert(DBUser dBUser, DBImageSet? profilePic)
         {
-            Photo[] pics = [];
+            PhotoLink[] pics = [];
             if (profilePic != null)
                 pics = Convert(profilePic);
 
@@ -135,22 +136,32 @@ namespace TMServer.RequestHandlers
             return result;
         }
 
-        public Photo[] Convert(DBImageSet set)
+        public PhotoLink[] Convert(DBImageSet set)
         {
             return Convert(set.Images.ToArray());
         }
-        public Photo[] Convert(DBImage[] images)
+        public PhotoLink[] Convert(DBImage[] images)
         {
-            var result = new Photo[images.Length];
+            var result = new PhotoLink[images.Length];
             for (int i = 0; i < result.Length; i++)
             {
                 var url = $"images/{images[i].Url}/{images[i].Id}";
                 var size = Convert(images[i].Size);
-                result[i] = new Photo(url, size);
+                result[i] = new PhotoLink(url, size);
             }
             return result;
         }
-
+        public FileLink[] Convert(DBBinaryFile[] files)
+        {
+            var result = new FileLink[files.Length];
+            for (int i = 0; i < result.Length; i++)
+            {
+                var url = $"files/{files[i].Url}/{files[i].Id}";
+                var name = files[i].Name;
+                result[i] = new FileLink(url, name);
+            }
+            return result;
+        }
         private ApiImageSize Convert(DBImageSize imageSize)
         {
             return imageSize switch
@@ -160,6 +171,25 @@ namespace TMServer.RequestHandlers
                 DBImageSize.Large => ApiImageSize.Large,
                 _ => throw new NotImplementedException(),
             };
+        }
+
+        private (PhotoLink[], FileLink[]) GetMessageAttachments(DBMessageAttachments[] attachments)
+        {
+            var images = new List<int>();
+            var files = new List<int>();
+
+            foreach (var attachment in attachments)
+            {
+                if (attachment.Kind == AttachmentKind.Image)
+                {
+                    images.Add(attachment.Id);
+                }
+                else if (attachment.Kind == AttachmentKind.File)
+                {
+                    files.Add(attachment.Id);
+                }
+            }
+            return (Convert(Images.GetImage(images)), Convert(Files.GetFiles(files)));
         }
     }
 }

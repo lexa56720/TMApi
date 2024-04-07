@@ -5,28 +5,30 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TMServer.DataBase.Tables.LongPolling;
-using TMServer.DataBase.Tables;
 using static System.Net.Mime.MediaTypeNames;
+using TMServer.DataBase.Tables.FileTables;
 
 namespace TMServer.DataBase
 {
-    internal class ImagesDBContext : DbContext
+    internal class FilesDBContext : DbContext
     {
-        public ImagesDBContext()
+        public FilesDBContext()
         {
         }
 
-        public ImagesDBContext(DbContextOptions<ImagesDBContext> options)
+        public FilesDBContext(DbContextOptions<FilesDBContext> options)
             : base(options)
         {
         }
 
         public virtual DbSet<DBImage> Images { get; set; }
         public virtual DbSet<DBImageSet> ImageSets { get; set; }
+        public virtual DbSet<DBBinaryFile> Files { get; set; }
+
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseNpgsql(GlobalSettings.ImagesDBConnectionString);
+            optionsBuilder.UseNpgsql(GlobalSettings.FilesDBConnectionString);
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -63,6 +65,25 @@ namespace TMServer.DataBase
                 entity.HasMany(e => e.Images)
                       .WithOne(e => e.Set)
                       .HasForeignKey(e => e.SetId);
+            });
+
+            modelBuilder.Entity<DBBinaryFile>(entity =>
+            {
+                entity.ToTable("binary_files");
+
+                entity.HasKey(e => e.Id).HasName("binary_files_pkey");
+                entity.Property(e => e.Id).HasColumnName("id");
+
+                entity.Property(e => e.Name)
+                      .HasColumnName("name")
+                      .HasMaxLength(128);
+
+                entity.Property(e => e.Url)
+                      .HasColumnName("url")
+                      .HasMaxLength(128);
+
+                entity.Property(e => e.Data)
+                      .HasColumnName("data");
             });
         }
     }

@@ -20,7 +20,7 @@ using TMServer.RequestHandlers;
 using TMServer.ServerComponent.Api;
 using TMServer.ServerComponent.Auth;
 using TMServer.ServerComponent.Basics;
-using TMServer.ServerComponent.Images;
+using TMServer.ServerComponent.Files;
 using TMServer.ServerComponent.LongPolling;
 
 namespace TMServer.ServerComponent
@@ -30,12 +30,12 @@ namespace TMServer.ServerComponent
         public required AuthorizationServer AuthServer {  get; init; }
         public required ApiServer ApiServer {  get; init; }
         public required LongPollServer LongPollServer {  get; init; }
-        public required ImageServer ImageServer {  get; init; }
+        public required FileServer FileServer {  get; init; }
 
         public required AuthHandler AuthHandler { private get; init; }
         public required ChatsHandler ChatsHandler { private get; init; }
         public required FriendsHandler FriendsHandler { private get; init; }
-        public required ImageHandler ImageHandler { private get; init; }
+        public required FileHandler FileHandler { private get; init; }
         public required MessagesHandler MessagesHandler { private get; init; }
         public required SearchHandler SearchHandler { private get; init; }
         public required UsersHandler UsersHandler { private get; init; }
@@ -61,7 +61,7 @@ namespace TMServer.ServerComponent
             AuthServer.Dispose();
             ApiServer.Dispose();
             LongPollServer.Dispose();
-            ImageServer.Dispose();
+            FileServer.Dispose();
             
         }
         private void RegisterAuthMethods()
@@ -97,7 +97,7 @@ namespace TMServer.ServerComponent
             ApiServer.RegisterRequestHandler<ChangeNameRequest, User>(UsersHandler.ChangeUserName);
             ApiServer.RegisterRequestHandler<SearchRequest, SerializableArray<User>>(SearchHandler.GetUserByName);
 
-            ImageServer.RegisterRequestHandler<ChangeProfileImageRequest, User>(ImageHandler.SetProfileImage);
+            FileServer.RegisterRequestHandler<ChangeProfileImageRequest, User>(FileHandler.SetProfileImage);
         }
         private void RegisterFriendMethods()
         {
@@ -122,7 +122,9 @@ namespace TMServer.ServerComponent
 
             ApiServer.RegisterDataHandler<ChatLeaveRequest>(ChatsHandler.LeaveChat);
 
-            ImageServer.RegisterDataHandler<ChagneCoverRequest>(ImageHandler.SetChatCover);
+
+            FileServer.RegisterRequestHandler<MessageWithFilesSendRequest, Message>(FileHandler.MessageWithFiles);
+            FileServer.RegisterDataHandler<ChagneCoverRequest>(FileHandler.SetChatCover);
 
         }
 
@@ -141,7 +143,7 @@ namespace TMServer.ServerComponent
             AuthServer.Start();
             ApiServer.Start();
             LongPollServer.Start();
-            ImageServer.Start();
+            FileServer.Start();
 
             Logger.Log("Server is ready\n");
         }
@@ -154,7 +156,7 @@ namespace TMServer.ServerComponent
             AuthServer.Stop();
             ApiServer.Stop();
             LongPollServer.Stop();
-            ImageServer.Stop();
+            FileServer.Stop();
 
             Logger.Log("\n Server is down");
         }

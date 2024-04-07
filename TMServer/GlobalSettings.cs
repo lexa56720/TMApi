@@ -17,7 +17,7 @@ namespace TMServer
         public static TimeSpan RsaLifeTime { get; set; }
 
         public static string TMDBConnectionString { get; set; } = string.Empty;
-        public static string ImagesDBConnectionString { get; set; } = string.Empty;
+        public static string FilesDBConnectionString { get; set; } = string.Empty;
 
         public static string PasswordSalt { get; set; } = string.Empty;
         public static int Version { get; set; }
@@ -37,7 +37,7 @@ namespace TMServer
             RsaLifeTime = TimeSpan.FromHours(ServerConfig.Default.RsaKeyLifetimeHours);
 
             TMDBConnectionString = ServerConfig.Default.TMDBConnectionString;
-            ImagesDBConnectionString = ServerConfig.Default.TMImagesDBConnetctionString;
+            FilesDBConnectionString = ServerConfig.Default.TMDBFilesConnetctionString;
             PasswordSalt = ServerConfig.Default.PasswordSalt;
             Version = ServerConfig.Default.Version;
             OnlineTimeout = 2 * LongPollLifeTime;

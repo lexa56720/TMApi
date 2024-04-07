@@ -100,12 +100,12 @@ namespace TMServer {
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("Host=localhost;Port=5432;Database=tmimagesdb;Username=tmadmin;Password=1234;Inclu" +
             "de Error Detail=True;")]
-        public string TMImagesDBConnetctionString {
+        public string TMDBFilesConnetctionString {
             get {
-                return ((string)(this["TMImagesDBConnetctionString"]));
+                return ((string)(this["TMDBFilesConnetctionString"]));
             }
             set {
-                this["TMImagesDBConnetctionString"] = value;
+                this["TMDBFilesConnetctionString"] = value;
             }
         }
         

@@ -32,7 +32,7 @@ public partial class TmdbContext : DbContext
     public virtual DbSet<DBUser> Users { get; set; }
     public virtual DbSet<DBChatInvite> ChatInvites { get; set; }
     public virtual DbSet<DBFriendRequest> FriendRequests { get; set; }
-    public virtual DbSet<DBMessageMedia> MessageMedias { get; set; }
+    public virtual DbSet<DBMessageAttachments> MessageAttachments { get; set; }
     public virtual DbSet<DBUnreadMessage> UnreadMessages { get; set; }
     public virtual DbSet<DBChatUpdate> ChatUpdates { get; set; }
     public virtual DbSet<DBMessageAction> MessageActions { get; set; }
@@ -159,7 +159,7 @@ public partial class TmdbContext : DbContext
             entity.Property(e => e.IsSystem)
                   .HasColumnName("is_system");
 
-            entity.HasMany(e => e.Medias)
+            entity.HasMany(e => e.Attachments)
                   .WithOne(m => m.Message)
                   .HasForeignKey(m => m.MessageId);
 
@@ -293,15 +293,19 @@ public partial class TmdbContext : DbContext
                   .WithMany()
                   .HasForeignKey(r => r.ReceiverId);
         });
-        modelBuilder.Entity<DBMessageMedia>(entity =>
+        modelBuilder.Entity<DBMessageAttachments>(entity =>
         {
-            entity.ToTable("message_medias");
+            entity.ToTable("message_attachments");
 
-            entity.HasKey(e => e.Id).HasName("message_medias_pkey");
+            entity.HasKey(e => e.Id).HasName("message_attachments_pkey");
             entity.Property(e => e.Id).HasColumnName("id");
 
-            entity.Property(e => e.MediaId)
-                  .HasColumnName("media_id");
+
+            entity.Property(e => e.Kind)
+                  .HasColumnName("attachment_kind");
+
+            entity.Property(e => e.AttachmentId)
+                  .HasColumnName("attachment_id");
         });
         modelBuilder.Entity<DBUnreadMessage>(entity =>
         {

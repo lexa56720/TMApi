@@ -12,7 +12,7 @@ using TMServer.Logger;
 using TMServer.ServerComponent.Api;
 using TMServer.ServerComponent.Auth;
 using TMServer.ServerComponent.Basics;
-using TMServer.ServerComponent.Images;
+using TMServer.ServerComponent.Files;
 using TMServer.ServerComponent.LongPolling;
 
 namespace TMServer.ServerComponent.Info
@@ -22,7 +22,7 @@ namespace TMServer.ServerComponent.Info
         private readonly IList<AuthorizationServer> AuthServers = new List<AuthorizationServer>();
         private readonly IList<ApiServer> ApiServers = new List<ApiServer>();
         private readonly IList<LongPollServer> LongPollServers = new List<LongPollServer>();
-        private readonly IList<ImageServer> ImageServers = new List<ImageServer>();
+        private readonly IList<FileServer> FileServers = new List<FileServer>();
         public int Version { get; }
 
         public InfoServer(int port, int version, ILogger logger) : base(port, logger, CSDTP.Protocols.Protocol.Udp)
@@ -36,14 +36,14 @@ namespace TMServer.ServerComponent.Info
             AuthServers.Clear();
             ApiServers.Clear();
             LongPollServers.Clear();
-            ImageServers.Clear();
+            FileServers.Clear();
         }
 
         public bool Add(Server server)
         {
-            if (server is ImageServer imageServer)
+            if (server is FileServer imageServer)
             {
-                ImageServers.Add(imageServer);
+                FileServers.Add(imageServer);
                 return true;
             }
             switch (server)
@@ -65,7 +65,7 @@ namespace TMServer.ServerComponent.Info
         private ServerInfoResponse? GetInfo(ServerInfoRequest request, IPacketInfo info)
         {
             var (longPollPort, longPollPeriod) = GetLongPollInfo();
-            var (uploadPort, downloadPort) = GetImagePorts();
+            var (uploadPort, downloadPort) = GetFilePorts();
             var apiPort = GetApiPort();
             var authPort = GetAuthPort();
             if (longPollPort < 0 || longPollPeriod < 0 || uploadPort < 0 ||
@@ -106,9 +106,9 @@ namespace TMServer.ServerComponent.Info
                 return (-1, -1);
             return (longPoll.ListenPort, (int)longPoll.LongPollLifetime.TotalSeconds);
         }
-        private (int uploadPort, int downloadPort) GetImagePorts()
+        private (int uploadPort, int downloadPort) GetFilePorts()
         {
-            var image = Pick(ImageServers);
+            var image = Pick(FileServers);
             if (image == null)
                 return (-1, -1);
             return (image.ListenPort, image.DownloadPort);

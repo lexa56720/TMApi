@@ -33,7 +33,7 @@ namespace TMServer
             infoServer.Add(mainServer.ApiServer);
             infoServer.Add(mainServer.AuthServer);
             infoServer.Add(mainServer.LongPollServer);
-            infoServer.Add(mainServer.ImageServer);
+            infoServer.Add(mainServer.FileServer);
 
             infoServer.Start();
             mainServer.Start();
@@ -57,7 +57,7 @@ namespace TMServer
         private static void DataBaseInit()
         {
             using var db = new TmdbContext();
-            using var idb = new ImagesDBContext();
+            using var idb = new FilesDBContext();
             idb.Database.EnsureCreated();
             idb.SaveChanges();
             db.Database.EnsureCreated();
@@ -75,7 +75,7 @@ namespace TMServer
             var apiServer = Factory.CreateApiServer();
 
             var longPollServer = Factory.CreateLongPollServer(longPollPeriod);
-            var imageServer = Factory.CreateImageServer();
+            var imageServer = Factory.CreateFileServer();
 
             return Factory.CreateMainServer(apiServer,authServer,longPollServer,imageServer);
         }

@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using System.Data;
 using TMServer.DataBase.Tables;
+using TMServer.DataBase.Tables.FileTables;
 
 namespace TMServer.DataBase.Interaction
 {
@@ -21,6 +22,42 @@ namespace TMServer.DataBase.Interaction
             db.Messages.Add(message);
             db.SaveChanges(true);
 
+            return message;
+        }
+
+        public DBMessage AddMessage(int authorId, string content, DBImage[] images, DBBinaryFile[] files, int destinationId)
+        {
+            using var db = new TmdbContext();
+
+            var message = new DBMessage()
+            {
+                AuthorId = authorId,
+                DestinationId = destinationId,
+                Content = content,
+                IsSystem = false,
+                SendTime = DateTime.UtcNow,
+            };
+            db.Messages.Add(message);
+
+            foreach (var image in images)
+            {
+                db.MessageAttachments.Add(new DBMessageAttachments()
+                { 
+                    AttachmentId=image.Id,
+                    Kind=AttachmentKind.Image,
+                    Message=message,
+                });
+            }
+            foreach (var file in files)
+            {
+                db.MessageAttachments.Add(new DBMessageAttachments()
+                {
+                    AttachmentId = file.Id,
+                    Kind = AttachmentKind.File,
+                    Message = message,
+                });
+            }
+            db.SaveChanges(true);
             return message;
         }
 

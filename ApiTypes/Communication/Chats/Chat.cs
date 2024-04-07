@@ -16,7 +16,7 @@ namespace ApiTypes.Communication.Chats
         public bool IsDialogue { get; set; }
         public string Name { get; set; } = string.Empty;
 
-        public Photo[] ChatCover { get; set; } = [];
+        public PhotoLink[] ChatCover { get; set; } = [];
 
 
         public Chat(int id, int adminId, bool isDialogue, string name, params int[] userIds)

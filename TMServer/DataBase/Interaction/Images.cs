@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Jpeg;
 using SixLabors.ImageSharp.Processing;
-using TMServer.DataBase.Tables;
+using TMServer.DataBase.Tables.FileTables;
 
 
 namespace TMServer.DataBase.Interaction
@@ -18,7 +18,7 @@ namespace TMServer.DataBase.Interaction
         public DBImage AddImage(Image largeImage)
         {
             var largeImageData = GetImageBytes(largeImage);
-            using var db = new ImagesDBContext();
+            using var db = new FilesDBContext();
 
             var image = new DBImage()
             {
@@ -30,6 +30,26 @@ namespace TMServer.DataBase.Interaction
             db.SaveChanges();
             return image;
         }
+        public DBImage[] AddImages(Image[] images)
+        {     
+            using var db = new FilesDBContext();
+
+            var result = new DBImage[images.Length];
+            for (int i = 0; i < images.Length; i++)
+            {
+                var imageData = GetImageBytes(images[i]);
+                var dbImage = new DBImage()
+                {
+                    Url = GenerateUrl(),
+                    Data = imageData,
+                    Size = ImageSize.Large
+                };
+                db.Images.Add(dbImage);
+                result[i]=dbImage;
+            }        
+            db.SaveChanges();
+            return result;
+        }
         public DBImageSet? AddImageAsSet(Image largeImage)
         {
             using var smallImage = largeImage.Clone(image => image.Resize(64, 64));
@@ -40,7 +60,7 @@ namespace TMServer.DataBase.Interaction
             var mediumImageData = GetImageBytes(mediumImage);
             var largeImageData = GetImageBytes(largeImage);
 
-            using var db = new ImagesDBContext();
+            using var db = new FilesDBContext();
 
             var set = new DBImageSet();
             db.ImageSets.Add(set);
@@ -70,11 +90,9 @@ namespace TMServer.DataBase.Interaction
             return set;
         }
 
-
-
         public DBImageSet?[] GetImageSet(int[] setIds)
         {
-            using var db = new ImagesDBContext();
+            using var db = new FilesDBContext();
             var set = db.ImageSets.Include(s => s.Images)
                                   .Where(s => setIds.Contains(s.Id))
                                   .ToArray();
@@ -83,7 +101,7 @@ namespace TMServer.DataBase.Interaction
         }
         public DBImageSet? GetImageSet(int setId)
         {
-            using var db = new ImagesDBContext();
+            using var db = new FilesDBContext();
             var set = db.ImageSets.Include(s => s.Images)
                                   .SingleOrDefault(i => i.Id == setId);
             return set;
@@ -91,15 +109,15 @@ namespace TMServer.DataBase.Interaction
 
         public async Task<DBImage?> GetImageAsync(int imageId)
         {
-            using var db = new ImagesDBContext();
+            using var db = new FilesDBContext();
 
             var image = await db.Images.SingleOrDefaultAsync(i => i.Id == imageId);
 
             return image;
         }
-        public DBImage[] GetImage(int[] imageIds)
+        public DBImage[] GetImage(IEnumerable<int> imageIds)
         {
-            using var db = new ImagesDBContext();
+            using var db = new FilesDBContext();
 
             var images = db.Images.Where(i => imageIds.Contains(i.Id))
                                   .ToArray();
@@ -109,7 +127,7 @@ namespace TMServer.DataBase.Interaction
 
         public bool RemoveSet(int setId)
         {
-            using var db = new ImagesDBContext();
+            using var db = new FilesDBContext();
             var set = db.ImageSets.Include(s => s.Images)
                                   .SingleOrDefault(i => i.Id == setId);
             if (set == null)
@@ -119,10 +137,9 @@ namespace TMServer.DataBase.Interaction
             db.ImageSets.Remove(set);
             return db.SaveChanges() > 0;
         }
-
         public string GetImageUrl(int id, ImageSize size)
         {
-            using var db = new ImagesDBContext();
+            using var db = new FilesDBContext();
 
             var set = db.ImageSets.Include(s => s.Images)
                                   .SingleOrDefault(i => i.Id == id);

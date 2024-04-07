@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TMServer.DataBase.Tables
+namespace TMServer.DataBase.Tables.FileTables
 {
     public enum ImageSize
     {
@@ -13,17 +13,11 @@ namespace TMServer.DataBase.Tables
         Large,
     }
 
-    public partial class DBImage
+    public partial class DBImage : File
     {
-        public int Id { get; set; }
-
         public int? SetId { get; set; }
 
-        public required string Url { get; set; } = null!;
-
         public required ImageSize Size { get; set; }
-
-        public required byte[] Data { get; set; } = null!;
 
         public virtual DBImageSet? Set { get; set; } = null!;
     }

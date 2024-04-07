@@ -7,13 +7,17 @@ using System.Threading.Tasks;
 
 namespace TMServer.DataBase.Tables
 {
-    public partial class DBMessageMedia
+    public enum AttachmentKind
+    {
+        Image,
+        File,
+    }
+    public partial class DBMessageAttachments
     {
         public int Id { get; set; }
-        public int MediaId { get; set; }
-
+        public int AttachmentId { get; set; }
+        public AttachmentKind Kind { get; set; }
         public int MessageId { get; set; }
-
         public virtual DBMessage Message { get; set; } = null!;
     }
 }

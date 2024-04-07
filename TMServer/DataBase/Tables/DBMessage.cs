@@ -16,7 +16,7 @@ public partial class DBMessage
 
     public required DateTime SendTime { get; set; }
 
-    public virtual ICollection<DBMessageMedia> Medias { get; set; } = new List<DBMessageMedia>();
+    public virtual ICollection<DBMessageAttachments> Attachments { get; set; } = new List<DBMessageAttachments>();
 
     public virtual DBUser Author { get; set; } = null!;
 

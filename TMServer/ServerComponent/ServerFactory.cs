@@ -10,7 +10,7 @@ using TMServer.RequestHandlers;
 using TMServer.ServerComponent.Api;
 using TMServer.ServerComponent.Auth;
 using TMServer.ServerComponent.Basics;
-using TMServer.ServerComponent.Images;
+using TMServer.ServerComponent.Files;
 using TMServer.ServerComponent.Info;
 using TMServer.ServerComponent.LongPolling;
 
@@ -23,7 +23,8 @@ namespace TMServer.ServerComponent
         private readonly Messages Messages;
         private readonly Chats Chats;
         private readonly Friends Friends;
-        private readonly DataBase.Interaction.Images Images;
+        private readonly DataBase.Interaction.Files Files;
+        private readonly Images Images;
         private readonly DataBase.Interaction.LongPolling LongPolling;
         private readonly Security Security;
         private readonly Users Users;
@@ -31,7 +32,7 @@ namespace TMServer.ServerComponent
         private readonly AuthHandler AuthHandler;
         private readonly ChatsHandler ChatsHandler;
         private readonly FriendsHandler FriendsHandler;
-        private readonly ImageHandler ImageHandler;
+        private readonly FileHandler FileHandler;
         private readonly MessagesHandler MessagesHandler;
         private readonly SearchHandler SearchHandler;
         private readonly UsersHandler UsersHandler;
@@ -46,17 +47,19 @@ namespace TMServer.ServerComponent
             Messages = new Messages();
             Chats = new Chats(Messages);
             Friends = new Friends(Chats);
-            Images = new DataBase.Interaction.Images();
+            Friends = new Friends(Chats);
+            Files = new DataBase.Interaction.Files();
+            Images = new Images();
             LongPolling = new DataBase.Interaction.LongPolling();
 
             Security = new Security();
             Users = new Users();
-            var Converter = new DbConverter(Images);
+            var Converter = new DbConverter(Images,Files);
 
             AuthHandler = new AuthHandler(Crypt, LongPolling,Security, Authentication);
             ChatsHandler = new ChatsHandler(Security, Chats, Converter);
             FriendsHandler = new FriendsHandler(Security, Friends, Converter);
-            ImageHandler = new ImageHandler(Images, Chats, Users, Security, Converter);
+            FileHandler = new FileHandler(Images,Files, Chats, Users,Messages, Security, Converter);
             MessagesHandler = new MessagesHandler(Security, Messages, Converter);
             SearchHandler = new SearchHandler(Users, Converter);
             UsersHandler = new UsersHandler(Users, Chats, Friends, Images, Converter);
@@ -87,9 +90,9 @@ namespace TMServer.ServerComponent
                 Users = Users
             }; ;
         }
-        public ImageServer CreateImageServer()
+        public FileServer CreateFileServer()
         {
-            return new ImageServer(ImageHandler, new ApiEncryptProvider(Crypt), Logger)
+            return new FileServer(FileHandler, new ApiEncryptProvider(Crypt), Logger)
             {
                 Security = Security,
                 Users = Users
@@ -104,19 +107,19 @@ namespace TMServer.ServerComponent
             }; ;
         }
         public TMServer CreateMainServer(ApiServer responseServer, AuthorizationServer authServer,
-                                         LongPollServer longPollServer, ImageServer imageServer)
+                                         LongPollServer longPollServer, FileServer fileServer)
         {
             var server = new TMServer(Logger)
             {
                 AuthServer = authServer,
                 ApiServer = responseServer,
                 LongPollServer = longPollServer,
-                ImageServer = imageServer,
+                FileServer = fileServer,
 
                 AuthHandler = AuthHandler,
                 ChatsHandler = ChatsHandler,
                 FriendsHandler = FriendsHandler,
-                ImageHandler = ImageHandler,
+                FileHandler = FileHandler,
                 MessagesHandler = MessagesHandler,
                 SearchHandler = SearchHandler,
                 UsersHandler = UsersHandler,

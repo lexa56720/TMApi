@@ -15,6 +15,7 @@ namespace ApiTypes.Communication.Messages
         ChatRenamed, 
         NewCover,
     }
+
     public class Message : ISerializable<Message>
     {
         public int Id { get; set; }
@@ -35,7 +36,8 @@ namespace ApiTypes.Communication.Messages
 
         public int TargetId { get; set; } = -1;
 
-        public Photo[] Photos { get; set; } = [];
+        public PhotoLink[] Photos { get; set; } = [];
+        public FileLink[] Files { get; set; } = [];
 
         public Message()
         {
@@ -43,7 +45,7 @@ namespace ApiTypes.Communication.Messages
         }
 
         public Message(int id, int authorId, int destinationId, string text,
-                       DateTime sendTime, bool isReaded, Photo[] photos)
+                       DateTime sendTime, bool isReaded, PhotoLink[] photos, FileLink[] files)
         {
             Id = id;
             AuthorId = authorId;
@@ -52,10 +54,11 @@ namespace ApiTypes.Communication.Messages
             SendTime = sendTime;
             IsReaded = isReaded;
             Photos = photos;
+            Files = files;
         }
 
-        public Message(int id, int authorId, int destinationId, string text,
-               DateTime sendTime, bool isReaded, ActionKind action, int executorId, int targetId)
+        public Message(int id, int authorId, int destinationId, string text,DateTime sendTime,
+                       bool isReaded, ActionKind action, int executorId, int targetId)
         {
             Id = id;
             AuthorId = authorId;

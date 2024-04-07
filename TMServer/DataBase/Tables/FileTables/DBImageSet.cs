@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TMServer.DataBase.Tables
+namespace TMServer.DataBase.Tables.FileTables
 {
     public class DBImageSet
     {

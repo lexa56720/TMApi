@@ -13,17 +13,17 @@ namespace ApiTypes.Communication.Medias
         Large,
         Original,
     }
-    public class Photo : ISerializable<Photo>
+    public class PhotoLink : ISerializable<PhotoLink>
     {
         public string Url { get; set; } = string.Empty;
 
         public ImageSize Size { get; set; }
-        public Photo(string url, ImageSize size)
+        public PhotoLink(string url, ImageSize size)
         {
             Url = url;
             Size = size;
         }
 
-        public Photo() { }
+        public PhotoLink() { }
     }
 }
