@@ -56,24 +56,32 @@ namespace TMServer.ServerComponent.Files
                 while (IsRunning)
                 {
                     var context = await Listener.GetContextAsync();
-                    if (TryParse(context.Request.RawUrl, out var type, out var url, out var id))
+                    try
                     {
-                        switch (type)
+                        if (TryParse(context.Request.RawUrl, out var type, out var url, out var id))
                         {
-                            case "images":
-                                var image = await FileHandler.GetImageAsync(url, id);
-                                await WriteImageResponse(image, context.Response);
-                                break;
-                            case "files":
-                                var file = await FileHandler.GetFileAsync(url, id);
-                                if (file == null)
+                            switch (type)
+                            {
+                                case "images":
+                                    var image = await FileHandler.GetImageAsync(url, id);
+                                    await WriteImageResponse(image, context.Response);
+                                    break;
+                                case "files":
+                                    var file = await FileHandler.GetFileAsync(url, id);
+                                    if (file == null)
+                                        await WriteFileResponse([], string.Empty, context.Response);
+                                    else
+                                        await WriteFileResponse(file.Data, file.Name, context.Response);
+                                    break;
+                                default:
                                     continue;
-                                await WriteFileResponse(file.Data,file.Name, context.Response);
-                                break;
-                            default:
-                                continue;
+                            }
+                            await context.Response.OutputStream.FlushAsync();
                         }
-                        await context.Response.OutputStream.FlushAsync();
+                    }
+                    catch
+                    {
+                        continue;
                     }
                 }
                 Listener.Stop();
@@ -92,16 +100,16 @@ namespace TMServer.ServerComponent.Files
             await ms.CopyToAsync(response.OutputStream);
         }
 
-        private async Task WriteFileResponse(byte[] fileData,string fileName, HttpListenerResponse response)
+        private async Task WriteFileResponse(byte[] fileData, string fileName, HttpListenerResponse response)
         {
             if (fileData.Length == 0)
                 response.StatusCode = (int)HttpStatusCode.BadRequest;
 
-            response.StatusCode= (int)HttpStatusCode.OK;
+            response.StatusCode = (int)HttpStatusCode.OK;
             string fileNameUrlEncoded = HttpUtility.UrlEncode(fileName, Encoding.UTF8);
             response.AddHeader("Content-Disposition", "attachment; filename*=UTF-8''" + fileNameUrlEncoded);
             response.ContentLength64 = fileData.Length;
-            response.ContentType= MediaTypeNames.Application.Octet;
+            response.ContentType = MediaTypeNames.Application.Octet;
 
             using var ms = new MemoryStream(fileData);
             await ms.CopyToAsync(response.OutputStream);
@@ -116,7 +124,7 @@ namespace TMServer.ServerComponent.Files
                 return false;
 
             var urlParts = rawUrl.Split('/', StringSplitOptions.RemoveEmptyEntries);
-            if (int.TryParse(urlParts[2], out id))
+            if (urlParts.Length == 3 && int.TryParse(urlParts[2], out id))
             {
                 type = urlParts[0];
                 url = urlParts[1];

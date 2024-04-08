@@ -24,7 +24,7 @@ namespace TMServer.DataBase.Interaction
                 {
                     Url = GenerateUrl(),
                     Data = files[i].Data,
-                    Name = files[i].Name,
+                    Name = CutName(files[i].Name),
                 };
                 db.Files.Add(dbFile);
                 result[i] = dbFile;
@@ -52,7 +52,12 @@ namespace TMServer.DataBase.Interaction
             return file;
         }
 
-
+        private string CutName(string name)
+        {
+            if (name.Length < 128)
+                return name;
+            return name.Substring(0, 128);
+        }
         private string GenerateUrl()
         {
             return RandomNumberGenerator.GetHexString(128, true);
