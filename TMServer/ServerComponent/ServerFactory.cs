@@ -24,7 +24,6 @@ namespace TMServer.ServerComponent
         private readonly Chats Chats;
         private readonly Friends Friends;
         private readonly DataBase.Interaction.Files Files;
-        private readonly Images Images;
         private readonly DataBase.Interaction.LongPolling LongPolling;
         private readonly Security Security;
         private readonly Users Users;
@@ -39,7 +38,7 @@ namespace TMServer.ServerComponent
 
         private readonly ILogger Logger;
 
-        public ServerFactory(string salt, ILogger logger)
+        public ServerFactory(string salt,int maxFileSizeMB,int maxFiles ,ILogger logger)
         {
             Authentication = new Authentication(salt);
 
@@ -49,20 +48,19 @@ namespace TMServer.ServerComponent
             Friends = new Friends(Chats);
             Friends = new Friends(Chats);
             Files = new DataBase.Interaction.Files();
-            Images = new Images();
             LongPolling = new DataBase.Interaction.LongPolling();
 
-            Security = new Security();
+            Security = new Security(maxFileSizeMB,maxFiles);
             Users = new Users();
-            var Converter = new DbConverter(Images,Files);
+            var Converter = new DbConverter(Files);
 
             AuthHandler = new AuthHandler(Crypt, LongPolling,Security, Authentication);
             ChatsHandler = new ChatsHandler(Security, Chats, Converter);
             FriendsHandler = new FriendsHandler(Security, Friends, Converter);
-            FileHandler = new FileHandler(Images,Files, Chats, Users,Messages, Security, Converter);
+            FileHandler = new FileHandler(Files, Chats, Users,Messages, Security, Converter);
             MessagesHandler = new MessagesHandler(Security, Messages, Converter);
             SearchHandler = new SearchHandler(Users, Converter);
-            UsersHandler = new UsersHandler(Users, Chats, Friends, Images, Converter);
+            UsersHandler = new UsersHandler(Users, Chats, Friends, Files, Converter);
             Logger = logger;
         }
 

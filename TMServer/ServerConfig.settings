@@ -26,5 +26,11 @@
     <Setting Name="InfoPort" Type="System.UInt16" Scope="User">
       <Value Profile="(Default)">6660</Value>
     </Setting>
+    <Setting Name="FileMaxSizeMB" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">64</Value>
+    </Setting>
+    <Setting Name="MessageMaxFIles" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">16</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

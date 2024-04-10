@@ -27,6 +27,7 @@ namespace TMServer.ServerComponent.Files
         {
             Listener = new HttpListener();
             DownloadPort = CSDTP.Utils.PortUtils.GetFreePort(6666);
+
             Listener.Prefixes.Add($"http://127.0.0.1:{DownloadPort}/");
             FileHandler = fileHandler;
         }
@@ -39,53 +40,58 @@ namespace TMServer.ServerComponent.Files
             base.Dispose();
         }
 
-        public override void Start()
+        public override async void Start()
         {
             if (IsRunning)
                 return;
             Listener.Start();
+            Logger.Log($"FileGetServer started on port {DownloadPort} Http");
             base.Start();
 
-            Listen();
+            await Listen();
         }
 
-        private Task Listen()
+        private async Task Listen()
         {
-            return Task.Run(async () =>
+            while (IsRunning)
             {
-                while (IsRunning)
+                var context = await Listener.GetContextAsync();
+                Logger.Log($"file {context.Request.Url} requested");
+                try
                 {
-                    var context = await Listener.GetContextAsync();
-                    try
-                    {
-                        if (TryParse(context.Request.RawUrl, out var type, out var url, out var id))
-                        {
-                            switch (type)
-                            {
-                                case "images":
-                                    var image = await FileHandler.GetImageAsync(url, id);
-                                    await WriteImageResponse(image, context.Response);
-                                    break;
-                                case "files":
-                                    var file = await FileHandler.GetFileAsync(url, id);
-                                    if (file == null)
-                                        await WriteFileResponse([], string.Empty, context.Response);
-                                    else
-                                        await WriteFileResponse(file.Data, file.Name, context.Response);
-                                    break;
-                                default:
-                                    continue;
-                            }
-                            await context.Response.OutputStream.FlushAsync();
-                        }
-                    }
-                    catch
-                    {
-                        continue;
-                    }
+                    if (TryParse(context.Request.RawUrl, out var type, out var url, out var id))
+                        context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                    else
+                        await HandleRequest(type, url, id, context);
+
+                    await context.Response.OutputStream.FlushAsync();
                 }
-                Listener.Stop();
-            });
+                catch
+                {
+                    continue;
+                }
+            }
+            Listener.Stop();
+        }
+
+        private async Task HandleRequest(string type, string url, int id, HttpListenerContext context)
+        {
+            switch (type)
+            {
+                case "images":
+                    var image = await FileHandler.GetImageAsync(url, id);
+                    await WriteImageResponse(image, context.Response);
+                    break;
+                case "files":
+                    var file = await FileHandler.GetFileAsync(url, id);
+                    if (file == null)
+                        await WriteFileResponse([], string.Empty, context.Response);
+                    else
+                        await WriteFileResponse(file.Data, file.Name, context.Response);
+                    break;
+                default:
+                    break;
+            }
         }
         private async Task WriteImageResponse(byte[] imageData, HttpListenerResponse response)
         {

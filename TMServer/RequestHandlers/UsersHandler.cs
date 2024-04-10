@@ -12,15 +12,15 @@ namespace TMServer.RequestHandlers
         private readonly Users Users;
         private readonly Chats Chats;
         private readonly Friends Friends;
-        private readonly Images Images;
+        private readonly Files Files;
         private readonly DbConverter Converter;
 
-        public UsersHandler(Users users, Chats chats, Friends friends, Images images, DbConverter converter)
+        public UsersHandler(Users users, Chats chats, Friends friends, Files files, DbConverter converter)
         {
             Users = users;
             Chats = chats;
             Friends = friends;
-            Images = images;
+            Files = files;
             Converter = converter;
         }
         public UserInfo? GetUserInfo(ApiData<UserFullRequest> id)

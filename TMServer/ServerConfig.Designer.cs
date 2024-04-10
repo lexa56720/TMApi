@@ -120,5 +120,29 @@ namespace TMServer {
                 this["InfoPort"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("64")]
+        public int FileMaxSizeMB {
+            get {
+                return ((int)(this["FileMaxSizeMB"]));
+            }
+            set {
+                this["FileMaxSizeMB"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("16")]
+        public int MessageMaxFIles {
+            get {
+                return ((int)(this["MessageMaxFIles"]));
+            }
+            set {
+                this["MessageMaxFIles"] = value;
+            }
+        }
     }
 }

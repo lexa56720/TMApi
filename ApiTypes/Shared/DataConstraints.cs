@@ -29,5 +29,9 @@ namespace ApiTypes.Shared
         {
             return message.Length < 512 && message.Length > 0;
         }
+        public static bool IsMessageWithFilesLegal(string message)
+        {
+            return message.Length < 512;
+        }
     }
 }

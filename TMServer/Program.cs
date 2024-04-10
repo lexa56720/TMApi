@@ -23,7 +23,7 @@ namespace TMServer
         {
             Serializer.SerializerProvider = new ApiTypes.SerializerProvider();
             Logger = new ConsoleLogger();
-            Factory = new ServerFactory(GlobalSettings.PasswordSalt, Logger);
+            Factory = new ServerFactory(GlobalSettings.PasswordSalt, GlobalSettings.MaxFileSizeMB, GlobalSettings.MaxAttachments, Logger);
 
             DataBaseInit();
 
@@ -65,7 +65,7 @@ namespace TMServer
         }
 
 
-        private static InfoServer Create(int port,int version)
+        private static InfoServer Create(int port, int version)
         {
             return Factory.CreateInfoServer(port, version);
         }
@@ -77,7 +77,7 @@ namespace TMServer
             var longPollServer = Factory.CreateLongPollServer(longPollPeriod);
             var imageServer = Factory.CreateFileServer();
 
-            return Factory.CreateMainServer(apiServer,authServer,longPollServer,imageServer);
+            return Factory.CreateMainServer(apiServer, authServer, longPollServer, imageServer);
         }
     }
 }

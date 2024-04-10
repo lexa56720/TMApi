@@ -1,13 +1,25 @@
 ﻿using ApiTypes.Communication.BaseTypes;
+using ApiTypes.Communication.Messages;
+using ApiTypes.Shared;
 using CSDTP;
 using CSDTP.Requests;
 using Microsoft.EntityFrameworkCore;
+using SixLabors.ImageSharp;
 using TMServer.DataBase.Tables;
 
 namespace TMServer.DataBase.Interaction
 {
     public class Security
     {
+        private readonly int MaxFileSizeMb;
+        private readonly int MaxFilesInMessage;
+
+        public Security(int maxFileSizeMB, int maxFilesInMessage)
+        {
+            MaxFileSizeMb = maxFileSizeMB;
+            MaxFilesInMessage = maxFilesInMessage;
+        }
+
         public bool IsTokenCorrect(string token, int userId)
         {
             using var db = new TmdbContext();
@@ -151,13 +163,46 @@ namespace TMServer.DataBase.Interaction
             return chats.All(c => c.Members.Any(m => m.Id == userId));
         }
 
-
         public bool IsCryptIdCorrect(int userId, int cryptId)
         {
             using var db = new TmdbContext();
 
             var result = db.AesCrypts.SingleOrDefault(c => c.UserId == userId && c.Id == cryptId);
-            return result!=null;
+            return result != null;
+        }
+
+
+        public bool IsValidProfileImage(Image image)
+        {
+            if (image.Width < 64 || image.Height < 64 ||
+                image.Width > 1024 || image.Height > 1024)
+            {
+                image.Dispose();
+                return false;
+            }
+            return true;
+        }
+
+        public bool IsValidImage(Image image)
+        {
+            if (image.Width > 2048 || image.Height > 2048)
+            {
+                image.Dispose();
+                return false;
+            }
+            return true;
+        }
+
+        public bool IsMessageWithFilesLegal(int userId, MessageWithFilesSendRequest request)
+        {
+            return request.Files.Length != 0
+                   && DataConstraints.IsMessageWithFilesLegal(request.Text)
+                   && IsMemberOfChat(userId, request.DestinationId)
+                   && IsAttachmentsLegal(request.Files);
+        }
+        public bool IsAttachmentsLegal(SerializableFile[] files)
+        {
+            return files.All(f => f.Data.Length < (MaxFileSizeMb*Math.Pow(10,6))) && files.Length <= MaxFilesInMessage;
         }
     }
 }

@@ -19,7 +19,6 @@ namespace TMServer.RequestHandlers
 {
     public class FileHandler
     {
-        private readonly Images Images;
         private readonly Files Files;
         private readonly Chats Chats;
         private readonly Users Users;
@@ -27,9 +26,8 @@ namespace TMServer.RequestHandlers
         private readonly DbConverter Converter;
         private readonly Security Security;
 
-        public FileHandler(Images images, Files files, Chats chats, Users users, Messages messages, Security security, DbConverter converter)
+        public FileHandler(Files files, Chats chats, Users users, Messages messages, Security security, DbConverter converter)
         {
-            Images = images;
             Files = files;
             Chats = chats;
             Users = users;
@@ -39,11 +37,11 @@ namespace TMServer.RequestHandlers
         }
         public User? SetProfileImage(ApiData<ChangeProfileImageRequest> request)
         {
-            using var image = IsValidImage(request.Data.ImageData);
+            using var image = IsValidImage(request.Data.ImageData,true);
             if (image == null)
                 return null;
 
-            var set = Images.AddImageAsSet(image);
+            var set = Files.AddImageAsSet(image);
             if (set == null)
                 return null;
 
@@ -53,14 +51,14 @@ namespace TMServer.RequestHandlers
                 return null;
 
             if (prevId > 0)
-                Images.RemoveSet(prevId);
+                Files.RemoveSet(prevId);
 
             return Converter.Convert(user, set);
         }
 
         public async Task<byte[]> GetImageAsync(string url, int id)
         {
-            var image = await Images.GetImageAsync(id);
+            var image = await Files.GetImageAsync(id);
 
             if (image == null || image.Url != url)
                 return [];
@@ -75,17 +73,19 @@ namespace TMServer.RequestHandlers
                 return null;
             return file;
         }
-        private Image? IsValidImage(byte[] imageData)
+
+
+        private Image? IsValidImage(byte[] imageData, bool isProfile)
         {
             try
             {
                 var image = Image.Load(imageData);
-                if (image.Width < 64 || image.Height < 64)
-                {
-                    image.Dispose();
-                    return null;
-                }
-                return image;
+                if ((isProfile && Security.IsValidProfileImage(image)) ||
+                    (!isProfile && Security.IsValidImage(image)))
+                    return image;
+
+                image.Dispose();
+                return null;
             }
             catch
             {
@@ -103,11 +103,11 @@ namespace TMServer.RequestHandlers
             if (!Security.IsAdminOfChat(request.UserId, request.Data.ChatId))
                 return;
 
-            using var image = IsValidImage(request.Data.NewCover);
+            using var image = IsValidImage(request.Data.NewCover,true);
             if (image == null)
                 return;
 
-            var set = Images.AddImageAsSet(image);
+            var set = Files.AddImageAsSet(image);
             if (set == null)
                 return;
 
@@ -116,22 +116,21 @@ namespace TMServer.RequestHandlers
                 return;
 
             if (prevId > 0)
-                Images.RemoveSet(prevId);
+                Files.RemoveSet(prevId);
         }
 
         internal Message? MessageWithFiles(ApiData<MessageWithFilesSendRequest> request)
         {
-            if (!DataConstraints.IsMessageLegal(request.Data.Text) ||
-                !Security.IsMemberOfChat(request.UserId, request.Data.DestinationId))
+            if (!Security.IsMessageWithFilesLegal(request.UserId,request.Data))
                 return null;
 
-            List<Image> images = new List<Image>();
-            List<SerializableFile> files = new List<SerializableFile>();
+            var images = new List<Image>();
+            var files = new List<SerializableFile>();
             foreach (var file in request.Data.Files)
             {
                 if (IsHaveImageExtension(file))
                 {
-                    var image = IsValidImage(file.Data);
+                    var image = IsValidImage(file.Data, false);
                     if (image != null)
                     {
                         images.Add(image);
@@ -141,7 +140,7 @@ namespace TMServer.RequestHandlers
                 files.Add(file);
             }
 
-            var dbImages = Images.AddImages(images.ToArray());
+            var dbImages = Files.AddImages(images.ToArray());
             var dbFiles = Files.AddFiles(files.ToArray());
 
             var dbMessage = Messages.AddMessage(request.UserId, request.Data.Text, dbImages, dbFiles, request.Data.DestinationId);
