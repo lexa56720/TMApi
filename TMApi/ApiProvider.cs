@@ -22,6 +22,9 @@ namespace TMApi
 
         public required int FileGetPort { get; init; }
         public required int Version { get; init; }
+
+        public required int MaxFileSizeMB { get; init; }
+        public required int MaxAttachments { get; init; }
         public required TimeSpan LongPollPeriod { get; init; }
         public ApiProvider()
         {
@@ -42,6 +45,8 @@ namespace TMApi
                 FileUploadPort = response.FileUploadPort,
                 FileGetPort = response.FileGetPort,
                 LongPollPort = response.LongPollPort,
+                MaxFileSizeMB = response.MaxFileSizeMB,
+                MaxAttachments = response.MaxAttachments,
                 LongPollPeriod = TimeSpan.FromSeconds(response.LongPollPeriodSeconds),
                 Version = response.Version,
             };

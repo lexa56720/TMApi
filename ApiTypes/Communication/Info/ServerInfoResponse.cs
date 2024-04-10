@@ -13,6 +13,8 @@ namespace ApiTypes.Communication.Info
         public int LongPollPort { get; set; }
         public int FileUploadPort { get; set; }
         public int FileGetPort { get; set; }
+        public int MaxAttachments { get; set; }
+        public int MaxFileSizeMB { get; set; }
         public int LongPollPeriodSeconds { get; set; }
         public int Version { get; set; }
     }

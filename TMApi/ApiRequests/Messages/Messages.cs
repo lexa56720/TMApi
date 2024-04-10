@@ -60,7 +60,7 @@ namespace TMApi.ApiRequests.Messages
 
         public async Task<Message?> SendMessage(string text, int destinationId, params SerializableFile[] files)
         {
-            if (!DataConstraints.IsMessageLegal(text))
+            if (!DataConstraints.IsMessageWithFilesLegal(text) || files.Length==0)
                 return null;
 
             return await Requester.FileRequestAsync<Message, MessageWithFilesSendRequest>

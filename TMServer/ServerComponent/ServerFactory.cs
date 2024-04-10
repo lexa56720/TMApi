@@ -36,6 +36,8 @@ namespace TMServer.ServerComponent
         private readonly SearchHandler SearchHandler;
         private readonly UsersHandler UsersHandler;
 
+        private readonly int MaxFileSizeMB;
+        private readonly int MaxFiles;
         private readonly ILogger Logger;
 
         public ServerFactory(string salt,int maxFileSizeMB,int maxFiles ,ILogger logger)
@@ -61,6 +63,8 @@ namespace TMServer.ServerComponent
             MessagesHandler = new MessagesHandler(Security, Messages, Converter);
             SearchHandler = new SearchHandler(Users, Converter);
             UsersHandler = new UsersHandler(Users, Chats, Friends, Files, Converter);
+            MaxFileSizeMB = maxFileSizeMB;
+            MaxFiles = maxFiles;
             Logger = logger;
         }
 
@@ -98,8 +102,11 @@ namespace TMServer.ServerComponent
         }
         public InfoServer CreateInfoServer(int port, int version)
         {
-            return new InfoServer(port, version,  Logger)
+            return new InfoServer(port,  Logger)
             {
+                Version= version,
+                MaxAttachments=MaxFiles,
+                MaxFileSizeMB=MaxFileSizeMB,
                 Security = Security,
                 Users = Users
             }; ;

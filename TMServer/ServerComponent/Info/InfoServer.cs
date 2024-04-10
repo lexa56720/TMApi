@@ -23,12 +23,15 @@ namespace TMServer.ServerComponent.Info
         private readonly IList<ApiServer> ApiServers = new List<ApiServer>();
         private readonly IList<LongPollServer> LongPollServers = new List<LongPollServer>();
         private readonly IList<FileServer> FileServers = new List<FileServer>();
-        public int Version { get; }
 
-        public InfoServer(int port, int version, ILogger logger) : base(port, logger, CSDTP.Protocols.Protocol.Udp)
+
+        public required int Version { get; init; }
+        public required int MaxAttachments { get; init; }
+        public required int MaxFileSizeMB { get; init; }
+
+        public InfoServer(int port, ILogger logger) : base(port, logger, CSDTP.Protocols.Protocol.Udp)
         {
             Responder.RegisterRequestHandler<ServerInfoRequest, ServerInfoResponse>(GetInfo);
-            Version = version;
         }
         public override void Dispose()
         {
@@ -82,6 +85,8 @@ namespace TMServer.ServerComponent.Info
                 LongPollPeriodSeconds = longPollPeriod,
                 FileUploadPort = uploadPort,
                 FileGetPort = downloadPort,
+                MaxAttachments= MaxAttachments,
+                MaxFileSizeMB= MaxFileSizeMB,
                 Version = Version,
             };
         }
