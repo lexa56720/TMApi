@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ApiTypes.Communication.Info
 {
-    public class ServerInfoResponse:ISerializable<ServerInfoResponse>
+    public class ServerInfo:ISerializable<ServerInfo>
     {
         public int AuthPort { get; set; }
         public int ApiPort { get; set; }

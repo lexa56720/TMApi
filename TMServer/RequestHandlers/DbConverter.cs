@@ -27,7 +27,7 @@ namespace TMServer.RequestHandlers
 
         public Chat Convert(DBChat chat, int unreadCount)
         {
-            return Convert(chat, unreadCount, Files.GetImageSet(chat.CoverImageId));
+            return Convert(chat, unreadCount, Files.GetImageSetWithoutData(chat.CoverImageId));
         }
         public Chat Convert(DBChat chat, int unreadCount, DBImageSet? cover)
         {
@@ -49,7 +49,7 @@ namespace TMServer.RequestHandlers
         }
         public Chat[] Convert(DBChat[] chats, int[] unreadCounts)
         {
-            var covers = Files.GetImageSet(chats.Select(u => u.CoverImageId).ToArray());
+            var covers = Files.GetImageSetWithoutData(chats.Select(u => u.CoverImageId).ToArray());
             var result = new Chat[chats.Length];
             for (int i = 0; i < chats.Length; i++)
                 result[i] = Convert(chats[i], unreadCounts[i], covers[i]);
@@ -80,7 +80,7 @@ namespace TMServer.RequestHandlers
 
         public User Convert(DBUser user)
         {
-            return Convert(user, Files.GetImageSet(user.ProfileImageId));
+            return Convert(user, Files.GetImageSetWithoutData(user.ProfileImageId));
         }
         public User Convert(DBUser dBUser, DBImageSet? profilePic)
         {
@@ -100,7 +100,7 @@ namespace TMServer.RequestHandlers
         }
         public User[] Convert(DBUser[] users)
         {
-            var profilePics = Files.GetImageSet(users.Select(u => u.ProfileImageId).ToArray());
+            var profilePics = Files.GetImageSetWithoutData(users.Select(u => u.ProfileImageId).ToArray());
             var result = new User[users.Length];
             for (int i = 0; i < users.Length; i++)
                 result[i] = Convert(users[i], profilePics[i]);
@@ -187,7 +187,7 @@ namespace TMServer.RequestHandlers
                     files.Add(attachment.AttachmentId);
                 }
             }
-            return (Convert(Files.GetImage(images)), Convert(Files.GetFiles(files)));
+            return (Convert(Files.GetImageWithoutData(images)), Convert(Files.GetFilesWithoutData(files)));
         }
     }
 }

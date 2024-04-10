@@ -19,12 +19,7 @@ namespace TMApi
         public required int ApiPort { get; init; }
         public required int LongPollPort { get; init; }
         public required int FileUploadPort { get; init; }
-
-        public required int FileGetPort { get; init; }
-        public required int Version { get; init; }
-
-        public required int MaxFileSizeMB { get; init; }
-        public required int MaxAttachments { get; init; }
+        public required ServerInfo ServerInfo { get; init; }
         public required TimeSpan LongPollPeriod { get; init; }
         public ApiProvider()
         {
@@ -33,8 +28,7 @@ namespace TMApi
         {
             Serializer.SerializerProvider = new ApiTypes.SerializerProvider();
             using var uncryptRequester = RequesterFactory.Create(new IPEndPoint(serverAddress, serverPort), Protocol.Udp);
-            var response = await uncryptRequester.RequestAsync<ServerInfoResponse, ServerInfoRequest>
-                                                  (new ServerInfoRequest(), TimeSpan.FromSeconds(5));
+            var response = await uncryptRequester.RequestAsync<ServerInfo, ServerInfoRequest>(new ServerInfoRequest(), TimeSpan.FromSeconds(5));
             if (response == null)
                 return null;
             return new ApiProvider()
@@ -43,12 +37,9 @@ namespace TMApi
                 AuthPort = response.AuthPort,
                 ApiPort = response.ApiPort,
                 FileUploadPort = response.FileUploadPort,
-                FileGetPort = response.FileGetPort,
                 LongPollPort = response.LongPollPort,
-                MaxFileSizeMB = response.MaxFileSizeMB,
-                MaxAttachments = response.MaxAttachments,
+                ServerInfo=response,
                 LongPollPeriod = TimeSpan.FromSeconds(response.LongPollPeriodSeconds),
-                Version = response.Version,
             };
         }
 

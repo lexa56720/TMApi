@@ -51,8 +51,8 @@ namespace TMServer.DataBase
                 entity.Property(e => e.Size)
                       .HasColumnName("size");
 
-                entity.Property(e => e.Data)
-                      .HasColumnName("data");
+                entity.Ignore(e => e.Data);
+                      
             });
 
             modelBuilder.Entity<DBImageSet>(entity =>
@@ -82,8 +82,7 @@ namespace TMServer.DataBase
                       .HasColumnName("url")
                       .HasMaxLength(128);
 
-                entity.Property(e => e.Data)
-                      .HasColumnName("data");
+                entity.Ignore(e => e.Data);
             });
         }
     }

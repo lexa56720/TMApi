@@ -58,7 +58,7 @@ namespace TMServer.RequestHandlers
 
         public async Task<byte[]> GetImageAsync(string url, int id)
         {
-            var image = await Files.GetImageAsync(id);
+            var image = await Files.GetImageWithDataAsync(id);
 
             if (image == null || image.Url != url)
                 return [];
@@ -67,7 +67,7 @@ namespace TMServer.RequestHandlers
 
         public async Task<DBBinaryFile?> GetFileAsync(string url, int id)
         {
-            var file = await Files.GetFileAsync(id);
+            var file = await Files.GetFileWithDataAsync(id);
 
             if (file == null || file.Url != url)
                 return null;

@@ -31,7 +31,7 @@ namespace TMServer.ServerComponent.Info
 
         public InfoServer(int port, ILogger logger) : base(port, logger, CSDTP.Protocols.Protocol.Udp)
         {
-            Responder.RegisterRequestHandler<ServerInfoRequest, ServerInfoResponse>(GetInfo);
+            Responder.RegisterRequestHandler<ServerInfoRequest, ServerInfo>(GetInfo);
         }
         public override void Dispose()
         {
@@ -65,7 +65,7 @@ namespace TMServer.ServerComponent.Info
             return false;
         }
 
-        private ServerInfoResponse? GetInfo(ServerInfoRequest request, IPacketInfo info)
+        private ServerInfo? GetInfo(ServerInfoRequest request, IPacketInfo info)
         {
             var (longPollPort, longPollPeriod) = GetLongPollInfo();
             var (uploadPort, downloadPort) = GetFilePorts();
@@ -77,7 +77,7 @@ namespace TMServer.ServerComponent.Info
                 return null;
             }
 
-            return new ServerInfoResponse()
+            return new ServerInfo()
             {
                 AuthPort = authPort,
                 ApiPort = apiPort,

@@ -12,6 +12,6 @@ namespace TMServer.DataBase.Tables.FileTables
 
         public required string Url { get; set; } = null!;
 
-        public required byte[] Data { get; set; } = null!;
+        public byte[] Data { get; set; } = null!;
     }
 }

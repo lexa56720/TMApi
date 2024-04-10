@@ -32,5 +32,11 @@
     <Setting Name="MessageMaxFIles" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">16</Value>
     </Setting>
+    <Setting Name="FilesFolder" Type="System.String" Scope="User">
+      <Value Profile="(Default)">/ServerData/Files/</Value>
+    </Setting>
+    <Setting Name="ImagesFolder" Type="System.String" Scope="User">
+      <Value Profile="(Default)">/ServerData/Images/</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

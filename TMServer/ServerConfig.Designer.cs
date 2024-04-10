@@ -144,5 +144,29 @@ namespace TMServer {
                 this["MessageMaxFIles"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("/ServerData/Files/")]
+        public string FilesFolder {
+            get {
+                return ((string)(this["FilesFolder"]));
+            }
+            set {
+                this["FilesFolder"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("/ServerData/Images/")]
+        public string ImagesFolder {
+            get {
+                return ((string)(this["ImagesFolder"]));
+            }
+            set {
+                this["ImagesFolder"] = value;
+            }
+        }
     }
 }

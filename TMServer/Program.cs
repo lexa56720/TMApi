@@ -23,7 +23,12 @@ namespace TMServer
         {
             Serializer.SerializerProvider = new ApiTypes.SerializerProvider();
             Logger = new ConsoleLogger();
-            Factory = new ServerFactory(GlobalSettings.PasswordSalt, GlobalSettings.MaxFileSizeMB, GlobalSettings.MaxAttachments, Logger);
+            Factory = new ServerFactory(GlobalSettings.PasswordSalt,
+                                        GlobalSettings.FilesFolder,
+                                        GlobalSettings.ImagesFolder,
+                                        GlobalSettings.MaxFileSizeMB,
+                                        GlobalSettings.MaxAttachments,
+                                        Logger);
 
             DataBaseInit();
 

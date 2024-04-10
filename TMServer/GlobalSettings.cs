@@ -25,7 +25,9 @@ namespace TMServer
         public static TimeSpan OnlineTimeout => 2 * LongPollLifeTime;
 
         public static int MaxFileSizeMB=>ServerConfig.Default.FileMaxSizeMB;
-
         public static int MaxAttachments => ServerConfig.Default.MessageMaxFIles;
+
+        public static string FilesFolder=>ServerConfig.Default.FilesFolder;
+        public static string ImagesFolder => ServerConfig.Default.ImagesFolder;
     }
 }

@@ -40,7 +40,7 @@ namespace TMServer.ServerComponent
         private readonly int MaxFiles;
         private readonly ILogger Logger;
 
-        public ServerFactory(string salt,int maxFileSizeMB,int maxFiles ,ILogger logger)
+        public ServerFactory(string salt, string filesPath, string imagesPath, int maxFileSizeMB, int maxFiles, ILogger logger)
         {
             Authentication = new Authentication(salt);
 
@@ -49,17 +49,17 @@ namespace TMServer.ServerComponent
             Chats = new Chats(Messages);
             Friends = new Friends(Chats);
             Friends = new Friends(Chats);
-            Files = new DataBase.Interaction.Files();
+            Files = new DataBase.Interaction.Files(filesPath,imagesPath);
             LongPolling = new DataBase.Interaction.LongPolling();
 
-            Security = new Security(maxFileSizeMB,maxFiles);
+            Security = new Security(maxFileSizeMB, maxFiles);
             Users = new Users();
             var Converter = new DbConverter(Files);
 
-            AuthHandler = new AuthHandler(Crypt, LongPolling,Security, Authentication);
+            AuthHandler = new AuthHandler(Crypt, LongPolling, Security, Authentication);
             ChatsHandler = new ChatsHandler(Security, Chats, Converter);
             FriendsHandler = new FriendsHandler(Security, Friends, Converter);
-            FileHandler = new FileHandler(Files, Chats, Users,Messages, Security, Converter);
+            FileHandler = new FileHandler(Files, Chats, Users, Messages, Security, Converter);
             MessagesHandler = new MessagesHandler(Security, Messages, Converter);
             SearchHandler = new SearchHandler(Users, Converter);
             UsersHandler = new UsersHandler(Users, Chats, Friends, Files, Converter);
@@ -102,11 +102,11 @@ namespace TMServer.ServerComponent
         }
         public InfoServer CreateInfoServer(int port, int version)
         {
-            return new InfoServer(port,  Logger)
+            return new InfoServer(port, Logger)
             {
-                Version= version,
-                MaxAttachments=MaxFiles,
-                MaxFileSizeMB=MaxFileSizeMB,
+                Version = version,
+                MaxAttachments = MaxFiles,
+                MaxFileSizeMB = MaxFileSizeMB,
                 Security = Security,
                 Users = Users
             }; ;

@@ -55,26 +55,30 @@ namespace TMServer.ServerComponent.Files
         {
             while (IsRunning)
             {
-                var context = await Listener.GetContextAsync();
-                Logger.Log($"file {context.Request.Url} requested");
-                try
-                {
-                    if (TryParse(context.Request.RawUrl, out var type, out var url, out var id))
-                        context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                    else
-                        await HandleRequest(type, url, id, context);
-
-                    await context.Response.OutputStream.FlushAsync();
-                }
-                catch
-                {
-                    continue;
-                }
+               await Listener.GetContextAsync().ContinueWith(HandleRequest);
             }
             Listener.Stop();
         }
 
-        private async Task HandleRequest(string type, string url, int id, HttpListenerContext context)
+        private async Task HandleRequest(Task<HttpListenerContext> contextTask)
+        {
+            var context = await contextTask.ConfigureAwait(false);
+            Logger.Log($"file {context.Request.Url} requested");
+            try
+            {
+                if (!TryParse(context.Request.RawUrl, out var type, out var url, out var id))
+                    context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                else
+                    await HandleResponse(type, url, id, context);
+
+                await context.Response.OutputStream.FlushAsync();
+            }
+            catch
+            {
+                return;
+            }
+        }
+        private async Task HandleResponse(string type, string url, int id, HttpListenerContext context)
         {
             switch (type)
             {
