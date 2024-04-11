@@ -33,45 +33,53 @@ namespace TMApi
         public int UserId { get; internal set; }
 
 
-        private readonly Requester LongPollRequester;
-        private readonly Requester Requester;
-        private readonly Requester FileRequester;
+        private Requester LongPollRequester { get; set; } = null!;
+        private Requester Requester { get; set; } = null!;
+        private Requester FileRequester { get; set; } = null!;
 
         private readonly TimeSpan Timeout = TimeSpan.FromSeconds(15);
 
-        public RequestSender(IPAddress server, int authPort, int apiPort, int longPollPort, int fileUploadPort,
-                             RequestKind kind, IEncryptProvider encryptProvider)
+        private RequestSender(IPAddress server, int authPort, int apiPort, int longPollPort, int fileUploadPort)
         {
             Server = server;
             AuthPort = authPort;
             ApiPort = apiPort;
             LongPollPort = longPollPort;
             FileUploadPort = fileUploadPort;
-            Requester = RequesterFactory.Create(new IPEndPoint(Server, GetPort(kind)),
-                                                encryptProvider,
-                                                typeof(TMPacket<>));
-
-            FileRequester = RequesterFactory.Create(new IPEndPoint(Server, GetPort(RequestKind.File)),
-                                                    encryptProvider,
-                                                    typeof(TMPacket<>),
-                                                    Protocol.Http);
-
-            LongPollRequester = RequesterFactory.Create(new IPEndPoint(Server, GetPort(RequestKind.LongPoll)),
-                                                        encryptProvider,
-                                                        typeof(TMPacket<>),
-                                                        Protocol.Udp);
         }
 
-        public RequestSender(IPAddress server, int authPort, int apiPort, int longPollPort, RequestKind kind)
+        private RequestSender(IPAddress server, int authPort, int apiPort, int longPollPort)
         {
             Server = server;
             AuthPort = authPort;
             ApiPort = apiPort;
             LongPollPort = longPollPort;
-            Requester = RequesterFactory.Create(new IPEndPoint(Server, GetPort(kind)), typeof(TMPacket<>));
-            LongPollRequester = RequesterFactory.Create(new IPEndPoint(Server, GetPort(RequestKind.LongPoll)),
-                                                        typeof(TMPacket<>),
-                                                        Protocol.Udp);
+        }
+
+        internal static async Task<RequestSender> Create(IPAddress server, int authPort, int apiPort, int longPollPort, int fileUploadPort,
+                                                         RequestKind kind, IEncryptProvider encryptProvider)
+        {
+            var requester = new RequestSender(server, authPort, apiPort, longPollPort, fileUploadPort);
+
+            requester.Requester =await RequesterFactory.Create(new IPEndPoint(server, requester.GetPort(kind)),
+                                                encryptProvider,typeof(TMPacket<>));
+
+            requester.FileRequester = await RequesterFactory.Create(new IPEndPoint(server, requester.GetPort(RequestKind.File)),
+                                                    encryptProvider,typeof(TMPacket<>), Protocol.Http);
+
+            requester.LongPollRequester = await RequesterFactory.Create(new IPEndPoint(server, requester.GetPort(RequestKind.LongPoll)),
+                                                        encryptProvider, typeof(TMPacket<>), Protocol.Udp);
+            return requester;
+        }
+
+        internal static async Task<RequestSender> Create(IPAddress server, int authPort, int apiPort, int longPollPort, RequestKind kind)
+        {
+            var requester = new RequestSender(server, authPort, apiPort, longPollPort);
+
+            requester.Requester = await RequesterFactory.Create(new IPEndPoint(server, requester.GetPort(kind)), typeof(TMPacket<>));
+            requester.LongPollRequester = await RequesterFactory.Create(new IPEndPoint(server, requester.GetPort(RequestKind.LongPoll)),
+                                                                        typeof(TMPacket<>),Protocol.Udp);
+            return requester;
         }
 
         public void Dispose()

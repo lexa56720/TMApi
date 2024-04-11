@@ -14,10 +14,6 @@ namespace TMServer
         public static ServerFactory Factory { get; private set; }
         public static ConsoleLogger Logger { get; private set; }
 
-        public Program()
-        {
-
-        }
 
         private static void Main(string[] args)
         {

@@ -6,6 +6,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net;
 using System.Net.Mime;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
@@ -28,7 +29,7 @@ namespace TMServer.ServerComponent.Files
             Listener = new HttpListener();
             DownloadPort = CSDTP.Utils.PortUtils.GetFreePort(6666);
 
-            Listener.Prefixes.Add($"http://127.0.0.1:{DownloadPort}/");
+            Listener.Prefixes.Add($"http://+:{DownloadPort}/");
             FileHandler = fileHandler;
         }
 
@@ -44,6 +45,8 @@ namespace TMServer.ServerComponent.Files
         {
             if (IsRunning)
                 return;
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                await CSDTP.Utils.PortUtils.ModifyHttpSettings(DownloadPort, true);
             Listener.Start();
             Logger.Log($"FileGetServer started on port {DownloadPort} Http");
             base.Start();
@@ -51,13 +54,22 @@ namespace TMServer.ServerComponent.Files
             await Listen();
         }
 
+
+        public override async void Stop()
+        {
+            base.Stop();
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                await CSDTP.Utils.PortUtils.ModifyHttpSettings(DownloadPort, false);
+        }
         private async Task Listen()
         {
             while (IsRunning)
             {
-               await Listener.GetContextAsync().ContinueWith(HandleRequest);
+                await Listener.GetContextAsync().ContinueWith(HandleRequest);
             }
             Listener.Stop();
+
+
         }
 
         private async Task HandleRequest(Task<HttpListenerContext> contextTask)

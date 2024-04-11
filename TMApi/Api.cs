@@ -3,6 +3,7 @@ using ApiTypes.Communication.LongPolling;
 using ApiTypes.Communication.Packets;
 using ApiTypes.Communication.Users;
 using CSDTP.Cryptography.Algorithms;
+using CSDTP.Requests;
 using System.Net;
 using TMApi.ApiRequests;
 using TMApi.ApiRequests.Chats;
@@ -41,23 +42,20 @@ namespace TMApi
 
         private AuthUpdater AuthUpdater { get; set; }
 
-        internal Api(string token, DateTime tokenTime, int userId, int cryptId, byte[] aesKey,
-                     IPAddress server, int authPort, int apiPort, int longPollPort, int imageUploadPort)
+        internal Api(string token, DateTime tokenTime, int userId, int cryptId, byte[] aesKey)
         {
             Id = userId;
             AccesToken = token;
             Expiration = tokenTime;
-            Encrypter = new ApiEncryptProvider(cryptId,aesKey);
+            Encrypter = new ApiEncryptProvider(cryptId, aesKey);
             AuthUpdater = new(this);
-            Requester = new RequestSender(server, authPort, apiPort, longPollPort, imageUploadPort, 
-                                         RequestKind.Request, Encrypter)
-            {
-                Token = token,
-                UserId = userId,
-            };
         }
-        internal async Task<bool> Init(TimeSpan longPollPeriod)
+        internal async Task<bool> Init(TimeSpan longPollPeriod, IPAddress server, int authPort, int apiPort, int longPollPort, int imageUploadPort)
         {
+            Requester = await RequestSender.Create(server, authPort, apiPort, longPollPort, imageUploadPort, RequestKind.Request, Encrypter);
+            Requester.Token = AccesToken;
+            Requester.UserId = Id;
+
             Users = new Users(Requester, this);
             Messages = new Messages(Requester, this);
             Chats = new Chats(Requester, this);
@@ -65,10 +63,13 @@ namespace TMApi
             Auth = new Auth(Requester, this);
             LongPolling = new LongPolling(longPollPeriod, Requester, this);
 
-            UserInfo = await Users.GetUserInfo();
-            if (UserInfo != null)
-                await AuthUpdater.StartUpdate(Expiration - DateTime.UtcNow - TimeSpan.FromHours(2));
-            return UserInfo != null;
+            var info = await Users.GetUserInfo();
+            if (info == null)
+                return false;
+
+            UserInfo = info;
+            await AuthUpdater.StartUpdate(Expiration - DateTime.UtcNow - TimeSpan.FromHours(2));
+            return true;
         }
 
         public void Dispose()
@@ -108,6 +109,5 @@ namespace TMApi
             Expiration = response.Expiration;
             await AuthUpdater.StartUpdate(Expiration - DateTime.UtcNow - TimeSpan.FromHours(2));
         }
-
     }
 }
