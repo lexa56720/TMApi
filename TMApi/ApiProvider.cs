@@ -7,6 +7,7 @@ using CSDTP.Cryptography.Algorithms;
 using CSDTP.Cryptography.Providers;
 using CSDTP.Protocols;
 using CSDTP.Requests;
+using CSDTP.Utils;
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
 

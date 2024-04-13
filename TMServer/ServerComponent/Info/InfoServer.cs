@@ -67,6 +67,7 @@ namespace TMServer.ServerComponent.Info
 
         private ServerInfo? GetInfo(ServerInfoRequest request, IPacketInfo info)
         {
+            Logger.Log($"inf request from {info.Source?.ToString()}");
             var (longPollPort, longPollPeriod) = GetLongPollInfo();
             var (uploadPort, downloadPort) = GetFilePorts();
             var apiPort = GetApiPort();
