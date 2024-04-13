@@ -8,11 +8,15 @@ using System.Threading.Tasks;
 
 namespace TMServer
 {
-    internal static class GlobalSettings
+    internal static class Settings
     {
         public static int Version => ServerConfig.Default.Version;
-
         public static int InfoPort => ServerConfig.Default.InfoPort;
+        public static int AuthPort => ServerConfig.Default.AuthPort;
+        public static int ApiPort=> ServerConfig.Default.ApiPort;
+        public static int LongPollPort => ServerConfig.Default.LongPollPort;
+        public static int FileDownloadPort => ServerConfig.Default.FileDownloadPort;
+        public static int FileUploadPort => ServerConfig.Default.FileUploadPort;
 
         public static TimeSpan LongPollLifeTime => TimeSpan.FromSeconds(ServerConfig.Default.LongPollLifeTimeSeconds);
         public static TimeSpan TokenLifeTime => TimeSpan.FromHours(ServerConfig.Default.TokenLifetimeHours);

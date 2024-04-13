@@ -12,8 +12,8 @@ using TMServer.ServerComponent.Basics;
 
 namespace TMServer.ServerComponent.Api
 {
-    internal class ApiServer(IEncryptProvider encryptProvider, ILogger logger,Protocol protocol=Protocol.Udp)
-                   : Server(encryptProvider, logger,protocol)
+    internal class ApiServer(int port,IEncryptProvider encryptProvider, ILogger logger,Protocol protocol=Protocol.Udp)
+                   : Server(port,encryptProvider, logger,protocol)
     {
         public void RegisterRequestHandler<TRequest, TResponse>(Func<ApiData<TRequest>, TResponse?> func)
                     where TRequest : ISerializable<TRequest>, new()

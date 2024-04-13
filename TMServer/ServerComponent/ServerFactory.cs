@@ -49,7 +49,7 @@ namespace TMServer.ServerComponent
             Chats = new Chats(Messages);
             Friends = new Friends(Chats);
             Friends = new Friends(Chats);
-            Files = new DataBase.Interaction.Files(filesPath,imagesPath);
+            Files = new DataBase.Interaction.Files(filesPath, imagesPath);
             LongPolling = new DataBase.Interaction.LongPolling();
 
             Security = new Security(maxFileSizeMB, maxFiles);
@@ -68,33 +68,33 @@ namespace TMServer.ServerComponent
             Logger = logger;
         }
 
-        public ApiServer CreateApiServer()
+        public ApiServer CreateApiServer(int port)
         {
-            return new ApiServer(new ApiEncryptProvider(Crypt), Logger)
+            return new ApiServer(port, new ApiEncryptProvider(Crypt), Logger)
             {
                 Security = Security,
                 Users = Users
             };
         }
-        public AuthorizationServer CreateAuthServer()
+        public AuthorizationServer CreateAuthServer(int port)
         {
-            return new AuthorizationServer(new AuthEncryptProvider(Crypt), Logger)
+            return new AuthorizationServer(port, new AuthEncryptProvider(Crypt), Logger)
             {
                 Security = Security,
                 Users = Users
             };
         }
-        public LongPollServer CreateLongPollServer(TimeSpan longPollLifetime)
+        public LongPollServer CreateLongPollServer(int port, TimeSpan longPollLifetime)
         {
-            return new LongPollServer(longPollLifetime, new ApiEncryptProvider(Crypt), Logger)
+            return new LongPollServer(port, longPollLifetime, new ApiEncryptProvider(Crypt), Logger)
             {
                 Security = Security,
                 Users = Users
             }; ;
         }
-        public FileServer CreateFileServer()
+        public FileServer CreateFileServer(int uploadPort, int downloadPort)
         {
-            return new FileServer(FileHandler, new ApiEncryptProvider(Crypt), Logger)
+            return new FileServer(uploadPort, downloadPort, FileHandler, new ApiEncryptProvider(Crypt), Logger)
             {
                 Security = Security,
                 Users = Users

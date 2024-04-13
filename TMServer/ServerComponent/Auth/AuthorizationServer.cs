@@ -6,7 +6,7 @@ using TMServer.ServerComponent.Basics;
 
 namespace TMServer.ServerComponent.Auth
 {
-    internal class AuthorizationServer(IEncryptProvider encryptProvider, ILogger logger) : Server(encryptProvider,logger)
+    internal class AuthorizationServer(int port,IEncryptProvider encryptProvider, ILogger logger) : Server(port,encryptProvider, logger)
     {
         public void Register<TRequest, TResponse>(Func<TRequest, TResponse> func)
                     where TRequest : ISerializable<TRequest>, new()

@@ -17,7 +17,7 @@ namespace TMServer.ServerComponent.Basics
         public virtual int ListenPort => Responder.ListenPort;
 
         public required Security Security { private get; init; }
-        public required Users Users{ private get; init; }
+        public required Users Users { private get; init; }
 
 
         protected bool IsDisposed;
@@ -27,7 +27,14 @@ namespace TMServer.ServerComponent.Basics
             Responder = ResponderFactory.Create(port, protocol);
             Logger = logger;
         }
-
+        protected Server(int port, IEncryptProvider encryptProvider, ILogger logger, Protocol protocol = Protocol.Udp)
+        {
+            if (port == 0)
+                Responder = ResponderFactory.Create(encryptProvider, typeof(TMPacket<>), protocol);
+            else
+                Responder = ResponderFactory.Create(port, encryptProvider, typeof(TMPacket<>), protocol);
+            Logger = logger;
+        }
         protected Server(IEncryptProvider encryptProvider, ILogger logger, Protocol protocol = Protocol.Udp)
         {
             Responder = ResponderFactory.Create(encryptProvider, typeof(TMPacket<>), protocol);

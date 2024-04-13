@@ -168,5 +168,65 @@ namespace TMServer {
                 this["ImagesFolder"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public ushort AuthPort {
+            get {
+                return ((ushort)(this["AuthPort"]));
+            }
+            set {
+                this["AuthPort"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public ushort ApiPort {
+            get {
+                return ((ushort)(this["ApiPort"]));
+            }
+            set {
+                this["ApiPort"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public ushort LongPollPort {
+            get {
+                return ((ushort)(this["LongPollPort"]));
+            }
+            set {
+                this["LongPollPort"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public ushort FileDownloadPort {
+            get {
+                return ((ushort)(this["FileDownloadPort"]));
+            }
+            set {
+                this["FileDownloadPort"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public ushort FileUploadPort {
+            get {
+                return ((ushort)(this["FileUploadPort"]));
+            }
+            set {
+                this["FileUploadPort"] = value;
+            }
+        }
     }
 }

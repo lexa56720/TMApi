@@ -48,7 +48,7 @@ public partial class TmdbContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.UseNpgsql(GlobalSettings.TMDBConnectionString);
+        optionsBuilder.UseNpgsql(Settings.TMDBConnectionString);
         //optionsBuilder.LogTo(Console.WriteLine);
     }
 

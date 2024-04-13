@@ -23,11 +23,14 @@ namespace TMServer.ServerComponent.Files
         private readonly FileHandler FileHandler;
 
         public int DownloadPort { get; }
-        public FileServer(FileHandler fileHandler, IEncryptProvider encryptProvider, ILogger logger)
-                           : base(encryptProvider, logger, Protocol.Http)
+        public FileServer(int uploadPort, int dowloadPort, FileHandler fileHandler, IEncryptProvider encryptProvider, ILogger logger)
+                           : base(uploadPort, encryptProvider, logger, Protocol.Http)
         {
             Listener = new HttpListener();
-            DownloadPort = CSDTP.Utils.PortUtils.GetFreePort(6666);
+            if (dowloadPort == 0)
+                DownloadPort = CSDTP.Utils.PortUtils.GetFreePort(6666);
+            else
+                DownloadPort = dowloadPort;
 
             Listener.Prefixes.Add($"http://+:{DownloadPort}/");
             FileHandler = fileHandler;

@@ -28,7 +28,7 @@ namespace TMServer.DataBase
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseNpgsql(GlobalSettings.FilesDBConnectionString);
+            optionsBuilder.UseNpgsql(Settings.FilesDBConnectionString);
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

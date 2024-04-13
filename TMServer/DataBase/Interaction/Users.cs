@@ -126,8 +126,8 @@ namespace TMServer.DataBase.Interaction
             var prevOnlineState = user.IsOnline;
             user.LastRequest = DateTime.UtcNow;
 
-            if (!OnlineUsers.TryAdd(userId, userId, GlobalSettings.OnlineTimeout))
-                OnlineUsers.UpdateLifetime(userId, GlobalSettings.OnlineTimeout);
+            if (!OnlineUsers.TryAdd(userId, userId, Settings.OnlineTimeout))
+                OnlineUsers.UpdateLifetime(userId, Settings.OnlineTimeout);
 
             if (user.IsOnline == prevOnlineState)
             {

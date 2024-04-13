@@ -19,18 +19,23 @@ namespace TMServer
         {
             Serializer.SerializerProvider = new ApiTypes.SerializerProvider();
             Logger = new ConsoleLogger();
-            Factory = new ServerFactory(GlobalSettings.PasswordSalt,
-                                        GlobalSettings.FilesFolder,
-                                        GlobalSettings.ImagesFolder,
-                                        GlobalSettings.MaxFileSizeMB,
-                                        GlobalSettings.MaxAttachments,
+            Factory = new ServerFactory(Settings.PasswordSalt,
+                                        Settings.FilesFolder,
+                                        Settings.ImagesFolder,
+                                        Settings.MaxFileSizeMB,
+                                        Settings.MaxAttachments,
                                         Logger);
 
             DataBaseInit();
 
-            using var mainServer = Create(GlobalSettings.LongPollLifeTime);
+            using var mainServer = Create(Settings.LongPollLifeTime,
+                                          Settings.AuthPort,
+                                          Settings.ApiPort,
+                                          Settings.LongPollPort,
+                                          Settings.FileDownloadPort,
+                                          Settings.FileUploadPort);
 
-            using var infoServer = Create(GlobalSettings.InfoPort, GlobalSettings.Version);
+            using var infoServer = Create(Settings.InfoPort, Settings.Version);
             infoServer.Add(mainServer.ApiServer);
             infoServer.Add(mainServer.AuthServer);
             infoServer.Add(mainServer.LongPollServer);
@@ -70,15 +75,15 @@ namespace TMServer
         {
             return Factory.CreateInfoServer(port, version);
         }
-        private static ServerComponent.TMServer Create(TimeSpan longPollPeriod)
+        private static ServerComponent.TMServer Create(TimeSpan longPollPeriod, int authPort, int apiPort, int longPollPort, int fileGetPort, int fileUploadPort)
         {
-            var authServer = Factory.CreateAuthServer();
-            var apiServer = Factory.CreateApiServer();
+            var authServer = Factory.CreateAuthServer(authPort);
+            var apiServer = Factory.CreateApiServer(apiPort);
 
-            var longPollServer = Factory.CreateLongPollServer(longPollPeriod);
-            var imageServer = Factory.CreateFileServer();
+            var longPollServer = Factory.CreateLongPollServer(longPollPort, longPollPeriod);
+            var fileServer = Factory.CreateFileServer(fileUploadPort, fileGetPort);
 
-            return Factory.CreateMainServer(apiServer, authServer, longPollServer, imageServer);
+            return Factory.CreateMainServer(apiServer, authServer, longPollServer, fileServer);
         }
     }
 }

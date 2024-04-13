@@ -30,7 +30,7 @@ namespace TMServer.RequestHandlers
             var serverKey = encrypter.PublicKey;
 
             var id = Crypt.SaveRsaKeyPair(encrypter.PrivateKey, clientKey.Key,
-                                          DateTime.UtcNow + GlobalSettings.RsaLifeTime);
+                                          DateTime.UtcNow + Settings.RsaLifeTime);
 
             return new RsaPublicKey(serverKey, id);
         }
@@ -50,7 +50,7 @@ namespace TMServer.RequestHandlers
         {
             var token = HashGenerator.GetRandomString();
             var aesCrypter = new AesEncrypter();
-            var expiration = DateTime.UtcNow.Add(GlobalSettings.TokenLifeTime);
+            var expiration = DateTime.UtcNow.Add(Settings.TokenLifeTime);
 
             var cryptId = Authentication.SaveAuth(userId, aesCrypter.Key, token, expiration);
 
