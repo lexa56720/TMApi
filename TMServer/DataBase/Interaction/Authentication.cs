@@ -1,4 +1,5 @@
 ﻿using ApiTypes.Shared;
+using Microsoft.EntityFrameworkCore;
 using TMServer.DataBase.Tables;
 
 namespace TMServer.DataBase.Interaction
@@ -12,21 +13,21 @@ namespace TMServer.DataBase.Interaction
             Salt = salt;
         }
 
-        public int GetUserId(string login, string password)
+        public async Task<int> GetUserId(string login, string password)
         {
             var saltedPassword = GetPasswordWithSalt(password);
             using var db = new TmdbContext();
-            var user = db.Users.SingleOrDefault(u => u.Login == login );
+            var user = await db.Users.SingleOrDefaultAsync(u => u.Login == login);
             if (user != null && user.Password == saltedPassword)
                 return user.Id;
             return -1;
         }
-        public bool IsLoginAvailable(string login)
+        public async Task<bool> IsLoginAvailable(string login)
         {
             using var db = new TmdbContext();
-            return !db.Users.Any(u => u.Login == login);
+            return !await db.Users.AnyAsync(u => u.Login == login);
         }
-        public void CreateUser(string username, string login, string password, byte[] aesKey)
+        public async Task CreateUser(string username, string login, string password, byte[] aesKey)
         {
             using var db = new TmdbContext();
 
@@ -38,18 +39,18 @@ namespace TMServer.DataBase.Interaction
                 Name = username,
                 Password = GetPasswordWithSalt(password),
             };
-            db.Users.Add(user);
-            db.SaveChanges();
+            await db.Users.AddAsync(user);
+            await db.SaveChangesAsync();
 
-            AddAes(user.Id, aesKey);
+            await AddAes(user.Id, aesKey);
         }
 
-        public int SaveAuth(int userId, byte[] aesKey, string token, DateTime expiration)
+        public async Task<int> SaveAuth(int userId, byte[] aesKey, string token, DateTime expiration)
         {
-            AddToken(userId, token, expiration);
-            return AddAes(userId, aesKey);
+            await AddToken(userId, token, expiration);
+            return await AddAes(userId, aesKey);
         }
-        private int AddAes(int userId, byte[] aesKey)
+        private async Task<int> AddAes(int userId, byte[] aesKey)
         {
             using var db = new TmdbContext();
 
@@ -59,41 +60,41 @@ namespace TMServer.DataBase.Interaction
                 Expiration = DateTime.MaxValue,
                 UserId = userId,
             };
-            db.AesCrypts.Add(aes);
-            db.SaveChanges();
+            await db.AesCrypts.AddAsync(aes);
+            await db.SaveChangesAsync();
             return aes.Id;
         }
-        private void AddToken(int userId, string token, DateTime expiration)
+        private async Task AddToken(int userId, string token, DateTime expiration)
         {
             using var db = new TmdbContext();
 
-            db.Tokens.Add(new DBToken()
+            await db.Tokens.AddAsync(new DBToken()
             {
                 AccessToken = token,
                 UserId = userId,
                 Expiration = expiration
             });
-            db.SaveChanges();
+            await db.SaveChangesAsync();
         }
 
-        public bool IsPasswordMatch(int userId, string password)
+        public async Task<bool> IsPasswordMatch(int userId, string password)
         {
             using var db = new TmdbContext();
 
-            var user = db.Users.SingleOrDefault(u => u.Id == userId);
+            var user =await db.Users.SingleOrDefaultAsync(u => u.Id == userId);
             if (user == null)
                 return false;
-            return user.Password.Equals( GetPasswordWithSalt(password));
+            return user.Password.Equals(GetPasswordWithSalt(password));
         }
-        public bool ChangePassword(int userId, string newPassword)
+        public async Task<bool> ChangePassword(int userId, string newPassword)
         {
             using var db = new TmdbContext();
 
-            var user = db.Users.SingleOrDefault(u => u.Id == userId);
+            var user =await db.Users.SingleOrDefaultAsync(u => u.Id == userId);
             if (user == null)
                 return false;
-            user.Password=GetPasswordWithSalt(newPassword);
-            return db.SaveChanges() > 0;
+            user.Password = GetPasswordWithSalt(newPassword);
+            return await db.SaveChangesAsync() > 0;
         }
         private string GetPasswordWithSalt(string password)
         {

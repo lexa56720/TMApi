@@ -21,22 +21,22 @@ namespace TMServer.RequestHandlers
         public event EventHandler<int>? UpdateForUser;
         public bool IsUpdateTracked => UpdateForUser != null;
 
-        public ChangeHandler(Changes changes) 
+        public ChangeHandler(Changes changes)
         {
             Changes = changes;
         }
 
-        public void HandleChanges((EntityEntry entity, EntityState state)[] entities)
+        public async Task HandleChanges((EntityEntry entity, EntityState state)[] entities)
         {
             if (!IsUpdateTracked)
                 return;
 
-            var userIds = GetAffectedUsers(entities);
+            var userIds = await GetAffectedUsers(entities);
             foreach (var userId in userIds)
                 NotifyUser(userId);
         }
 
-        private int[] GetAffectedUsers((EntityEntry entity, EntityState state)[] entities)
+        private async Task<int[]> GetAffectedUsers((EntityEntry entity, EntityState state)[] entities)
         {
             using var context = new TmdbContext();
             var notifyList = new List<int>();
@@ -47,51 +47,51 @@ namespace TMServer.RequestHandlers
                 switch (entity.state)
                 {
                     case EntityState.Added:
-                        notifyList.AddRange(HandleAddedEntity(className, entity.entity, context));
+                        notifyList.AddRange(await HandleAddedEntity(className, entity.entity, context));
                         break;
                     case EntityState.Deleted:
-                        notifyList.AddRange(HandleDeletedEntity(className, entity.entity, context));
+                        notifyList.AddRange(await HandleDeletedEntity(className, entity.entity, context));
                         break;
                     case EntityState.Modified:
-                        notifyList.AddRange(HandleModifiedEntity(className, entity.entity, context));
+                        notifyList.AddRange(await HandleModifiedEntity(className, entity.entity, context));
                         break;
                 }
             }
-            context.SaveChanges();
+            await context.SaveChangesAsync();
             return notifyList.Distinct().ToArray();
         }
-        private IEnumerable<int> HandleModifiedEntity(string className, EntityEntry entity, TmdbContext context)
+        private async Task<IEnumerable<int>> HandleModifiedEntity(string className, EntityEntry entity, TmdbContext context)
         {
             return className switch
             {
-                nameof(DBUser) => Changes.HandleModifiedUser((DBUser)entity.Entity, context),
-                nameof(DBChat) => Changes.HandleModifiedChat((DBChat)entity.Entity, context),
+                nameof(DBUser) => await Changes.HandleModifiedUser((DBUser)entity.Entity, context),
+                nameof(DBChat) => await Changes.HandleModifiedChat((DBChat)entity.Entity, context),
                 _ => [],
             };
         }
 
 
-        private IEnumerable<int> HandleAddedEntity(string className, EntityEntry entity, TmdbContext context)
-        {        
+        private async Task<IEnumerable<int>> HandleAddedEntity(string className, EntityEntry entity, TmdbContext context)
+        {
             return className switch
             {
-                nameof(DBMessage) => Changes.HandleNewMessage((DBMessage)entity.Entity, context),
-                nameof(DBFriendRequest) => Changes.HandleNewFriendRequest((DBFriendRequest)entity.Entity, context),
-                nameof(DBFriend) => Changes.HandleNewFriend((DBFriend)entity.Entity, context),
-                nameof(DBChat) => Changes.HandleNewChat((DBChat)entity.Entity, context),
-                nameof(DBChatUser) => Changes.HandleNewChatMember((DBChatUser)entity.Entity, context),
-                nameof(DBChatInvite) => Changes.HandleNewChatInvite((DBChatInvite)entity.Entity, context),
+                nameof(DBMessage) => await Changes.HandleNewMessage((DBMessage)entity.Entity, context),
+                nameof(DBFriendRequest) => await Changes.HandleNewFriendRequest((DBFriendRequest)entity.Entity, context),
+                nameof(DBFriend) => await Changes.HandleNewFriend((DBFriend)entity.Entity, context),
+                nameof(DBChat) => await Changes.HandleNewChat((DBChat)entity.Entity, context),
+                nameof(DBChatUser) => await Changes.HandleNewChatMember((DBChatUser)entity.Entity, context),
+                nameof(DBChatInvite) => await awaitawait Changes.HandleNewChatInvite((DBChatInvite)entity.Entity, context),
                 _ => [],
             };
         }
 
-        private IEnumerable<int> HandleDeletedEntity(string className, EntityEntry entity, TmdbContext context)
+        private async Task<IEnumerable<int>> HandleDeletedEntity(string className, EntityEntry entity, TmdbContext context)
         {
             return className switch
             {
-                nameof(DBFriend) =>Changes.HandleRemovedFriend((DBFriend)entity.Entity, context),
-                nameof(DBUnreadMessage) => Changes.HandleMessageRead((DBUnreadMessage)entity.Entity, context),
-                nameof(DBChatUser) => Changes.HandleRemovedChatMember((DBChatUser)entity.Entity, context),
+                nameof(DBFriend) => await Changes.HandleRemovedFriend((DBFriend)entity.Entity, context),
+                nameof(DBUnreadMessage) => await Changes.HandleMessageRead((DBUnreadMessage)entity.Entity, context),
+                nameof(DBChatUser) => await Changes.HandleRemovedChatMember((DBChatUser)entity.Entity, context),
                 _ => [],
             };
         }

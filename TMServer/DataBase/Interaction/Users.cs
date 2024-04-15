@@ -23,28 +23,30 @@ namespace TMServer.DataBase.Interaction
             OnlineUsers.Clear();
             IsDisposed = true;
         }
-        public DBUser? GetUser(int id)
+        public async Task<DBUser?> GetUser(int id)
         {
             using var db = new TmdbContext();
-            return db.Users.SingleOrDefault(u => u.Id == id);
+            return await db.Users.SingleOrDefaultAsync(u => u.Id == id);
         }
-        public DBUser? GetUserWithFriends(int id)
+        public async Task<DBUser?> GetUserWithFriends(int id)
         {
             using var db = new TmdbContext();
-            return db.Users
+            return await db.Users
                 .Include(u => u.Chats)
                 .Include(u => u.FriendsTwo).ThenInclude(f => f.Sender)
                 .Include(u => u.FriendsOne).ThenInclude(f => f.Receiver)
-                .SingleOrDefault(u => u.Id == id);
+                .SingleOrDefaultAsync(u => u.Id == id);
         }
 
-        public static int[] GetAllRelatedUsers(int userId)
+        public static async Task<int[]> GetAllRelatedUsers(int userId)
         {
             using var db = new TmdbContext();
-            var user = db.Users.Include(u => u.Chats)
-                              .Include(u => u.FriendsTwo).ThenInclude(f => f.Sender)
-                              .Include(u => u.FriendsOne).ThenInclude(f => f.Receiver)
-                              .SingleOrDefault(u => u.Id == userId);
+            var user = await db.Users
+                .Include(u => u.Chats)
+                .Include(u => u.FriendsTwo).ThenInclude(f => f.Sender)
+                .Include(u => u.FriendsOne).ThenInclude(f => f.Receiver)
+                .SingleOrDefaultAsync(u => u.Id == userId);
+
             if (user == null)
                 return [];
 
@@ -57,70 +59,68 @@ namespace TMServer.DataBase.Interaction
             var requested = db.FriendRequests.Where(r => r.SenderId == user.Id)
                                              .Select(r => r.ReceiverId);
 
-            return chatMembers.Union(invited)
-                              .Union(requested)
+            return chatMembers.Union(await invited.ToArrayAsync())
+                              .Union(await requested.ToArrayAsync())
                               .Union(user.GetFriends().Select(f => f.Id))
                               .ToArray();
         }
-        public DBUser[] GetUserMain(int[] ids)
+        public async Task<DBUser[]> GetUserMain(int[] ids)
         {
             using var db = new TmdbContext();
 
             var users = db.Users.Where(u => ids.Contains(u.Id));
-            return users.ToArray();
+            return await users.ToArrayAsync();
         }
 
-        public DBUser[] GetUserByName(string name)
+        public async Task<DBUser[]> GetUserByName(string name)
         {
             using var db = new TmdbContext();
 
-            return db.Users
-                .Where(u => u.Name.Contains(name))
-                .Take(20).ToArray();
+            return await db.Users.Where(u => u.Name.Contains(name))
+                                 .Take(20)
+                                 .ToArrayAsync();
         }
-        public DBUser[] GetUserByLogin(string login)
+        public async Task<DBUser[]> GetUserByLogin(string login)
         {
             using var db = new TmdbContext();
 
-            return db.Users
-                .Where(u => u.Login.Contains(login))
-                .Take(20).ToArray();
+            return await db.Users.Where(u => u.Login.Contains(login))
+                                 .Take(20)
+                                 .ToArrayAsync();
         }
 
-        public DBUser? SetProfileImage(int userId, int imageId, out int prevSetId)
+        public async Task<(DBUser? user, int prevSetId)> SetProfileImage(int userId, int imageId)
         {
             using var db = new TmdbContext();
 
-            var user = db.Users.SingleOrDefault(u => u.Id == userId);
+            var user = await db.Users.SingleOrDefaultAsync(u => u.Id == userId);
             if (user == null)
-            {
-                prevSetId = -1;
-                return null;
-            }
-            prevSetId = user.ProfileImageId;
+                return (null, -1);
+
+            var prevSetId = user.ProfileImageId;
             user.ProfileImageId = imageId;
-            UpdateProfile(userId, db);
-            db.SaveChanges(true);
-            return user;
+            await UpdateProfile(userId, db);
+            await db.SaveChangesAsync(true);
+            return (user, prevSetId);
         }
-        public DBUser? ChangeName(int userId, string newName)
+        public async Task<DBUser?> ChangeName(int userId, string newName)
         {
             using var db = new TmdbContext();
 
-            var user = db.Users.SingleOrDefault(u => u.Id == userId);
+            var user = await db.Users.SingleOrDefaultAsync(u => u.Id == userId);
             if (user == null)
                 return null;
 
             user.Name = newName;
-            UpdateProfile(userId, db);
-            db.SaveChanges(true);
+            await UpdateProfile(userId, db);
+            await db.SaveChangesAsync(true);
             return user;
         }
 
-        public void UpdateOnlineStatus(int userId)
+        public async Task UpdateOnlineStatus(int userId)
         {
             using var db = new TmdbContext();
-            var user = db.Users.SingleOrDefault(u => u.Id == userId);
+            var user = await db.Users.SingleOrDefaultAsync(u => u.Id == userId);
             if (user == null)
                 return;
             var prevOnlineState = user.IsOnline;
@@ -131,44 +131,44 @@ namespace TMServer.DataBase.Interaction
 
             if (user.IsOnline == prevOnlineState)
             {
-                db.SaveChanges();
+                await db.SaveChangesAsync();
                 return;
             }
 
-            StatusUpdate(userId, user.IsOnline, db);
-            db.SaveChanges(true);
+            await StatusUpdate(userId, user.IsOnline, db);
+            await db.SaveChangesAsync(true);
         }
 
-        private void SetOffline(int userId)
+        private async Task SetOffline(int userId)
         {
             using var db = new TmdbContext();
             var user = db.Users.SingleOrDefault(u => u.Id == userId);
             if (user == null)
                 return;
             db.Entry(user).State = EntityState.Modified;
-            StatusUpdate(userId, false, db);
-            db.SaveChanges(true);
+            await StatusUpdate(userId, false, db);
+            await db.SaveChangesAsync(true);
         }
 
-        private void UpdateProfile(int userId,TmdbContext db)
+        private async Task UpdateProfile(int userId, TmdbContext db)
         {
-            var related = GetAllRelatedUsers(userId);
+            var related = await GetAllRelatedUsers(userId);
             foreach (var relatedUser in related)
             {
-                db.UserProfileUpdates.Add(new DBUserProfileUpdate()
-                { 
+                await db.UserProfileUpdates.AddAsync(new DBUserProfileUpdate()
+                {
                     UserId = relatedUser,
-                    ProfileId=userId,
+                    ProfileId = userId,
                 });
             }
         }
 
-        private void StatusUpdate(int userId, bool isOnline, TmdbContext db)
+        private async Task StatusUpdate(int userId, bool isOnline, TmdbContext db)
         {
-            var related = GetAllRelatedUsers(userId);
+            var related = await GetAllRelatedUsers(userId);
             foreach (var relatedUser in related)
             {
-                db.UserOnlineUpdates.Add(new DBUserOnlineUpdate()
+                await db.UserOnlineUpdates.AddAsync(new DBUserOnlineUpdate()
                 {
                     Date = DateTime.UtcNow,
                     IsAdded = isOnline,

@@ -15,7 +15,7 @@ namespace TMServer.DataBase.Interaction
         {
             Messages = messages;
         }
-        public DBChat CreateChat(string name, params int[] usersId)
+        public async Task<DBChat> CreateChat(string name, params int[] usersId)
         {
             using var db = new TmdbContext();
             var chat = new DBChat()
@@ -24,121 +24,123 @@ namespace TMServer.DataBase.Interaction
                 IsDialogue = false,
                 Name = name,
             };
-            db.Chats.Add(chat);
+            await db.Chats.AddAsync(chat);
             for (int i = 0; i < usersId.Length; i++)
             {
-                var user = db.Users.Find(usersId[i]);
+                var user = await db.Users.SingleOrDefaultAsync(u => u.Id == usersId[i]);
                 if (user != null)
                     chat.Members.Add(user);
             }
 
-            Messages.AddCreateMessage(chat, usersId[0], db);
-            Messages.AddInviteMessages(chat, usersId[0], chat.Members.Skip(1).Select(i => i.Id), db);
-            db.SaveChanges(true);
+            await Messages.AddCreateMessage(chat, usersId[0], db);
+            await Messages.AddInviteMessages(chat, usersId[0], chat.Members.Skip(1).Select(i => i.Id), db);
+            await db.SaveChangesAsync(true);
             return chat;
         }
-        public void InviteToChat(int inviterId, int chatId, params int[] userIds)
+        public async void InviteToChat(int inviterId, int chatId, params int[] userIds)
         {
             using var db = new TmdbContext();
 
             foreach (var userId in userIds)
-                db.ChatInvites.Add(new DBChatInvite()
+                await db.ChatInvites.AddAsync(new DBChatInvite()
                 {
                     ChatId = chatId,
                     InviterId = inviterId,
                     ToUserId = userId,
                 });
 
-            Messages.AddInviteMessages(chatId, inviterId, userIds, db);
+            await Messages.AddInviteMessages(chatId, inviterId, userIds, db);
             db.SaveChanges(true);
         }
 
-        public DBChat[] GetChat(int[] chatIds)
+        public async Task<DBChat[]?> GetChat(int[] chatIds)
         {
             using var db = new TmdbContext();
 
-            var chats = db.Chats.Include(c => c.Admin)
-                                .Include(c => c.Members)
-                                .Where(c => chatIds.Contains(c.Id))
-                                .ToArray();
+            var chats = await db.Chats.Include(c => c.Admin)
+                                      .Include(c => c.Members)
+                                      .Where(c => chatIds.Contains(c.Id))
+                                      .ToArrayAsync();
             return chats;
         }
-        public int[] GetUnreadCount(int userId, int[] chatIds)
+        public async Task<int[]> GetUnreadCount(int userId, int[] chatIds)
         {
             using var db = new TmdbContext();
 
-            return chatIds.Select(id => db.UnreadMessages.Include(um => um.Message)
+            var counts = chatIds.Select(id => db.UnreadMessages.Include(um => um.Message)
                                       .ThenInclude(m => m.Destination)
                                       .Where(um => um.UserId == userId && id == um.Message.Destination.Id)
-                                      .Count()).ToArray();
+                                      .CountAsync()).ToArray();
+
+            return await Task.WhenAll(counts);
         }
 
-        public DBChat[] GetAllChats(int userId)
+        public async Task<DBChat[]> GetAllChats(int userId)
         {
             using var db = new TmdbContext();
 
-            var chats = db.Chats.Include(c => c.Admin)
-                                .Include(c => c.Members)
-                                .Where(c => c.Members.Any(m => m.Id == userId))
-                                .ToArray();
+            var chats = await db.Chats.Include(c => c.Admin)
+                                      .Include(c => c.Members)
+                                      .Where(c => c.Members.Any(m => m.Id == userId))
+                                      .ToArrayAsync();
             return chats;
         }
 
-        public DBChatInvite[] GetInvite(int[] inviteIds, int userId)
+        public async Task<DBChatInvite[]> GetInvite(int[] inviteIds, int userId)
         {
             using var db = new TmdbContext();
-            return db.ChatInvites
-                  .Where(i => (i.ToUserId == userId || i.InviterId == userId) && inviteIds.Contains(i.Id))
-                  .ToArray();
+            return await db.ChatInvites.Where(i => (i.ToUserId == userId || i.InviterId == userId)
+                                              && inviteIds.Contains(i.Id))
+                                       .ToArrayAsync();
         }
-        public void InviteResponse(int inviteId, int userId, bool isAccepted)
+        public async Task InviteResponse(int inviteId, int userId, bool isAccepted)
         {
             using var db = new TmdbContext();
-            var invite = db.ChatInvites.SingleOrDefault(i => i.Id == inviteId);
+            var invite = await db.ChatInvites.SingleOrDefaultAsync(i => i.Id == inviteId);
             if (invite == null)
                 return;
 
             if (isAccepted)
             {
-                var user = db.Users.Find(userId);
-                var chat = db.Chats.Find(invite.ChatId);
+                var user = await db.Users.FindAsync(userId);
+                var chat = await db.Chats.FindAsync(invite.ChatId);
                 if (user != null && chat != null && invite != null)
                     chat.Members.Add(user);
             }
             db.ChatInvites.Remove(invite);
-            db.SaveChanges(true);
+            await db.SaveChangesAsync(true);
         }
-        public DBChatInvite? RemoveInvite(int inviteId)
+        public async Task<DBChatInvite?> RemoveInvite(int inviteId)
         {
             using var db = new TmdbContext();
-            var invite = db.ChatInvites.SingleOrDefault(i => i.Id == inviteId);
+            var invite = await db.ChatInvites.SingleOrDefaultAsync(i => i.Id == inviteId);
             if (invite != null)
                 db.ChatInvites.Remove(invite);
-            db.SaveChanges();
+            await db.SaveChangesAsync();
             return invite;
         }
-        public void AddUserToChat(int userId, int chatId)
+        public async Task AddUserToChat(int userId, int chatId)
         {
             using var db = new TmdbContext();
 
-            var user = db.Users.SingleOrDefault(u => u.Id == userId);
-            var chat = db.Chats.SingleOrDefault(c => c.Id == chatId);
+            var user = await db.Users.SingleOrDefaultAsync(u => u.Id == userId);
+            var chat = await db.Chats.SingleOrDefaultAsync(c => c.Id == chatId);
             if (user != null && chat != null)
             {
                 chat.Members.Add(user);
-                Messages.AddEnterMessage(chatId, userId, db);
+                await Messages.AddEnterMessage(chatId, userId, db);
             }
 
-            db.SaveChanges(true);
+            await db.SaveChangesAsync(true);
         }
 
-        public bool LeaveChat(int userId, int chatId)
+        public async Task<bool> LeaveChat(int userId, int chatId)
         {
             using var db = new TmdbContext();
 
-            var chat = db.Chats.Include(c => c.Members)
-                               .Where(i => i.Id == chatId)
-                               .Single();
+            var chat = await db.Chats.Include(c => c.Members)
+                                     .Where(i => i.Id == chatId)
+                                     .SingleAsync();
 
             if (chat.IsDialogue)
                 return false;
@@ -151,21 +153,21 @@ namespace TMServer.DataBase.Interaction
                 if (newAdmin != null)
                     chat.AdminId = newAdmin.Id;
                 else
-                    RemoveChat(chat.Id, db);
+                    await RemoveChat(chat.Id, db);
             }
 
-            Messages.AddLeaveMessage(chatId, userId, db);
-            return db.SaveChanges(true) > 0;
+            await Messages.AddLeaveMessage(chatId, userId, db);
+            return await db.SaveChangesAsync(true) > 0;
         }
-        public int[] GetAllChatInvites(int userId)
+        public async Task<int[]> GetAllChatInvites(int userId)
         {
             using var db = new TmdbContext();
-            return db.ChatInvites.Where(i => i.ToUserId == userId)
+            return await db.ChatInvites.Where(i => i.ToUserId == userId)
                                  .Select(i => i.Id)
-                                 .ToArray();
+                                 .ToArrayAsync();
         }
 
-        public void RemoveChat(int chatId, TmdbContext? db)
+        public async Task RemoveChat(int chatId, TmdbContext? db)
         {
             bool needToDispose = false;
             if (db == null)
@@ -180,28 +182,28 @@ namespace TMServer.DataBase.Interaction
 
             if (needToDispose)
             {
-                db.SaveChanges();
-                db.Dispose();
+                await db.SaveChangesAsync();
+                await db.DisposeAsync();
             }
         }
 
-        public bool Rename(int chatId,int userId, string newName)
+        public async Task<bool> Rename(int chatId, int userId, string newName)
         {
             using var db = new TmdbContext();
-            var chat = db.Chats.SingleOrDefault(c => c.Id == chatId);
+            var chat = await db.Chats.SingleOrDefaultAsync(c => c.Id == chatId);
             if (chat == null)
                 return false;
 
             chat.Name = newName;
-            Messages.AddRenameMessage(chat.Id, userId, newName, db);
-            return db.SaveChanges(true) > 0;
+            await Messages.AddRenameMessage(chat.Id, userId, newName, db);
+            return await db.SaveChangesAsync(true) > 0;
         }
 
-        public bool Kick(int chatId, int userId, int kickId)
+        public async Task<bool> Kick(int chatId, int userId, int kickId)
         {
             using var db = new TmdbContext();
-            var chat = db.Chats.Include(c => c.Members)
-                               .SingleOrDefault(c => c.Id == chatId);
+            var chat = await db.Chats.Include(c => c.Members)
+                                     .SingleOrDefaultAsync(c => c.Id == chatId);
             if (chat == null)
                 return false;
 
@@ -210,25 +212,23 @@ namespace TMServer.DataBase.Interaction
                 return false;
 
             chat.Members.Remove(member);
-            Messages.AddKickMessage(chat.Id, userId, kickId, db);
-            return db.SaveChanges(true) > 0;
+            await Messages.AddKickMessage(chat.Id, userId, kickId, db);
+            return await db.SaveChangesAsync(true) > 0;
         }
 
-        public DBChat? SetCover(int userId, int chatId, int imageId, out int prevSetId)
+        public async Task<(DBChat?, int prevSetId)> SetCover(int userId, int chatId, int imageId)
         {
             using var db = new TmdbContext();
 
-            var chat = db.Chats.SingleOrDefault(u => u.Id == chatId);
+            var chat = await db.Chats.SingleOrDefaultAsync(u => u.Id == chatId);
             if (chat == null)
-            {
-                prevSetId = -1;
-                return null;
-            }
-            prevSetId = chat.CoverImageId;
+                return (null, -1);
+
+            var prevSetId = chat.CoverImageId;
             chat.CoverImageId = imageId;
-            Messages.AddUpdateCoverMessage(chatId, userId, db);
-            db.SaveChanges(true);
-            return chat;
+            await Messages.AddUpdateCoverMessage(chatId, userId, db);
+            await db.SaveChangesAsync(true);
+            return (chat, prevSetId);
         }
     }
 }

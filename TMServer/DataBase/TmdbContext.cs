@@ -570,20 +570,17 @@ public partial class TmdbContext : DbContext
         OnModelCreatingPartial(modelBuilder);
     }
 
-    public new int SaveChanges(bool trackChanges)
+    public async Task<int> SaveChangesAsync(bool trackChanges)
     {
         if (!trackChanges || !ChangeHandler.IsUpdateTracked || !ChangeTracker.HasChanges())
-            return base.SaveChanges();
+            return await base.SaveChangesAsync();
 
         var changes = GetChangedEntities();
-        var value = base.SaveChanges();
-        ChangeHandler.HandleChanges(changes);
+        var value = await base.SaveChangesAsync();
+       await ChangeHandler.HandleChanges(changes);
         return value;
     }
-    public override int SaveChanges()
-    {
-        return base.SaveChanges();
-    }
+
     private (EntityEntry entity, EntityState state)[] GetChangedEntities()
     {
         var entries = ChangeTracker.Entries();

@@ -8,7 +8,7 @@ namespace TMServer.DataBase.Interaction
 {
     public class Messages
     {
-        public DBMessage AddMessage(int authorId, string content, int destinationId)
+        public async Task<DBMessage> AddMessage(int authorId, string content, int destinationId)
         {
             using var db = new TmdbContext();
             var message = new DBMessage()
@@ -19,13 +19,13 @@ namespace TMServer.DataBase.Interaction
                 IsSystem = false,
                 SendTime = DateTime.UtcNow,
             };
-            db.Messages.Add(message);
-            db.SaveChanges(true);
+            await db.Messages.AddAsync(message);
+            await db.SaveChangesAsync(true);
 
             return message;
         }
 
-        public DBMessage AddMessage(int authorId, string content, DBImage[] images, DBBinaryFile[] files, int destinationId)
+        public async Task<DBMessage> AddMessage(int authorId, string content, DBImage[] images, DBBinaryFile[] files, int destinationId)
         {
             using var db = new TmdbContext();
 
@@ -37,16 +37,16 @@ namespace TMServer.DataBase.Interaction
                 IsSystem = false,
                 SendTime = DateTime.UtcNow,
             };
-            db.Messages.Add(message);
+            await db.Messages.AddAsync(message);
 
             foreach (var image in images)
             {
 
                 message.Attachments.Add(new DBMessageAttachments()
-                { 
-                    AttachmentId=image.Id,
-                    Kind=AttachmentKind.Image,
-                    Message=message,
+                {
+                    AttachmentId = image.Id,
+                    Kind = AttachmentKind.Image,
+                    Message = message,
                 });
             }
             foreach (var file in files)
@@ -58,11 +58,11 @@ namespace TMServer.DataBase.Interaction
                     Message = message,
                 });
             }
-            db.SaveChanges(true);
+            await db.SaveChangesAsync(true);
             return message;
         }
 
-        public void AddSystemMessage(int chatId, int executorId, ActionKind kind, int? targetId, string text, TmdbContext db)
+        public async Task AddSystemMessage(int chatId, int executorId, ActionKind kind, int? targetId, string text, TmdbContext db)
         {
             var message = new DBMessage()
             {
@@ -72,9 +72,9 @@ namespace TMServer.DataBase.Interaction
                 IsSystem = true,
                 SendTime = DateTime.UtcNow,
             };
-            AddSystemMessagToDB(executorId, kind, targetId, message, db);
+            await AddSystemMessagToDB(executorId, kind, targetId, message, db);
         }
-        public void AddSystemMessage(DBChat chat, int executorId, ActionKind kind, int? targetId, string text, TmdbContext db)
+        public async Task AddSystemMessage(DBChat chat, int executorId, ActionKind kind, int? targetId, string text, TmdbContext db)
         {
             var message = new DBMessage()
             {
@@ -84,9 +84,9 @@ namespace TMServer.DataBase.Interaction
                 IsSystem = true,
                 SendTime = DateTime.UtcNow,
             };
-            AddSystemMessagToDB(executorId, kind, targetId, message, db);
+            await AddSystemMessagToDB(executorId, kind, targetId, message, db);
         }
-        private void AddSystemMessagToDB(int executorId, ActionKind kind, int? targetId, DBMessage message, TmdbContext db)
+        private async Task AddSystemMessagToDB(int executorId, ActionKind kind, int? targetId, DBMessage message, TmdbContext db)
         {
             var action = new DBMessageAction()
             {
@@ -95,77 +95,80 @@ namespace TMServer.DataBase.Interaction
                 Kind = kind,
                 Message = message,
             };
-            db.Messages.Add(message);
-            db.MessageActions.Add(action);
+            await db.Messages.AddAsync(message);
+            await db.MessageActions.AddAsync(action);
         }
 
-        public bool AddToUnread(int messageId, int chatId)
+        public async Task<bool> AddToUnread(int messageId, int chatId)
         {
             using var db = new TmdbContext();
-            var members = db.Chats.Include(c => c.Members)
-                                  .First(c => c.Id == chatId).Members;
+            var members = (await db.Chats.Include(c => c.Members)
+                                  .FirstAsync(c => c.Id == chatId)).Members;
 
             foreach (var member in members)
-                db.UnreadMessages.Add(new DBUnreadMessage()
+                await db.UnreadMessages.AddAsync(new DBUnreadMessage()
                 {
                     UserId = member.Id,
                     MessageId = messageId,
                 });
-            return db.SaveChanges() > 0;
+            return await db.SaveChangesAsync() > 0;
         }
 
 
 
-        public DBMessage[] GetMessages(int chatId, int offset, int count)
+        public async Task<DBMessage[]> GetMessages(int chatId, int offset, int count)
         {
             using var db = new TmdbContext();
 
-            return db.Messages
-                .Include(m => m.Action)
-                .Include(m=>m.Attachments)
-                .Where(m => m.DestinationId == chatId)
-                .OrderByDescending(m => m.SendTime)
-                .ThenByDescending(m => m.Id)
-                .Skip(offset)
-                .Take(count)
-                .ToArray();
+            return await db.Messages
+                           .Include(m => m.Action)
+                           .Include(m => m.Attachments)
+                           .Where(m => m.DestinationId == chatId)
+                           .OrderByDescending(m => m.SendTime)
+                           .ThenByDescending(m => m.Id)
+                           .Skip(offset)
+                           .Take(count)
+                           .ToArrayAsync();
         }
-        public DBMessage[] GetLastMessages(int[] chatId)
+        public async Task<DBMessage[]> GetLastMessages(int[] chatId)
         {
             using var db = new TmdbContext();
 
-            return chatId.Select(id => db.Messages.Where(m => m.DestinationId == id && !m.IsSystem)
-                                                  .AsEnumerable()
-                                                  .MaxBy(m => m.Id))
-                         .Where(m => m != null)
-                         .ToArray();
+            var messages = chatId.Select(id => db.Messages.Where(m => m.DestinationId == id && !m.IsSystem).ToArrayAsync());
+
+            var queredMessages = await Task.WhenAll(messages);
+            if (queredMessages == null)
+                return [];
+            return queredMessages.Select(m => m.MaxBy(x => x.Id))
+                                 .Where(m => m != null)
+                                 .ToArray();
         }
-        public DBMessage[] GetMessages(int chatId, int offset, int count, int lastMessageId)
+        public async Task<DBMessage[]> GetMessages(int chatId, int offset, int count, int lastMessageId)
         {
             using var db = new TmdbContext();
 
-            return db.Messages.Include(m => m.Action)
-                              .Include(m => m.Attachments)
-                              .Where(m => m.DestinationId == chatId)
-                              .OrderByDescending(m => m.SendTime)
-                              .ThenByDescending(m => m.Id)
-                              .Where(m => m.Id < lastMessageId)
-                              .Skip(offset)
-                              .Take(count)
-                              .ToArray();
+            return await db.Messages.Include(m => m.Action)
+                                    .Include(m => m.Attachments)
+                                    .Where(m => m.DestinationId == chatId)
+                                    .OrderByDescending(m => m.SendTime)
+                                    .ThenByDescending(m => m.Id)
+                                    .Where(m => m.Id < lastMessageId)
+                                    .Skip(offset)
+                                    .Take(count)
+                                    .ToArrayAsync();
         }
-        public DBMessage[] GetMessages(int[] ids)
+        public async Task<DBMessage[]> GetMessages(int[] ids)
         {
             using var db = new TmdbContext();
 
-            return db.Messages.Include(m => m.Action)
-                              .Include(m => m.Attachments)
-                              .OrderByDescending(m => m.SendTime)
-                              .ThenByDescending(m => m.Id)
-                              .Where(m => ids.Contains(m.Id))
-                              .ToArray();
+            return await db.Messages.Include(m => m.Action)
+                                    .Include(m => m.Attachments)
+                                    .OrderByDescending(m => m.SendTime)
+                                    .ThenByDescending(m => m.Id)
+                                    .Where(m => ids.Contains(m.Id))
+                                    .ToArrayAsync();
         }
-        public bool ReadAllInChat(int userId, int chatId)
+        public async Task<bool> ReadAllInChat(int userId, int chatId)
         {
             using var db = new TmdbContext();
             //Чтение всех собщений в чате для юзера userId и отметка о прочитке собщений их авторам 
@@ -175,9 +178,9 @@ namespace TMServer.DataBase.Interaction
                                        (um.UserId == userId || um.UserId == um.Message.AuthorId));
 
             db.UnreadMessages.RemoveRange(messsagesToMark);
-            return db.SaveChanges(true) > 0;
+            return await db.SaveChangesAsync(true) > 0;
         }
-        public bool MarkAsReaded(int userId, int[] ids)
+        public async Task<bool> MarkAsReaded(int userId, int[] ids)
         {
             using var db = new TmdbContext();
 
@@ -189,23 +192,23 @@ namespace TMServer.DataBase.Interaction
             db.UnreadMessages.RemoveRange(messsagesToMark);
             try
             {
-                return db.SaveChanges(true) > 0;
+                return await db.SaveChangesAsync(true) > 0;
             }
             catch (DbUpdateConcurrencyException)
             {
                 return true;
             }
         }
-        public bool IsMessageReaded(int userId, int messageId)
+        public async Task<bool> IsMessageReaded(int userId, int messageId)
         {
             using var db = new TmdbContext();
-            return db.UnreadMessages.Include(m => m.Message).
-                All(m => (m.UserId != userId || m.MessageId != messageId) || (m.UserId == m.Message.AuthorId && m.UserId != userId));
+            return await db.UnreadMessages.Include(m => m.Message).
+                AllAsync(m => (m.UserId != userId || m.MessageId != messageId)
+                           || (m.UserId == m.Message.AuthorId && m.UserId != userId));
         }
-        public bool[] IsMessageReaded(int userId, IEnumerable<int> messageIds)
+        public async Task<bool[]> IsMessageReaded(int userId, IEnumerable<int> messageIds)
         {
-            return messageIds.Select(id => IsMessageReaded(userId, id))
-                             .ToArray();
+            return await Task.WhenAll(messageIds.Select(id => IsMessageReaded(userId, id)));
         }
     }
 }

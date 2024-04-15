@@ -24,7 +24,7 @@ namespace TMServer.ServerComponent.LongPolling
     internal class LongPollServer : Server
     {
 
-        private readonly LifeTimeDictionary<int, IPacket<IRequestContainer>> Requests = new();
+        private readonly LifeTimeDictionary<int, (IPacket<IRequestContainer> packet, Func<byte[], Task<bool>> replyFunc)> Requests = new();
 
         private readonly LifeTimeDictionary<int, LongPollResponseInfo> ResponseInfos = new();
 
@@ -52,7 +52,7 @@ namespace TMServer.ServerComponent.LongPolling
            await RespondOnSaved(userId);
         }
 
-        public Notification? LongPollArrived(ApiData<LongPollingRequest> request, IPacketInfo info)
+        public Notification? LongPollArrived(ApiData<LongPollingRequest> request, IPacketInfo info, Func<byte[],Task<bool>> replyFunc)
         {
             if (ResponseInfos.TryRemove(request.UserId, out var responseInfo) &&
                 responseInfo.Id == request.Data.PreviousLongPollId)
@@ -65,14 +65,14 @@ namespace TMServer.ServerComponent.LongPolling
 
 
             Requests.TryRemove(request.UserId, out _);
-            Requests.TryAdd(request.UserId, (IPacket<IRequestContainer>)info, LongPollLifetime);
+            Requests.TryAdd(request.UserId, ((IPacket<IRequestContainer>)info,replyFunc), LongPollLifetime);
             return null;
         }
         private async Task RespondOnSaved(int userId)
         {
-            if (!Requests.TryRemove(userId, out var packet))
+            if (!Requests.TryRemove(userId, out var requestInfo))
                 return;
-            await Responder.ResponseManually(packet, GetNotification(userId));
+            await Responder.ResponseManually(requestInfo.packet, GetNotification(userId),requestInfo.replyFunc);
         }
 
         private Notification GetNotification(int userId)
@@ -82,23 +82,24 @@ namespace TMServer.ServerComponent.LongPolling
             return notification;
         }
 
-        public void RegisterRequestHandler<TRequest, TResponse>(Func<ApiData<TRequest>, IPacketInfo, TResponse?> func)
+        public void RegisterRequestHandler<TRequest, TResponse> (Func<ApiData<TRequest>, IPacketInfo, Func<byte[], Task<bool>>, Task<TResponse?>> func)
             where TRequest : ISerializable<TRequest>, new()
             where TResponse : ISerializable<TResponse>, new()
         {
             Responder.RegisterRequestHandler(Invoke(func));
         }
 
-        private Func<ApiData<TRequest>, IPacketInfo, TResponse?> Invoke<TRequest, TResponse>(Func<ApiData<TRequest>, IPacketInfo, TResponse?> func)
+        private Func<ApiData<TRequest>, IPacketInfo, Func<byte[], Task<bool>>, Task<TResponse?>> Invoke<TRequest, TResponse>
+               (Func<ApiData<TRequest>, IPacketInfo, Func<byte[], Task<bool>>, Task<TResponse?>> func)
                                                          where TRequest : ISerializable<TRequest>, new()
                                                          where TResponse : ISerializable<TResponse>, new()
         {
-            return new Func<ApiData<TRequest>, IPacketInfo, TResponse?>((request, info) =>
+            return new Func<ApiData<TRequest>, IPacketInfo, Func<byte[], Task<bool>>, Task<TResponse?>>(async (request, info,replyFunc) =>
             {
-                if (IsRequestLegal(request))
+                if (await IsRequestLegal(request))
                 {
                     Logger.Log(request);
-                    return func(request, info);
+                    return await func(request, info,replyFunc);
                 }
                 return default;
             });

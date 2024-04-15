@@ -16,49 +16,49 @@ namespace TMServer.DataBase.Interaction
     {
         private readonly Chats Chats;
 
-        public Friends(Chats chats) 
+        public Friends(Chats chats)
         {
             Chats = chats;
         }
-        public DBFriendRequest[] GetFriendRequest(int[] ids)
+        public async Task<DBFriendRequest[]> GetFriendRequest(int[] ids)
         {
             using var db = new TmdbContext();
-            var requests = db.FriendRequests.Where(r => ids.Contains(r.Id));
-            return requests.ToArray();
+            return await db.FriendRequests.Where(r => ids.Contains(r.Id))
+                                          .ToArrayAsync();
         }
 
-        public DBFriendRequest RemoveFriendRequest(int requestId)
+        public async Task<DBFriendRequest> RemoveFriendRequest(int requestId)
         {
             using var db = new TmdbContext();
-            var request = db.FriendRequests.Single(r => r.Id == requestId);
+            var request = await db.FriendRequests.SingleAsync(r => r.Id == requestId);
             db.FriendRequests.Remove(request);
-            db.SaveChanges();
+            await db.SaveChangesAsync();
             return request;
         }
-        public DBFriendRequest RemoveFriendRequest(int fromId, int toId)
+        public async Task<DBFriendRequest> RemoveFriendRequest(int fromId, int toId)
         {
             using var db = new TmdbContext();
-            var request = db.FriendRequests.Single(r => r.SenderId == fromId && r.ReceiverId == toId);
+            var request = await db.FriendRequests.SingleAsync(r => r.SenderId == fromId && r.ReceiverId == toId);
             db.FriendRequests.Remove(request);
-            db.SaveChanges();
+            await db.SaveChangesAsync();
             return request;
         }
-        public void RegisterFriendRequest(int fromId, int toId)
+        public async Task RegisterFriendRequest(int fromId, int toId)
         {
             using var db = new TmdbContext();
 
-            db.FriendRequests.Add(new DBFriendRequest()
+            await db.FriendRequests.AddAsync(new DBFriendRequest()
             {
                 SenderId = fromId,
                 ReceiverId = toId,
             });
-            db.SaveChanges(true);
+            await db.SaveChangesAsync(true);
         }
 
-        public void RegisterFriends(int senderId, int responderId)
+        public async Task RegisterFriends(int senderId, int responderId)
         {
             using var db = new TmdbContext();
-            db.Friends.Add(new DBFriend()
+            await db.Friends.AddAsync(new DBFriend()
             {
                 SenderId = senderId,
                 DestId = responderId
@@ -69,34 +69,34 @@ namespace TMServer.DataBase.Interaction
                 IsDialogue = true,
                 Name = string.Empty,
             };
-            db.Chats.Add(chat);
-            chat.Members.Add(db.Users.Find(senderId));
-            chat.Members.Add(db.Users.Find(responderId));
+            await db.Chats.AddAsync(chat);
+            chat.Members.Add(await db.Users.FindAsync(senderId));
+            chat.Members.Add(await db.Users.FindAsync(responderId));
 
-            db.SaveChanges(true);
+            await db.SaveChangesAsync(true);
         }
 
-        public int[] GetAllForUser(int userId)
+        public async Task<int[]> GetAllForUser(int userId)
         {
             using var db = new TmdbContext();
-            return db.FriendRequests.Where(i => i.ReceiverId == userId)
-                                    .Select(i => i.Id)
-                                    .ToArray();
+            return await db.FriendRequests.Where(i => i.ReceiverId == userId)
+                                          .Select(i => i.Id)
+                                          .ToArrayAsync();
         }
 
-        public bool RemoveFriend(int userId, int friendId)
+        public async Task<bool> RemoveFriend(int userId, int friendId)
         {
             using var db = new TmdbContext();
-            var friend = db.Friends.Single(f => (f.DestId == userId && f.SenderId == friendId) ||
-                                               (f.SenderId == userId && f.DestId == friendId));
+            var friend = await db.Friends.SingleAsync(f => (f.DestId == userId && f.SenderId == friendId)
+                                                        || (f.SenderId == userId && f.DestId == friendId));
             db.Friends.Remove(friend);
-            var dialogue = db.Chats.Include(c => c.Members)
-                                   .Single(c => c.IsDialogue &&
-                                              (c.Members.ElementAt(0).Id == userId && c.Members.ElementAt(1).Id == friendId) ||
-                                              (c.Members.ElementAt(1).Id == userId && c.Members.ElementAt(0).Id == friendId));
+            var dialogue = await db.Chats.Include(c => c.Members)
+                                        .SingleAsync(c => c.IsDialogue
+                                              && c.Members.ElementAt(0).Id == userId && c.Members.ElementAt(1).Id == friendId
+                                              || (c.Members.ElementAt(1).Id == userId && c.Members.ElementAt(0).Id == friendId));
 
-            Chats.RemoveChat(dialogue.Id, db);
-            return db.SaveChanges(true) > 0;
+            await Chats.RemoveChat(dialogue.Id, db);
+            return await db.SaveChangesAsync(true) > 0;
         }
     }
 }

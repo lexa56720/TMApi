@@ -68,9 +68,9 @@ namespace TMServer.ServerComponent.Basics
         }
 
 
-        protected virtual bool IsRequestLegal<T>(ApiData<T> request) where T : ISerializable<T>, new()
+        protected virtual async Task<bool> IsRequestLegal<T>(ApiData<T> request) where T : ISerializable<T>, new()
         {
-            var isLegal = Security.IsTokenCorrect(request.Token, request.UserId);
+            var isLegal =await Security.IsTokenCorrect(request.Token, request.UserId);
             if (!isLegal)
                 Logger.Log($"illegal request from {request.UserId}");
             else

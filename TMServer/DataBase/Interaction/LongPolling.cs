@@ -7,88 +7,69 @@ namespace TMServer.DataBase.Interaction
 {
     public class LongPolling
     {
-        public DBNewMessageUpdate[] GetMessageUpdate(int userId)
+        public async Task<DBNewMessageUpdate[]> GetMessageUpdate(int userId)
         {
             using var db = new TmdbContext();
-            var result = db.NewMessageUpdates
-                           .Where(c => c.UserId == userId)
-                           .ToArray();
-            return result;
+            return await db.NewMessageUpdates.Where(c => c.UserId == userId)
+                                             .ToArrayAsync();
         }
 
-        public DBMessageStatusUpdate[] GetMessagesWithUpdatedStatus(int userId)
+        public async Task<DBMessageStatusUpdate[]> GetMessagesWithUpdatedStatus(int userId)
         {
             using var db = new TmdbContext();
-            var result = db.MessageStatusUpdates
-                           .Where(c => c.UserId == userId)
-                           .ToArray();
-            return result;
+            return await db.MessageStatusUpdates.Where(c => c.UserId == userId)
+                                                .ToArrayAsync();
         }
-        public DBFriendRequestUpdate[] GetFriendRequestUpdates(int userId)
+        public async Task<DBFriendRequestUpdate[]> GetFriendRequestUpdates(int userId)
         {
             using var db = new TmdbContext();
-            var result = db.FriendRequestUpdates
-                           .Where(r => r.UserId == userId)
-                           .ToArray();
-            return result;
+            return await db.FriendRequestUpdates.Where(r => r.UserId == userId)
+                                                .ToArrayAsync();
         }
-        public DBFriendListUpdate[] GetFriendListUpdates(int userId)
+        public async Task<DBFriendListUpdate[]> GetFriendListUpdates(int userId)
         {
             using var db = new TmdbContext();
-            var result = db.FriendListUpdates
-                           .Where(fl => fl.UserId == userId)
-                           .ToArray();
-
-            return result;
+            return await db.FriendListUpdates.Where(fl => fl.UserId == userId)
+                                             .ToArrayAsync();
         }
 
-        public DBChatListUpdate[] GetChatListUpdates(int userId)
+        public async Task<DBChatListUpdate[]> GetChatListUpdates(int userId)
         {
             using var db = new TmdbContext();
-            var result = db.ChatListUpdates
-                           .Where(cu => cu.UserId == userId)
-                           .ToArray();
-            return result;
+            return await db.ChatListUpdates.Where(cu => cu.UserId == userId)
+                                           .ToArrayAsync();
         }
 
-        public DBUserProfileUpdate[] GetRelatedUsersUpdates(int userId)
+        public async Task<DBUserProfileUpdate[]> GetRelatedUsersUpdates(int userId)
         {
             using var db = new TmdbContext();
-            var result = db.UserProfileUpdates
-                           .Where(u => u.UserId == userId)
-                           .ToArray();
-            return result;
+            return await db.UserProfileUpdates.Where(u => u.UserId == userId)
+                                              .ToArrayAsync();
         }
 
-        public DBChatInviteUpdate[] GetChatInvites(int userId)
+        public async Task<DBChatInviteUpdate[]> GetChatInvites(int userId)
         {
             using var db = new TmdbContext();
-            var result = db.ChatInviteUpdates
-                           .Where(c => c.UserId == userId)
-                           .ToArray();
-            return result;
+            return await db.ChatInviteUpdates.Where(c => c.UserId == userId)
+                                             .ToArrayAsync();
         }
 
-        public DBChatUpdate[] GetChatUpdates(int userId)
+        public async Task<DBChatUpdate[]> GetChatUpdates(int userId)
         {
             using var db = new TmdbContext();
-            var result = db.ChatUpdates
-                           .Where(c => c.UserId == userId)
-                           .ToArray();
-            return result;
+            return await db.ChatUpdates.Where(c => c.UserId == userId)
+                                       .ToArrayAsync();
         }
 
-        public DBUserOnlineUpdate[] GetOnlineUpdates(int userId)
+        public async Task<DBUserOnlineUpdate[]> GetOnlineUpdates(int userId)
         {
             using var db = new TmdbContext();
-            var result = db.UserOnlineUpdates
-                           .Where(c => c.UserId == userId)
-                           .ToArray();
-            return result;
+            return await db.UserOnlineUpdates.Where(c => c.UserId == userId)
+                                             .ToArrayAsync();
         }
 
 
-        public void ClearAllUpdates(int userId)
+        public async Task ClearAllUpdates(int userId)
         {
             using var db = new TmdbContext();
             db.NewMessageUpdates.Where(u => u.UserId == userId).ExecuteDelete();
@@ -100,9 +81,9 @@ namespace TMServer.DataBase.Interaction
             db.UserProfileUpdates.Where(p => p.UserId == userId).ExecuteDelete();
             db.FriendListUpdates.Where(fl => fl.UserId == userId).ExecuteDelete();
             db.UserOnlineUpdates.Where(c => c.UserId == userId).ExecuteDelete();
-            db.SaveChanges();
+            await db.SaveChangesAsync();
         }
-        public void ClearUpdatesByIds(LongPollResponseInfo info)
+        public async Task ClearUpdatesByIds(LongPollResponseInfo info)
         {
             using var db = new TmdbContext();
             ExecuteDeleteByIds(db.NewMessageUpdates, info.NewMessages);
@@ -114,7 +95,7 @@ namespace TMServer.DataBase.Interaction
             ExecuteDeleteByIds(db.UserProfileUpdates, info.RelatedUsersChanged);
             ExecuteDeleteByIds(db.FriendListUpdates, info.FriendListUpdates);
             ExecuteDeleteByIds(db.UserOnlineUpdates, info.OnlineUpdates);
-            db.SaveChanges();
+            await db.SaveChangesAsync();
         }
 
         private void ExecuteDeleteByIds<T>(DbSet<T> dbSet, int[] ids) where T : Update
@@ -122,21 +103,21 @@ namespace TMServer.DataBase.Interaction
             dbSet.Where(x => ids.Contains(x.Id)).ExecuteDelete();
         }
 
-        public bool IsHaveUpdates(int userId)
+        public async Task<bool> IsHaveUpdates(int userId)
         {
             using var db = new TmdbContext();
-            return db.NewMessageUpdates.Any(u => u.UserId == userId) ||
-                   db.MessageStatusUpdates.Any(u => u.UserId == userId) ||
+            return (await db.NewMessageUpdates.AnyAsync(u => u.UserId == userId)) ||
+                   (await db.MessageStatusUpdates.AnyAsync(u => u.UserId == userId)) ||
 
-                   db.ChatInviteUpdates.Any(u => u.UserId == userId) ||
-                   db.ChatListUpdates.Any(u => u.UserId == userId) ||
-                   db.ChatUpdates.Any(u => u.UserId == userId) ||
+                   (await db.ChatInviteUpdates.AnyAsync(u => u.UserId == userId)) ||
+                   (await db.ChatListUpdates.AnyAsync(u => u.UserId == userId)) ||
+                   (await db.ChatUpdates.AnyAsync(u => u.UserId == userId)) ||
 
-                   db.UserProfileUpdates.Any(u => u.UserId == userId) ||
-
-                   db.FriendRequestUpdates.Any(u => u.UserId == userId) ||
-                   db.FriendListUpdates.Any(u => u.UserId == userId) ||
-                   db.UserOnlineUpdates.Any(u => u.UserId == userId);
+                   (await db.UserProfileUpdates.AnyAsync(u => u.UserId == userId)) ||
+ 
+                   (await db.FriendRequestUpdates.AnyAsync(u => u.UserId == userId)) ||
+                   (await db.FriendListUpdates.AnyAsync(u => u.UserId == userId)) ||
+                   (await db.UserOnlineUpdates.AnyAsync(u => u.UserId == userId));
         }
     }
 }

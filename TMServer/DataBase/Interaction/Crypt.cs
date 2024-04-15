@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,7 +10,7 @@ namespace TMServer.DataBase.Interaction
 {
     public class Crypt
     {
-        public int SaveRsaKeyPair(string serverPrivateKey, string clientPublicKey, DateTime expiration)
+        public async Task<int> SaveRsaKeyPair(string serverPrivateKey, string clientPublicKey, DateTime expiration)
         {
             using var db = new TmdbContext();
 
@@ -19,37 +20,37 @@ namespace TMServer.DataBase.Interaction
                 PublicClientKey = clientPublicKey,
                 Expiration = expiration,
             };
-            db.RsaCrypts.Add(rsa);
-            db.SaveChanges();
+            await db.RsaCrypts.AddAsync(rsa);
+            await db.SaveChangesAsync();
 
             return rsa.Id;
         }
 
-        public DBRsa? GetRsaKeysById(int rsaId)
+        public async Task<DBRsa?> GetRsaKeysById(int rsaId)
         {
             using var db = new TmdbContext();
             var now = DateTime.UtcNow;
-            return db.RsaCrypts.SingleOrDefault(rsa => rsa.Id == rsaId && rsa.Expiration > now);
+            return await db.RsaCrypts.SingleOrDefaultAsync(rsa => rsa.Id == rsaId && rsa.Expiration > now);
         }
 
-        public void SetDeprecated(int cryptId)
+        public async Task SetDeprecated(int cryptId)
         {
             using var db = new TmdbContext();
 
-            var aes = db.AesCrypts.Find(cryptId);
+            var aes = await db.AesCrypts.FindAsync(cryptId);
 
             if (aes != null)
-                aes.Expiration = DateTime.UtcNow+TimeSpan.FromHours(1);
+                aes.Expiration = DateTime.UtcNow + TimeSpan.FromHours(1);
 
-            db.SaveChanges();
+            await db.SaveChangesAsync();
         }
 
-        public byte[]? GetAesKey(int cryptId)
+        public async Task<byte[]?> GetAesKey(int cryptId)
         {
             using var db = new TmdbContext();
 
-            var dbAes = db.AesCrypts.SingleOrDefault(a =>
-            a.Id == cryptId && a.Expiration>DateTime.UtcNow);
+            var dbAes = await db.AesCrypts.SingleOrDefaultAsync(a =>
+            a.Id == cryptId && a.Expiration > DateTime.UtcNow);
             if (dbAes == null)
                 return null;
 
