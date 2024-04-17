@@ -68,16 +68,16 @@ namespace TMServer.ServerComponent.Files
         {
             while (IsRunning)
             {
-                await Listener.GetContextAsync().ContinueWith(HandleRequest);
+                var context = await Listener.GetContextAsync();
+                await HandleRequest(context);
             }
             Listener.Stop();
 
 
         }
 
-        private async Task HandleRequest(Task<HttpListenerContext> contextTask)
+        private async Task HandleRequest(HttpListenerContext context)
         {
-            var context = await contextTask.ConfigureAwait(false);
             Logger.Log($"file {context.Request.Url} requested");
             try
             {

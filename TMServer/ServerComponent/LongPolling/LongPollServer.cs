@@ -49,10 +49,10 @@ namespace TMServer.ServerComponent.LongPolling
         }
         private async void DBUpdateForUser(object? sender, int userId)
         {
-           await RespondOnSaved(userId);
+            await RespondOnSaved(userId);
         }
 
-        public Notification? LongPollArrived(ApiData<LongPollingRequest> request, IPacketInfo info, Func<byte[],Task<bool>> replyFunc)
+        public async Task<Notification?> LongPollArrived(ApiData<LongPollingRequest> request, IPacketInfo info, Func<byte[], Task<bool>> replyFunc)
         {
             if (ResponseInfos.TryRemove(request.UserId, out var responseInfo) &&
                 responseInfo.Id == request.Data.PreviousLongPollId)
@@ -60,29 +60,30 @@ namespace TMServer.ServerComponent.LongPolling
                 LongPollHandler.Clear(responseInfo);
             }
 
-            if (LongPollHandler.IsHaveNotifications(request.UserId))
-                return GetNotification(request.UserId);
+            if (await LongPollHandler.IsHaveNotifications(request.UserId))
+                return await GetNotification(request.UserId);
 
 
             Requests.TryRemove(request.UserId, out _);
-            Requests.TryAdd(request.UserId, ((IPacket<IRequestContainer>)info,replyFunc), LongPollLifetime);
+            Requests.TryAdd(request.UserId, ((IPacket<IRequestContainer>)info, replyFunc), LongPollLifetime);
             return null;
         }
         private async Task RespondOnSaved(int userId)
         {
             if (!Requests.TryRemove(userId, out var requestInfo))
                 return;
-            await Responder.ResponseManually(requestInfo.packet, GetNotification(userId),requestInfo.replyFunc);
+            var notification = await GetNotification(userId);
+            await Responder.ResponseManually(requestInfo.packet, notification, requestInfo.replyFunc);
         }
 
-        private Notification GetNotification(int userId)
+        private async Task<Notification> GetNotification(int userId)
         {
-            var (notification, info) = LongPollHandler.GetUpdates(userId);
+            var (notification, info) = await LongPollHandler.GetUpdates(userId);
             ResponseInfos.TryAdd(userId, info, LongPollLifetime);
             return notification;
         }
 
-        public void RegisterRequestHandler<TRequest, TResponse> (Func<ApiData<TRequest>, IPacketInfo, Func<byte[], Task<bool>>, Task<TResponse?>> func)
+        public void RegisterRequestHandler<TRequest, TResponse>(Func<ApiData<TRequest>, IPacketInfo, Func<byte[], Task<bool>>, Task<TResponse?>> func)
             where TRequest : ISerializable<TRequest>, new()
             where TResponse : ISerializable<TResponse>, new()
         {
@@ -94,12 +95,12 @@ namespace TMServer.ServerComponent.LongPolling
                                                          where TRequest : ISerializable<TRequest>, new()
                                                          where TResponse : ISerializable<TResponse>, new()
         {
-            return new Func<ApiData<TRequest>, IPacketInfo, Func<byte[], Task<bool>>, Task<TResponse?>>(async (request, info,replyFunc) =>
+            return new Func<ApiData<TRequest>, IPacketInfo, Func<byte[], Task<bool>>, Task<TResponse?>>(async (request, info, replyFunc) =>
             {
                 if (await IsRequestLegal(request))
                 {
                     Logger.Log(request);
-                    return await func(request, info,replyFunc);
+                    return await func(request, info, replyFunc);
                 }
                 return default;
             });

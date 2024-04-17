@@ -65,7 +65,7 @@ namespace TMServer.ServerComponent.Info
             return false;
         }
 
-        private ServerInfo? GetInfo(ServerInfoRequest request, IPacketInfo info)
+        private Task<ServerInfo?> GetInfo(ServerInfoRequest request, IPacketInfo info)
         {
             Logger.Log($"inf request from {info.Source?.ToString()}");
             var (longPollPort, longPollPeriod) = GetLongPollInfo();
@@ -75,10 +75,10 @@ namespace TMServer.ServerComponent.Info
             if (longPollPort < 0 || longPollPeriod < 0 || uploadPort < 0 ||
                 downloadPort < 0 || apiPort < 0 || authPort < 0)
             {
-                return null;
+                return Task.FromResult<ServerInfo?>(null);
             }
 
-            return new ServerInfo()
+            return Task.FromResult<ServerInfo?>(new ServerInfo()
             {
                 AuthPort = authPort,
                 ApiPort = apiPort,
@@ -86,10 +86,10 @@ namespace TMServer.ServerComponent.Info
                 LongPollPeriodSeconds = longPollPeriod,
                 FileUploadPort = uploadPort,
                 FileGetPort = downloadPort,
-                MaxAttachments= MaxAttachments,
-                MaxFileSizeMB= MaxFileSizeMB,
+                MaxAttachments = MaxAttachments,
+                MaxFileSizeMB = MaxFileSizeMB,
                 Version = Version,
-            };
+            });
         }
         private int GetAuthPort()
         {

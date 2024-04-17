@@ -12,48 +12,44 @@ namespace TMServer.RequestHandlers
         private readonly Users Users;
         private readonly Chats Chats;
         private readonly Friends Friends;
-        private readonly Files Files;
         private readonly DbConverter Converter;
 
-        public UsersHandler(Users users, Chats chats, Friends friends, Files files, DbConverter converter)
+        public UsersHandler(Users users, Chats chats, Friends friends, DbConverter converter)
         {
             Users = users;
             Chats = chats;
             Friends = friends;
-            Files = files;
             Converter = converter;
         }
-        public UserInfo? GetUserInfo(ApiData<UserFullRequest> id)
+        public async Task<UserInfo?> GetUserInfo(ApiData<UserFullRequest> id)
         {
-            var user = Users.GetUserWithFriends(id.UserId);
+            var user = await Users.GetUserWithFriends(id.UserId);
             if (user == null)
                 return null;
-
-            var friends = Converter.Convert(user.GetFriends().ToArray());
 
             return new UserInfo()
             {
                 Chats = user.Chats.Select(c => c.Id).ToArray(),
-                Friends = friends,
-                FriendRequests = Friends.GetAllForUser(id.UserId),
-                ChatInvites = Chats.GetAllChatInvites(id.UserId),
-                MainInfo = Converter.Convert(user),
+                Friends = await Converter.Convert(user.GetFriends().ToArray()),
+                FriendRequests = await Friends.GetAllForUser(id.UserId),
+                ChatInvites = await Chats.GetAllChatInvites(id.UserId),
+                MainInfo = await Converter.Convert(user),
             };
         }
 
-        public SerializableArray<User> GetUsers(ApiData<UserRequest> ids)
+        public async Task<SerializableArray<User>> GetUsers(ApiData<UserRequest> ids)
         {
-            var users = Users.GetUserMain(ids.Data.Ids);
+            var users =await Users.GetUserMain(ids.Data.Ids);
             if (users.Length == 0)
                 return new SerializableArray<User>([]);
-            return new SerializableArray<User>(Converter.Convert(users));
+            return new SerializableArray<User>(await Converter.Convert(users));
         }
 
-        public User? ChangeUserName(ApiData<ChangeNameRequest> request)
+        public async Task<User?> ChangeUserName(ApiData<ChangeNameRequest> request)
         {
             if (!DataConstraints.IsNameLegal(request.Data.NewName))
                 return null;
-            var user = Users.ChangeName(request.UserId, request.Data.NewName);
+            var user =await Users.ChangeName(request.UserId, request.Data.NewName);
             if (user == null)
                 return null;
             return Converter.Convert(user, null);

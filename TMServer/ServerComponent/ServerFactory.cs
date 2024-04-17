@@ -62,7 +62,7 @@ namespace TMServer.ServerComponent
             FileHandler = new FileHandler(Files, Chats, Users, Messages, Security, Converter);
             MessagesHandler = new MessagesHandler(Security, Messages, Converter);
             SearchHandler = new SearchHandler(Users, Converter);
-            UsersHandler = new UsersHandler(Users, Chats, Friends, Files, Converter);
+            UsersHandler = new UsersHandler(Users, Chats, Friends, Converter);
             MaxFileSizeMB = maxFileSizeMB;
             MaxFiles = maxFiles;
             Logger = logger;

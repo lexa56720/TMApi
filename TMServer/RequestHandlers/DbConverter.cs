@@ -25,9 +25,9 @@ namespace TMServer.RequestHandlers
             Files = files;
         }
 
-        public Chat Convert(DBChat chat, int unreadCount)
+        public async Task<Chat> Convert(DBChat chat, int unreadCount)
         {
-            return Convert(chat, unreadCount, Files.GetImageSetWithoutData(chat.CoverImageId));
+            return Convert(chat, unreadCount, await Files.GetImageSetWithoutData(chat.CoverImageId));
         }
         public Chat Convert(DBChat chat, int unreadCount, DBImageSet? cover)
         {
@@ -47,16 +47,16 @@ namespace TMServer.RequestHandlers
                 IsDialogue = chat.IsDialogue,
             };
         }
-        public Chat[] Convert(DBChat[] chats, int[] unreadCounts)
+        public async Task<Chat[]> Convert(DBChat[] chats, int[] unreadCounts)
         {
-            var covers = Files.GetImageSetWithoutData(chats.Select(u => u.CoverImageId).ToArray());
+            var covers = await Files.GetImageSetWithoutData(chats.Select(u => u.CoverImageId).ToArray());
             var result = new Chat[chats.Length];
             for (int i = 0; i < chats.Length; i++)
                 result[i] = Convert(chats[i], unreadCounts[i], covers[i]);
             return result;
         }
 
-        public Message Convert(DBMessage dbMessage, bool isReaded)
+        public async Task<Message> Convert(DBMessage dbMessage, bool isReaded)
         {
             if (dbMessage.IsSystem && dbMessage.Action != null)
             {
@@ -65,22 +65,23 @@ namespace TMServer.RequestHandlers
                                  dbMessage.Action.ExecutorId, dbMessage.Action.TargetId == null ? -1 : dbMessage.Action.TargetId.Value);
             }
 
-            var (images, files) = GetMessageAttachments(dbMessage.Attachments.ToArray());
+            var (images, files) = await GetMessageAttachments(dbMessage.Attachments.ToArray());
             return new Message(dbMessage.Id, dbMessage.AuthorId, dbMessage.DestinationId,
                                dbMessage.Content, dbMessage.SendTime, isReaded, images, files);
         }
-        public Message[] Convert(DBMessage[] dbMessages, bool[] isReaded)
+
+        public async Task<Message[]> Convert(DBMessage[] dbMessages, bool[] isReaded)
         {
             var result = new Message[dbMessages.Length];
             for (int i = 0; i < dbMessages.Length; i++)
-                result[i] = Convert(dbMessages[i], isReaded[i]);
+                result[i] = await Convert(dbMessages[i], isReaded[i]);
 
             return result;
         }
 
-        public User Convert(DBUser user)
+        public async Task<User> Convert(DBUser user)
         {
-            return Convert(user, Files.GetImageSetWithoutData(user.ProfileImageId));
+            return Convert(user, await Files.GetImageSetWithoutData(user.ProfileImageId));
         }
         public User Convert(DBUser dBUser, DBImageSet? profilePic)
         {
@@ -98,9 +99,10 @@ namespace TMServer.RequestHandlers
                 ProfilePics = pics,
             };
         }
-        public User[] Convert(DBUser[] users)
+        public async Task<User[]> Convert(DBUser[] users)
         {
-            var profilePics = Files.GetImageSetWithoutData(users.Select(u => u.ProfileImageId).ToArray());
+            var profilePics = await Files.GetImageSetWithoutData(users.Select(u => u.ProfileImageId)
+                                                                     .ToArray());
             var result = new User[users.Length];
             for (int i = 0; i < users.Length; i++)
                 result[i] = Convert(users[i], profilePics[i]);
@@ -171,23 +173,25 @@ namespace TMServer.RequestHandlers
             };
         }
 
-        private (PhotoLink[], FileLink[]) GetMessageAttachments(DBMessageAttachments[] attachments)
+        private async Task<(PhotoLink[], FileLink[])> GetMessageAttachments(DBMessageAttachments[] attachments)
         {
             var images = new List<int>();
             var files = new List<int>();
 
             foreach (var attachment in attachments)
             {
-                if (attachment.Kind == AttachmentKind.Image)
+                switch (attachment.Kind)
                 {
-                    images.Add(attachment.AttachmentId);
-                }
-                else if (attachment.Kind == AttachmentKind.File)
-                {
-                    files.Add(attachment.AttachmentId);
+                    case AttachmentKind.Image:
+                        images.Add(attachment.AttachmentId);
+                        break;
+                    case AttachmentKind.File:
+                        files.Add(attachment.AttachmentId);
+                        break;
                 }
             }
-            return (Convert(Files.GetImageWithoutData(images)), Convert(Files.GetFilesWithoutData(files)));
+            return (Convert(await Files.GetImageWithoutData(images)),
+                    Convert(await Files.GetFilesWithoutData(files)));
         }
     }
 }

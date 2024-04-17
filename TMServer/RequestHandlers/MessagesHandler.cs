@@ -21,73 +21,72 @@ namespace TMServer.RequestHandlers
             Messages = messages;
             Converter = converter;
         }
-        public Message? NewMessage(ApiData<MessageSendRequest> request)
+        public async Task<Message?> NewMessage(ApiData<MessageSendRequest> request)
         {
             if (!DataConstraints.IsMessageLegal(request.Data.Text) ||
-                !Security.IsMemberOfChat(request.UserId, request.Data.DestinationId))
+                !await Security.IsMemberOfChat(request.UserId, request.Data.DestinationId))
                 return null;
 
-            var dbMessage = Messages.AddMessage(request.UserId, request.Data.Text, request.Data.DestinationId);
-            Messages.AddToUnread(dbMessage.Id, dbMessage.DestinationId);
-            var isReaded = Messages.IsMessageReaded(request.UserId, dbMessage.Id);
+            var dbMessage = await Messages.AddMessage(request.UserId, request.Data.Text, request.Data.DestinationId);
+            await Messages.AddToUnread(dbMessage.Id, dbMessage.DestinationId);
+            var isReaded = await Messages.IsMessageReaded(request.UserId, dbMessage.Id);
 
-            Messages.ReadAllInChat(request.UserId, request.Data.DestinationId);
-            return Converter.Convert(dbMessage, isReaded);
+            await Messages.ReadAllInChat(request.UserId, request.Data.DestinationId);
+            return await Converter.Convert(dbMessage, isReaded);
         }
-        public MessageHistoryResponse? GetMessagesByOffset(ApiData<LastMessagesRequest> request)
+        public async Task<MessageHistoryResponse?> GetMessagesByOffset(ApiData<LastMessagesRequest> request)
         {
-            if (!Security.IsMemberOfChat(request.UserId, request.Data.ChatId))
+            if (!await Security.IsMemberOfChat(request.UserId, request.Data.ChatId))
                 return null;
 
-            var dbMessages = Messages.GetMessages(request.Data.ChatId, request.Data.Offset, request.Data.MaxCount);
-            var isReaded = Messages.IsMessageReaded(request.UserId, dbMessages.Select(m => m.Id));
+            var dbMessages = await Messages.GetMessages(request.Data.ChatId, request.Data.Offset, request.Data.MaxCount);
+            var isReaded = await Messages.IsMessageReaded(request.UserId, dbMessages.Select(m => m.Id));
             return new MessageHistoryResponse()
             {
                 FromId = request.Data.ChatId,
-                Messages = Converter.Convert(dbMessages, isReaded)
+                Messages = await Converter.Convert(dbMessages, isReaded)
             };
         }
-        public MessageHistoryResponse? GetMessagesByLastId(ApiData<MessageHistoryRequest> request)
+        public async Task<MessageHistoryResponse?> GetMessagesByLastId(ApiData<MessageHistoryRequest> request)
         {
-            if (!Security.IsMemberOfChat(request.UserId, request.Data.ChatId))
+            if (!await Security.IsMemberOfChat(request.UserId, request.Data.ChatId))
                 return null;
 
-            var dbMessages = Messages.GetMessages(request.Data.ChatId, 0, request.Data.MaxCount, request.Data.LastMessageId);
+            var dbMessages = await Messages.GetMessages(request.Data.ChatId, 0, request.Data.MaxCount, request.Data.LastMessageId);
 
-            var isReaded = Messages.IsMessageReaded(request.UserId, dbMessages.Select(m => m.Id));
+            var isReaded = await Messages.IsMessageReaded(request.UserId, dbMessages.Select(m => m.Id));
 
             return new MessageHistoryResponse()
             {
                 FromId = request.Data.ChatId,
-                Messages = Converter.Convert(dbMessages, isReaded)
+                Messages = await Converter.Convert(dbMessages, isReaded)
             };
         }
-        public SerializableArray<Message>? GetMessagesById(ApiData<MessageRequestById> request)
+        public async Task<SerializableArray<Message>?> GetMessagesById(ApiData<MessageRequestById> request)
         {
-            if (!Security.IsHaveAccessToMessages(request.UserId, request.Data.Ids))
+            if (!await Security.IsHaveAccessToMessages(request.UserId, request.Data.Ids))
                 return null;
 
-            var dbMessages = Messages.GetMessages(request.Data.Ids);
-            var isReaded = Messages.IsMessageReaded(request.UserId, dbMessages.Select(m => m.Id));
+            var dbMessages = await Messages.GetMessages(request.Data.Ids);
+            var isReaded = await Messages.IsMessageReaded(request.UserId, dbMessages.Select(m => m.Id));
 
-            return new SerializableArray<Message>(Converter.Convert(dbMessages, isReaded));
+            return new SerializableArray<Message>(await Converter.Convert(dbMessages, isReaded));
         }
 
-        public SerializableArray<Message>? GetMessagesByChatIds(ApiData<MessageRequestByChats> request)
+        public async Task<SerializableArray<Message>?> GetMessagesByChatIds(ApiData<MessageRequestByChats> request)
         {
-            if (!Security.IsHaveAccessToChat(request.Data.Ids, request.UserId))
+            if (!await Security.IsHaveAccessToChat(request.Data.Ids, request.UserId))
                 return null;
-            var dbMessages = Messages.GetLastMessages(request.Data.Ids);
-            var isReaded = Messages.IsMessageReaded(request.UserId, dbMessages.Select(m => m.Id));
+            var dbMessages = await Messages.GetLastMessages(request.Data.Ids);
+            var isReaded = await Messages.IsMessageReaded(request.UserId, dbMessages.Select(m => m.Id));
 
-
-            return new SerializableArray<Message>(Converter.Convert(dbMessages, isReaded));
+            return new SerializableArray<Message>(await Converter.Convert(dbMessages, isReaded));
         }
 
-        public void MarkAsReaded(ApiData<MarkAsReaded> request)
+        public async Task MarkAsReaded(ApiData<MarkAsReaded> request)
         {
-            if (Security.IsCanMarkAsReaded(request.UserId, request.Data.MessageIds))
-                Messages.MarkAsReaded(request.UserId, request.Data.MessageIds);
+            if (await Security.IsCanMarkAsReaded(request.UserId, request.Data.MessageIds))
+                await Messages.MarkAsReaded(request.UserId, request.Data.MessageIds);
         }
 
     }

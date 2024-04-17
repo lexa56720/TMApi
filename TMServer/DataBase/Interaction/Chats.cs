@@ -37,7 +37,7 @@ namespace TMServer.DataBase.Interaction
             await db.SaveChangesAsync(true);
             return chat;
         }
-        public async void InviteToChat(int inviterId, int chatId, params int[] userIds)
+        public async Task InviteToChat(int inviterId, int chatId, params int[] userIds)
         {
             using var db = new TmdbContext();
 
@@ -67,12 +67,17 @@ namespace TMServer.DataBase.Interaction
         {
             using var db = new TmdbContext();
 
-            var counts = chatIds.Select(id => db.UnreadMessages.Include(um => um.Message)
-                                      .ThenInclude(m => m.Destination)
-                                      .Where(um => um.UserId == userId && id == um.Message.Destination.Id)
-                                      .CountAsync()).ToArray();
+            var result = new int[chatIds.Length];
+            for (int i = 0; i < result.Length; i++)
+            {
+                result[i] = await db.UnreadMessages
+                    .Include(um => um.Message)
+                    .ThenInclude(m => m.Destination)
+                    .Where(um => um.UserId == userId && chatIds[i] == um.Message.Destination.Id)
+                    .CountAsync();
+            }
 
-            return await Task.WhenAll(counts);
+            return result;
         }
 
         public async Task<DBChat[]> GetAllChats(int userId)

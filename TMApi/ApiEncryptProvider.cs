@@ -44,23 +44,23 @@ namespace TMApi
         {
             return;
         }
-        public IEncrypter? GetDecrypter(ReadOnlySpan<byte> bytes)
+        public Task<IEncrypter?> GetDecrypter(Memory<byte> bytes)
         {
-            var cryptId = BitConverter.ToInt32(bytes.Slice(bytes.Length - 4, 4));
+            var cryptId = BitConverter.ToInt32(bytes.Slice(bytes.Length - 4, 4).Span);
             if (!Crypts.TryGetValue(cryptId, out var encrypter))
-                return null;
-            return encrypter;
+                return Task.FromResult<IEncrypter?>(null);
+            return Task.FromResult<IEncrypter?>(encrypter);
         }
-        public IEncrypter? GetEncrypter(IPacketInfo responsePacket, IPacketInfo? requestPacket = null)
+        public Task<IEncrypter?> GetEncrypter(IPacketInfo responsePacket, IPacketInfo? requestPacket = null)
         {
             if (responsePacket is not ITMPacket packet)
-                return null;
+                return Task.FromResult<IEncrypter?>(null);
 
             var (cryptId, aesCrypter) = GetLast();
             packet.Id = cryptId;
             if (packet is IPacket<IRequestContainer> castedPacket && castedPacket.Data.DataObj is IApiData apiData)
                 apiData.CryptId = cryptId;
-            return aesCrypter;
+            return Task.FromResult<IEncrypter?>(aesCrypter);
         }
 
         public (int cryptId, AesEncrypter encrypter) GetLast()

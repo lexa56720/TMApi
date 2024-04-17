@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace TMApi
 {
-    internal class AuthEncryptProvider:IEncryptProvider
+    internal class AuthEncryptProvider : IEncryptProvider
     {
         private bool IsDisposed;
         private readonly int CryptId;
@@ -51,20 +51,18 @@ namespace TMApi
         {
         }
 
-        public IEncrypter? GetDecrypter(ReadOnlySpan<byte> bytes)
+        public Task<IEncrypter?> GetDecrypter(Memory<byte> bytes)
         {
-
-            return Decrypter;
+            return Task.FromResult<IEncrypter?>(Decrypter);
         }
 
-        public IEncrypter? GetEncrypter(IPacketInfo responsePacket, IPacketInfo? requestPacket = null)
+        public Task<IEncrypter?> GetEncrypter(IPacketInfo responsePacket, IPacketInfo? requestPacket = null)
         {
             if (responsePacket is not ITMPacket packet)
                 throw new Exception("WRONG PACKET TYPE");
 
             packet.Id = CryptId;
-
-            return Encrypter;
+            return Task.FromResult<IEncrypter?>(Encrypter);
         }
     }
 }

@@ -194,7 +194,7 @@ namespace TMServer.DataBase.Interaction
         public bool IsValidImage(Image image)
         {
             if (image.Width >= 64 && image.Height >= 64 && 
-                image.Width <= 2048 && image.Height <= 2048)
+                image.Width <= 4096 && image.Height <= 4096)
                 return true;
 
             image.Dispose();

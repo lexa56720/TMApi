@@ -130,18 +130,20 @@ namespace TMServer.DataBase.Interaction
                            .Take(count)
                            .ToArrayAsync();
         }
-        public async Task<DBMessage[]> GetLastMessages(int[] chatId)
+        public async Task<DBMessage[]> GetLastMessages(int[] chatIds)
         {
             using var db = new TmdbContext();
 
-            var messages = chatId.Select(id => db.Messages.Where(m => m.DestinationId == id && !m.IsSystem).ToArrayAsync());
+            var messages = new List<DBMessage>(chatIds.Length);
+            for (int i = 0; i < chatIds.Length; i++)
+            {
+                var message = await db.Messages.OrderBy(m => m.Id)
+                                               .LastOrDefaultAsync(m => m.DestinationId == chatIds[i] && !m.IsSystem);
+                if (message != null)
+                    messages.Add(message);
+            }
 
-            var queredMessages = await Task.WhenAll(messages);
-            if (queredMessages == null)
-                return [];
-            return queredMessages.Select(m => m.MaxBy(x => x.Id))
-                                 .Where(m => m != null)
-                                 .ToArray();
+            return messages.ToArray();
         }
         public async Task<DBMessage[]> GetMessages(int chatId, int offset, int count, int lastMessageId)
         {

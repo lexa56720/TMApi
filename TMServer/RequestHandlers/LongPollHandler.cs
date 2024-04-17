@@ -16,21 +16,21 @@ namespace TMServer.RequestHandlers
         {
             LongPolling = longPolling;
         }
-        public (Notification notification, LongPollResponseInfo info) GetUpdates(int userId)
+        public async Task<(Notification notification, LongPollResponseInfo info)> GetUpdates(int userId)
         {
             var id = Random.Next();
 
-            var newMessages = LongPolling.GetMessageUpdate(userId);
-            var readedMessages = LongPolling.GetMessagesWithUpdatedStatus(userId);
+            var newMessages =await LongPolling.GetMessageUpdate(userId);
+            var readedMessages = await LongPolling.GetMessagesWithUpdatedStatus(userId);
 
-            var friendRequests = LongPolling.GetFriendRequestUpdates(userId);
-            var friendListUpdates = LongPolling.GetFriendListUpdates(userId);
-            var onlineUpdates = LongPolling.GetOnlineUpdates(userId);
-            var relatedUsersChanged = LongPolling.GetRelatedUsersUpdates(userId);
+            var friendRequests = await LongPolling.GetFriendRequestUpdates(userId);
+            var friendListUpdates = await LongPolling.GetFriendListUpdates(userId);
+            var onlineUpdates = await LongPolling.GetOnlineUpdates(userId);
+            var relatedUsersChanged = await LongPolling.GetRelatedUsersUpdates(userId);
 
-            var chatListUpdates = LongPolling.GetChatListUpdates(userId);
-            var chatsChanged = LongPolling.GetChatUpdates(userId);
-            var chatInvites = LongPolling.GetChatInvites(userId);
+            var chatListUpdates = await LongPolling.GetChatListUpdates(userId);
+            var chatsChanged = await LongPolling.GetChatUpdates(userId);
+            var chatInvites = await LongPolling.GetChatInvites(userId);
 
             var info = new LongPollResponseInfo()
             {
@@ -100,13 +100,13 @@ namespace TMServer.RequestHandlers
         {
             return updates.Select(u => u.Id).ToArray();
         }
-        public void Clear(LongPollResponseInfo info)
+        public async void Clear(LongPollResponseInfo info)
         {
-            LongPolling.ClearUpdatesByIds(info);
+          await  LongPolling.ClearUpdatesByIds(info);
         }
-        public bool IsHaveNotifications(int userId)
+        public async Task<bool> IsHaveNotifications(int userId)
         {
-            return LongPolling.IsHaveUpdates(userId);
+            return await LongPolling.IsHaveUpdates(userId);
         }
     }
 

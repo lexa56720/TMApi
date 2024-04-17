@@ -26,32 +26,32 @@ namespace TMServer.ServerComponent.Auth
             encrypter.Dispose();
         }
 
-        public IEncrypter? GetDecrypter(ReadOnlySpan<byte> bytes)
+        public async Task<IEncrypter?> GetDecrypter(Memory<byte> bytes)
         {
-            var cryptId = BitConverter.ToInt32(bytes.Slice(bytes.Length - sizeof(int), sizeof(int)));
+            var cryptId = BitConverter.ToInt32(bytes.Slice(bytes.Length - sizeof(int), sizeof(int)).Span);
             if (cryptId == 0)
                 return null;
-            var keys = Crypt.GetRsaKeysById(cryptId);
+            var keys =await Crypt.GetRsaKeysById(cryptId);
             if (keys == null)
                 return null;
             var rsaDecrypter = new RsaEncrypter(keys.PrivateServerKey);
             return rsaDecrypter;
         }
-        public IEncrypter? GetEncrypter(IPacketInfo responsePacket, IPacketInfo? requestPacket)
+        public async Task<IEncrypter?> GetEncrypter(IPacketInfo responsePacket, IPacketInfo? requestPacket)
         {
             if (requestPacket == null || IsInitPacket(requestPacket))
                 return null;
 
-            var keys = GetKeys(requestPacket);
+            var keys =await GetKeys(requestPacket);
             if (keys == null)
                 return null;
             var rsaDecrypter = new RsaEncrypter(keys.PublicClientKey);
             return rsaDecrypter;
         }
 
-        private DBRsa? GetKeys(IPacketInfo packet)
+        private async Task<DBRsa?> GetKeys(IPacketInfo packet)
         {
-            return Crypt.GetRsaKeysById(((ITMPacket)packet).Id);
+            return await Crypt.GetRsaKeysById(((ITMPacket)packet).Id);
         }
         private bool IsInitPacket(IPacketInfo packet)
         {

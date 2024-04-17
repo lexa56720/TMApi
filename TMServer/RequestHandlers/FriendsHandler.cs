@@ -20,51 +20,51 @@ namespace TMServer.RequestHandlers
             Friends = friends;
             Converter = converter;
         }
-        public SerializableArray<FriendRequest>? GetFriendRequests(ApiData<GetFriendRequests> request)
+        public async Task<SerializableArray<FriendRequest>?> GetFriendRequests(ApiData<GetFriendRequests> request)
         {
-            if (!Security.IsHaveAccessToRequest(request.UserId, request.Data.Ids))
+            if (!await Security.IsHaveAccessToRequest(request.UserId, request.Data.Ids))
                 return null;
 
-            var converted = Converter.Convert(Friends.GetFriendRequest(request.Data.Ids).ToArray());
+            var converted = Converter.Convert((await Friends.GetFriendRequest(request.Data.Ids)).ToArray());
             if (converted.Length == 0)
                 return new SerializableArray<FriendRequest>([]);
 
             return new SerializableArray<FriendRequest>(converted);
         }
 
-        public void AddFriendRequest(ApiData<FriendRequest> request)
+        public async Task AddFriendRequest(ApiData<FriendRequest> request)
         {
-            if (!Security.IsFriendshipPossible(request.UserId, request.Data.ToId))
+            if (!await Security.IsFriendshipPossible(request.UserId, request.Data.ToId))
                 return;
 
-            if (Security.IsExistOppositeRequest(request.UserId, request.Data.ToId))
+            if (await Security.IsExistOppositeRequest(request.UserId, request.Data.ToId))
             {
-                Friends.RemoveFriendRequest(request.Data.ToId, request.UserId);
-                Friends.RegisterFriends(request.UserId, request.Data.ToId);
+                await Friends.RemoveFriendRequest(request.Data.ToId, request.UserId);
+                await Friends.RegisterFriends(request.UserId, request.Data.ToId);
             }
             else
-                Friends.RegisterFriendRequest(request.UserId, request.Data.ToId);
+                await Friends.RegisterFriendRequest(request.UserId, request.Data.ToId);
         }
-        public void FriendRequestResponse(ApiData<RequestResponse> request)
+        public async Task FriendRequestResponse(ApiData<RequestResponse> request)
         {
-            if (!Security.IsExistFriendRequest(request.Data.RequestId, request.UserId))
+            if (!await Security.IsExistFriendRequest(request.Data.RequestId, request.UserId))
                 return;
 
-            var dbRequest = Friends.RemoveFriendRequest(request.Data.RequestId);
+            var dbRequest = await Friends.RemoveFriendRequest(request.Data.RequestId);
             if (request.Data.IsAccepted)
-                Friends.RegisterFriends(dbRequest.SenderId, dbRequest.ReceiverId);
+                await Friends.RegisterFriends(dbRequest.SenderId, dbRequest.ReceiverId);
         }
 
-        public IntArrayContainer? GetAllFriendRequests(ApiData<GetAllFriendRequests> request)
+        public async Task<IntArrayContainer?> GetAllFriendRequests(ApiData<GetAllFriendRequests> request)
         {
-            return new IntArrayContainer(Friends.GetAllForUser(request.UserId));
+            return new IntArrayContainer(await Friends.GetAllForUser(request.UserId));
         }
 
-        internal void RemoveFriend(ApiData<FriendRemoveRequest> request)
+        internal async Task RemoveFriend(ApiData<FriendRemoveRequest> request)
         {
-            if (!Security.IsFriends(request.UserId, request.Data.FriendId))
+            if (!await Security.IsFriends(request.UserId, request.Data.FriendId))
                 return;
-            Friends.RemoveFriend(request.UserId, request.Data.FriendId);
+            await Friends.RemoveFriend(request.UserId, request.Data.FriendId);
         }
     }
 }

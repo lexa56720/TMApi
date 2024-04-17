@@ -23,9 +23,9 @@ namespace TMServer.RequestHandlers
             Converter = converter;
         }
 
-        public Chat? CreateChat(ApiData<ChatCreationRequest> request)
+        public async Task<Chat?> CreateChat(ApiData<ChatCreationRequest> request)
         {
-            if (!Security.IsCanCreateChat(request.UserId, request.Data.Members))
+            if (!await Security.IsCanCreateChat(request.UserId, request.Data.Members))
                 return null;
 
             var members = new List<int>(request.Data.Members);
@@ -34,86 +34,86 @@ namespace TMServer.RequestHandlers
             if (members.Count < 2 || !DataConstraints.IsNameLegal(request.Data.ChatName))
                 return null;
 
-            var chat = Chats.CreateChat(request.Data.ChatName, members.ToArray());
-            return Converter.Convert(chat, 0);
+            var chat = await Chats.CreateChat(request.Data.ChatName, members.ToArray());
+            return await Converter.Convert(chat, 0);
         }
 
-        public SerializableArray<Chat>? GetChats(ApiData<ChatRequest> request)
+        public async Task<SerializableArray<Chat>?> GetChats(ApiData<ChatRequest> request)
         {
-            if (!Security.IsHaveAccessToChat(request.Data.Ids, request.UserId))
+            if (!await Security.IsHaveAccessToChat(request.Data.Ids, request.UserId))
                 return null;
 
-            var chats = Chats.GetChat(request.Data.Ids);
-            if (chats.Length == 0)
+            var chats = await Chats.GetChat(request.Data.Ids);
+            if (chats == null || chats.Length == 0)
                 return new SerializableArray<Chat>([]);
 
-            var unreadCount = Chats.GetUnreadCount(request.UserId, request.Data.Ids);
-            return new SerializableArray<Chat>(Converter.Convert(chats, unreadCount));
+            var unreadCount = await Chats.GetUnreadCount(request.UserId, request.Data.Ids);
+            return new SerializableArray<Chat>(await Converter.Convert(chats, unreadCount));
         }
 
-        public SerializableArray<ChatInvite> GetChatInvites(ApiData<InviteRequest> request)
+        public async Task<SerializableArray<ChatInvite>> GetChatInvites(ApiData<InviteRequest> request)
         {
-            var invites = Chats.GetInvite(request.Data.Ids, request.UserId);
+            var invites = await Chats.GetInvite(request.Data.Ids, request.UserId);
             if (invites.Length == 0)
                 return new SerializableArray<ChatInvite>([]);
 
             return new SerializableArray<ChatInvite>(Converter.Convert(invites));
         }
 
-        public void ChatInviteResponse(ApiData<ResponseToInvite> request)
+        public async Task ChatInviteResponse(ApiData<ResponseToInvite> request)
         {
-            if (!Security.IsInviteExist(request.Data.InviteId, request.UserId))
+            if (!await Security.IsInviteExist(request.Data.InviteId, request.UserId))
                 return;
 
-            var invite = Chats.RemoveInvite(request.Data.InviteId);
+            var invite = await Chats.RemoveInvite(request.Data.InviteId);
             if (!request.Data.IsAccepted)
                 return;
-            Chats.AddUserToChat(request.UserId, invite.ChatId);
+            await Chats.AddUserToChat(request.UserId, invite.ChatId);
         }
 
-        public IntArrayContainer? GetAllChatInvites(ApiData<InviteRequestAll> request)
+        public async Task<IntArrayContainer?> GetAllChatInvites(ApiData<InviteRequestAll> request)
         {
-            return new IntArrayContainer(Chats.GetAllChatInvites(request.UserId));
+            return new IntArrayContainer(await Chats.GetAllChatInvites(request.UserId));
         }
 
-        public void RegisterChatInvite(ApiData<InviteToChatRequest> request)
+        public async Task RegisterChatInvite(ApiData<InviteToChatRequest> request)
         {
-            if (!Security.IsCanInviteToChat(request.UserId, request.Data.UserIds, request.Data.ChatId))
+            if (!await Security.IsCanInviteToChat(request.UserId, request.Data.UserIds, request.Data.ChatId))
                 return;
 
-            Chats.InviteToChat(request.UserId, request.Data.ChatId, request.Data.UserIds);
+            await Chats.InviteToChat(request.UserId, request.Data.ChatId, request.Data.UserIds);
         }
 
-        public IntArrayContainer? GetAllChats(ApiData<ChatRequestAll> request)
+        public async Task<IntArrayContainer?> GetAllChats(ApiData<ChatRequestAll> request)
         {
-            var chats = Chats.GetAllChats(request.UserId);
+            var chats = await Chats.GetAllChats(request.UserId);
             if (chats.Length == 0)
                 return new IntArrayContainer();
             return new IntArrayContainer(chats.Select(c => c.Id).ToArray());
         }
 
-        internal void LeaveChat(ApiData<ChatLeaveRequest> request)
+        internal async Task LeaveChat(ApiData<ChatLeaveRequest> request)
         {
-            if (!Security.IsMemberOfChat(request.UserId, request.Data.ChatId))
+            if (!await Security.IsMemberOfChat(request.UserId, request.Data.ChatId))
                 return;
 
-            Chats.LeaveChat(request.UserId, request.Data.ChatId);
+            await Chats.LeaveChat(request.UserId, request.Data.ChatId);
         }
 
-        internal void ChangeName(ApiData<ChatChangeNameRequest> request)
+        internal async Task ChangeName(ApiData<ChatChangeNameRequest> request)
         {
-            if (!Security.IsAdminOfChat(request.UserId, request.Data.ChatId) ||
+            if (!await Security.IsAdminOfChat(request.UserId, request.Data.ChatId) ||
                 !DataConstraints.IsNameLegal(request.Data.NewName))
                 return;
-            Chats.Rename(request.Data.ChatId, request.UserId, request.Data.NewName);
+            await Chats.Rename(request.Data.ChatId, request.UserId, request.Data.NewName);
         }
 
-        internal void KickUser(ApiData<ChatKickRequest> request)
+        internal async Task KickUser(ApiData<ChatKickRequest> request)
         {
-            if (!Security.IsAdminOfChat(request.UserId, request.Data.ChatId) ||
+            if (!await Security.IsAdminOfChat(request.UserId, request.Data.ChatId) ||
                                         request.UserId == request.Data.UserId)
                 return;
-            Chats.Kick(request.Data.ChatId, request.UserId, request.Data.UserId);
+            await Chats.Kick(request.Data.ChatId, request.UserId, request.Data.UserId);
         }
     }
 }

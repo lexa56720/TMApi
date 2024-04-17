@@ -35,23 +35,23 @@ namespace TMServer.RequestHandlers
             Converter = converter;
             Security = security;
         }
-        public User? SetProfileImage(ApiData<ChangeProfileImageRequest> request)
+        public async Task<User?> SetProfileImage(ApiData<ChangeProfileImageRequest> request)
         {
-            using var image = IsValidImage(request.Data.ImageData,true);
+            using var image = IsValidImage(request.Data.ImageData, true);
             if (image == null)
                 return null;
 
-            var set = Files.AddImageAsSet(image);
+            var set = await Files.AddImageAsSet(image);
             if (set == null)
                 return null;
 
-            var user = Users.SetProfileImage(request.UserId, set.Id, out var prevId);
+            var (user, prevId) = await Users.SetProfileImage(request.UserId, set.Id);
 
             if (user == null)
                 return null;
 
             if (prevId > 0)
-                Files.RemoveSet(prevId);
+                await Files.RemoveSet(prevId);
 
             return Converter.Convert(user, set);
         }
@@ -98,30 +98,30 @@ namespace TMServer.RequestHandlers
             return ext != null && (ext == "png" || ext == "jpg" || ext == "jpeg");
         }
 
-        internal void SetChatCover(ApiData<ChagneCoverRequest> request)
+        internal async Task SetChatCover(ApiData<ChagneCoverRequest> request)
         {
-            if (!Security.IsAdminOfChat(request.UserId, request.Data.ChatId))
+            if (!await Security.IsAdminOfChat(request.UserId, request.Data.ChatId))
                 return;
 
-            using var image = IsValidImage(request.Data.NewCover,true);
+            using var image = IsValidImage(request.Data.NewCover, true);
             if (image == null)
                 return;
 
-            var set = Files.AddImageAsSet(image);
+            var set = await Files.AddImageAsSet(image);
             if (set == null)
                 return;
 
-            var chat = Chats.SetCover(request.UserId, request.Data.ChatId, set.Id, out var prevId);
+            var (chat, prevId) = await Chats.SetCover(request.UserId, request.Data.ChatId, set.Id);
             if (chat == null)
                 return;
 
             if (prevId > 0)
-                Files.RemoveSet(prevId);
+                await Files.RemoveSet(prevId);
         }
 
-        internal Message? MessageWithFiles(ApiData<MessageWithFilesSendRequest> request)
+        internal async Task<Message?> MessageWithFiles(ApiData<MessageWithFilesSendRequest> request)
         {
-            if (!Security.IsMessageWithFilesLegal(request.UserId,request.Data))
+            if (!await Security.IsMessageWithFilesLegal(request.UserId, request.Data))
                 return null;
 
             var images = new List<Image>();
@@ -131,24 +131,23 @@ namespace TMServer.RequestHandlers
                 if (IsHaveImageExtension(file))
                 {
                     var image = IsValidImage(file.Data, false);
-                    if (image != null)
-                    {
-                        images.Add(image);
+                    if (image == null)
                         continue;
-                    }
+                    images.Add(image);
                 }
-                files.Add(file);
+                else
+                    files.Add(file);
             }
 
-            var dbImages = Files.AddImages(images.ToArray());
-            var dbFiles = Files.AddFiles(files.ToArray());
+            var dbImages = await Files.AddImages(images.ToArray());
+            var dbFiles = await Files.AddFiles(files.ToArray());
 
-            var dbMessage = Messages.AddMessage(request.UserId, request.Data.Text, dbImages, dbFiles, request.Data.DestinationId);
-            Messages.AddToUnread(dbMessage.Id, dbMessage.DestinationId);
-            var isReaded = Messages.IsMessageReaded(request.UserId, dbMessage.Id);
+            var dbMessage = await Messages.AddMessage(request.UserId, request.Data.Text, dbImages, dbFiles, request.Data.DestinationId);
+            await Messages.AddToUnread(dbMessage.Id, dbMessage.DestinationId);
+            var isReaded = await Messages.IsMessageReaded(request.UserId, dbMessage.Id);
 
-            Messages.ReadAllInChat(request.UserId, request.Data.DestinationId);
-            return Converter.Convert(dbMessage, isReaded);
+            await Messages.ReadAllInChat(request.UserId, request.Data.DestinationId);
+            return await Converter.Convert(dbMessage, isReaded);
         }
     }
 }

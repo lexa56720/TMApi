@@ -22,20 +22,20 @@ namespace TMServer.RequestHandlers
             Users = users;
             Converter = converter;
         }
-        public SerializableArray<User> GetUserByName(ApiData<SearchRequest> request)
+        public async Task<SerializableArray<User>> GetUserByName(ApiData<SearchRequest> request)
         {
             if (!DataConstraints.IsSearchQueryValid(request.Data.SearchQuery))
                 return new SerializableArray<User>([]);
 
-            var users = Users.GetUserByName(request.Data.SearchQuery)
-                .UnionBy(Users.GetUserByLogin(request.Data.SearchQuery), u => u.Id)
+            var users = (await Users.GetUserByName(request.Data.SearchQuery))
+                .UnionBy(await Users.GetUserByLogin(request.Data.SearchQuery), u => u.Id)
                 .Where(u => u.Id != request.UserId)
                 .ToArray();
 
             if (users.Length == 0)
                 return new SerializableArray<User>([]);
 
-            return new SerializableArray<User>(Converter.Convert(users));
+            return new SerializableArray<User>(await Converter.Convert(users));
         }
     }
 }

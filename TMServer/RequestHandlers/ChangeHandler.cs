@@ -80,7 +80,7 @@ namespace TMServer.RequestHandlers
                 nameof(DBFriend) => await Changes.HandleNewFriend((DBFriend)entity.Entity, context),
                 nameof(DBChat) => await Changes.HandleNewChat((DBChat)entity.Entity, context),
                 nameof(DBChatUser) => await Changes.HandleNewChatMember((DBChatUser)entity.Entity, context),
-                nameof(DBChatInvite) => await awaitawait Changes.HandleNewChatInvite((DBChatInvite)entity.Entity, context),
+                nameof(DBChatInvite) => await Changes.HandleNewChatInvite((DBChatInvite)entity.Entity, context),
                 _ => [],
             };
         }

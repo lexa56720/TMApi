@@ -24,35 +24,35 @@ namespace TMServer.RequestHandlers
             Authentication = authentication;
         }
 
-        public RsaPublicKey RsaKeyTrade(RsaPublicKey clientKey)
+        public async Task<RsaPublicKey?> RsaKeyTrade(RsaPublicKey clientKey)
         {
             using var encrypter = new RsaEncrypter();
             var serverKey = encrypter.PublicKey;
 
-            var id = Crypt.SaveRsaKeyPair(encrypter.PrivateKey, clientKey.Key,
+            var id = await Crypt.SaveRsaKeyPair(encrypter.PrivateKey, clientKey.Key,
                                           DateTime.UtcNow + Settings.RsaLifeTime);
 
             return new RsaPublicKey(serverKey, id);
         }
 
-        public AuthorizationResponse Login(AuthorizationRequest request)
+        public async Task<AuthorizationResponse?> Login(AuthorizationRequest request)
         {
-            var id = Authentication.GetUserId(request.Login, request.Password);
+            var id = await Authentication.GetUserId(request.Login, request.Password);
             if (id < 0)
                 return new AuthorizationResponse()
                 {
                     IsSuccessful = false
                 };
-            LongPolling.ClearAllUpdates(id);
-            return GetAuthData(id);
+            await LongPolling.ClearAllUpdates(id);
+            return await GetAuthData(id);
         }
-        private AuthorizationResponse GetAuthData(int userId)
+        private async Task<AuthorizationResponse?> GetAuthData(int userId)
         {
             var token = HashGenerator.GetRandomString();
             var aesCrypter = new AesEncrypter();
             var expiration = DateTime.UtcNow.Add(Settings.TokenLifeTime);
 
-            var cryptId = Authentication.SaveAuth(userId, aesCrypter.Key, token, expiration);
+            var cryptId = await Authentication.SaveAuth(userId, aesCrypter.Key, token, expiration);
 
             return new AuthorizationResponse()
             {
@@ -65,39 +65,39 @@ namespace TMServer.RequestHandlers
             };
         }
 
-        public RegisterResponse Register(RegisterRequest request)
+        public async Task<RegisterResponse?> Register(RegisterRequest request)
         {
-            var isSuccsessful = DataConstraints.IsLoginLegal(request.Login) &&
-                                Authentication.IsLoginAvailable(request.Login);
+            var isSuccsessful = DataConstraints.IsLoginLegal(request.Login)
+                && await Authentication.IsLoginAvailable(request.Login);
 
             if (isSuccsessful)
             {
                 using var aes = new AesEncrypter();
-                Authentication.CreateUser(request.Username, request.Login, request.Password, aes.Key);
+                await Authentication.CreateUser(request.Username, request.Login, request.Password, aes.Key);
             }
 
             return new RegisterResponse(isSuccsessful);
         }
 
-        public AuthorizationResponse? UpdateAuth(ApiData<AuthUpdateRequest> request)
+        public async Task<AuthorizationResponse?> UpdateAuth(ApiData<AuthUpdateRequest> request)
         {
-            if(!Security.IsCryptIdCorrect(request.UserId, request.CryptId))
+            if (!await Security.IsCryptIdCorrect(request.UserId, request.CryptId))
                 return null;
-            Crypt.SetDeprecated(request.CryptId);
-            var newAuth = GetAuthData(request.UserId);
+            await Crypt.SetDeprecated(request.CryptId);
+            var newAuth = await GetAuthData(request.UserId);
             return newAuth;
         }
 
-        public AuthorizationResponse? ChangePassword(ApiData<ChangePasswordRequest> request)
+        public async Task<AuthorizationResponse?> ChangePassword(ApiData<ChangePasswordRequest> request)
         {
-            if (!Authentication.IsPasswordMatch(request.UserId, request.Data.CurrentPasswordHash)||
-                !Security.IsCryptIdCorrect(request.UserId,request.CryptId))
+            if (!await Authentication.IsPasswordMatch(request.UserId, request.Data.CurrentPasswordHash) ||
+                !await Security.IsCryptIdCorrect(request.UserId, request.CryptId))
                 return null;
-            var result = Authentication.ChangePassword(request.UserId, request.Data.NewPasswordHash);
+            var result = await Authentication.ChangePassword(request.UserId, request.Data.NewPasswordHash);
             if (result)
             {
-                Crypt.SetDeprecated(request.CryptId);
-                return GetAuthData(request.UserId);
+                await Crypt.SetDeprecated(request.CryptId);
+                return await GetAuthData(request.UserId);
             }
             return null;
         }
