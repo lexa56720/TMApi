@@ -48,18 +48,17 @@ namespace TMServer.RequestHandlers
         }
         private async Task<AuthorizationResponse?> GetAuthData(int userId)
         {
-            var token = HashGenerator.GetRandomString();
             var aesCrypter = new AesEncrypter();
 
-            var cryptId = await Authentication.SaveAuth(userId, aesCrypter.Key, token);
+            var (token,crypt) = await Authentication.SaveAuth(userId, aesCrypter.Key);
 
             return new AuthorizationResponse()
             {
-                AccessToken = token,
+                AccessToken = token.AccessToken,
                 AesKey = aesCrypter.Key,
-                Expiration = expiration,
+                Expiration =token.Expiration,
                 UserId = userId,
-                CryptId = cryptId,
+                CryptId = crypt.Id,
                 IsSuccessful = true
             };
         }

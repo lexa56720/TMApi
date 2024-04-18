@@ -47,7 +47,7 @@ namespace TMServer
 
             RunServices();
 
-            Thread.Sleep(1200);
+            Thread.Sleep(1500);
             Logger.Log("\n\n" + new string('*', 10) + "INITIALIZATION OVER" + new string('*', 10));
             Console.ReadLine();
         }
