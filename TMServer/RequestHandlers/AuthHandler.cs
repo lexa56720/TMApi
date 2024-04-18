@@ -50,9 +50,8 @@ namespace TMServer.RequestHandlers
         {
             var token = HashGenerator.GetRandomString();
             var aesCrypter = new AesEncrypter();
-            var expiration = DateTime.UtcNow.Add(Settings.TokenLifeTime);
 
-            var cryptId = await Authentication.SaveAuth(userId, aesCrypter.Key, token, expiration);
+            var cryptId = await Authentication.SaveAuth(userId, aesCrypter.Key, token);
 
             return new AuthorizationResponse()
             {

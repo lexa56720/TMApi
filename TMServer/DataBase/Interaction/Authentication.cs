@@ -1,5 +1,6 @@
 ﻿using ApiTypes.Shared;
 using Microsoft.EntityFrameworkCore;
+using PerformanceUtils.Collections;
 using TMServer.DataBase.Tables;
 
 namespace TMServer.DataBase.Interaction
@@ -8,9 +9,12 @@ namespace TMServer.DataBase.Interaction
     {
         private readonly string Salt;
 
-        public Authentication(string salt)
+        private readonly TimeSpan TokenLifeTime;
+
+        public Authentication(string salt,TimeSpan tokenLifeTime)
         {
             Salt = salt;
+            TokenLifeTime = tokenLifeTime;
         }
 
         public async Task<int> GetUserId(string login, string password)
@@ -45,8 +49,9 @@ namespace TMServer.DataBase.Interaction
             await AddAes(user.Id, aesKey);
         }
 
-        public async Task<int> SaveAuth(int userId, byte[] aesKey, string token, DateTime expiration)
+        public async Task<int> SaveAuth(int userId, byte[] aesKey, string token)
         {
+            var expiration = DateTime.UtcNow.Add(TokenLifeTime);
             await AddToken(userId, token, expiration);
             return await AddAes(userId, aesKey);
         }

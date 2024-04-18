@@ -19,7 +19,8 @@ namespace TMServer
         {
             Serializer.SerializerProvider = new ApiTypes.SerializerProvider();
             Logger = new ConsoleLogger();
-            Factory = new ServerFactory(Settings.PasswordSalt,
+            Factory = new ServerFactory(Settings.TokenLifeTime,
+                                        Settings.PasswordSalt,
                                         Settings.FilesFolder,
                                         Settings.ImagesFolder,
                                         Settings.MaxFileSizeMB,

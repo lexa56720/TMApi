@@ -40,9 +40,9 @@ namespace TMServer.ServerComponent
         private readonly int MaxFiles;
         private readonly ILogger Logger;
 
-        public ServerFactory(string salt, string filesPath, string imagesPath, int maxFileSizeMB, int maxFiles, ILogger logger)
+        public ServerFactory(TimeSpan tokenLifeTIme,string salt, string filesPath, string imagesPath, int maxFileSizeMB, int maxFiles, ILogger logger)
         {
-            Authentication = new Authentication(salt);
+            Authentication = new Authentication(salt,tokenLifeTIme);
 
             Crypt = new Crypt();
             Messages = new Messages();
