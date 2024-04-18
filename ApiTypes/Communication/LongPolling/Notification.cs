@@ -24,5 +24,22 @@ namespace ApiTypes.Communication.LongPolling
 
         public int[] RelatedUserChangedIds { get; set; } = [];
 
+        public bool IsAny()
+        {
+            return
+                RelatedUserOnlineIds.Length > 0
+                || RelatedUserOfflineIds.Length > 0
+                || NewMessagesIds.Length > 0
+                || ReadedMessagesIds.Length > 0
+                || FriendRequestIds.Length > 0
+                || NewFriendsIds.Length > 0
+                || RemovedFriendsIds.Length > 0
+                || ChatInviteIds.Length > 0
+                || NewChatIds.Length > 0
+                || RemovedChatIds.Length > 0
+                || ChatChangedIds.Length > 0
+                || RelatedUserChangedIds.Length > 0;
+        }
+
     }
 }

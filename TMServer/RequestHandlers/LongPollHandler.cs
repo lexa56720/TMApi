@@ -104,10 +104,6 @@ namespace TMServer.RequestHandlers
         {
           await  LongPolling.ClearUpdatesByIds(info);
         }
-        public async Task<bool> IsHaveNotifications(int userId)
-        {
-            return await LongPolling.IsHaveUpdates(userId);
-        }
     }
 
 }

@@ -103,21 +103,5 @@ namespace TMServer.DataBase.Interaction
             dbSet.Where(x => ids.Contains(x.Id)).ExecuteDelete();
         }
 
-        public async Task<bool> IsHaveUpdates(int userId)
-        {
-            using var db = new TmdbContext();
-            return (await db.NewMessageUpdates.AnyAsync(u => u.UserId == userId)) ||
-                   (await db.MessageStatusUpdates.AnyAsync(u => u.UserId == userId)) ||
-
-                   (await db.ChatInviteUpdates.AnyAsync(u => u.UserId == userId)) ||
-                   (await db.ChatListUpdates.AnyAsync(u => u.UserId == userId)) ||
-                   (await db.ChatUpdates.AnyAsync(u => u.UserId == userId)) ||
-
-                   (await db.UserProfileUpdates.AnyAsync(u => u.UserId == userId)) ||
- 
-                   (await db.FriendRequestUpdates.AnyAsync(u => u.UserId == userId)) ||
-                   (await db.FriendListUpdates.AnyAsync(u => u.UserId == userId)) ||
-                   (await db.UserOnlineUpdates.AnyAsync(u => u.UserId == userId));
-        }
     }
 }

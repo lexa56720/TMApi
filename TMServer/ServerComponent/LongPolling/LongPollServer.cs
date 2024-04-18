@@ -60,9 +60,9 @@ namespace TMServer.ServerComponent.LongPolling
                 LongPollHandler.Clear(responseInfo);
             }
 
-            if (await LongPollHandler.IsHaveNotifications(request.UserId))
-                return await GetNotification(request.UserId);
-
+            var notification = await GetNotification(request.UserId);
+            if (notification.IsAny())
+                return notification;
 
             Requests.TryRemove(request.UserId, out _);
             Requests.TryAdd(request.UserId, ((IPacket<IRequestContainer>)info, replyFunc), LongPollLifetime);
