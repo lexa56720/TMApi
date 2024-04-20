@@ -26,8 +26,7 @@ namespace ApiTypes.Communication.LongPolling
 
         public bool IsAny()
         {
-            return
-                RelatedUserOnlineIds.Length > 0
+            return RelatedUserOnlineIds.Length > 0
                 || RelatedUserOfflineIds.Length > 0
                 || NewMessagesIds.Length > 0
                 || ReadedMessagesIds.Length > 0

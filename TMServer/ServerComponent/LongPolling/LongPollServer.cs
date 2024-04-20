@@ -61,7 +61,7 @@ namespace TMServer.ServerComponent.LongPolling
             }
 
             var notification = await GetNotification(request.UserId);
-            if (notification.IsAny())
+            if (notification != null)
                 return notification;
 
             Requests.TryRemove(request.UserId, out _);
@@ -70,17 +70,20 @@ namespace TMServer.ServerComponent.LongPolling
         }
         private async Task RespondOnSaved(int userId)
         {
-            if (!Requests.TryRemove(userId, out var requestInfo))
-                return;
             var notification = await GetNotification(userId);
-            await Responder.ResponseManually(requestInfo.packet, notification, requestInfo.replyFunc);
+            if (notification != null && Requests.TryRemove(userId, out var requestInfo))
+                await Responder.ResponseManually(requestInfo.packet, notification, requestInfo.replyFunc);
         }
 
-        private async Task<Notification> GetNotification(int userId)
+        private async Task<Notification?> GetNotification(int userId)
         {
             var (notification, info) = await LongPollHandler.GetUpdates(userId);
-            ResponseInfos.TryAdd(userId, info, LongPollLifetime);
-            return notification;
+            if (notification.IsAny())
+            {
+                ResponseInfos.TryAdd(userId, info, LongPollLifetime);
+                return notification;
+            }
+            return null;
         }
 
         public void RegisterRequestHandler<TRequest, TResponse>(Func<ApiData<TRequest>, IPacketInfo, Func<byte[], Task<bool>>, Task<TResponse?>> func)
