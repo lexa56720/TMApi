@@ -18,13 +18,14 @@ namespace TMServer.ServerComponent
 {
     internal class ServerFactory
     {
-        private readonly Authentication Authentication;
-        private readonly Crypt Crypt;
+        private readonly Authentications Authentication;
+        private readonly Crypts Crypt;
         private readonly Messages Messages;
         private readonly Chats Chats;
         private readonly Friends Friends;
         private readonly DataBase.Interaction.Files Files;
         private readonly DataBase.Interaction.LongPolling LongPolling;
+        private readonly Tokens Tokens;
         private readonly Security Security;
         private readonly Users Users;
 
@@ -40,23 +41,24 @@ namespace TMServer.ServerComponent
         private readonly int MaxFiles;
         private readonly ILogger Logger;
 
-        public ServerFactory(TimeSpan tokenLifeTIme,string salt, string filesPath, string imagesPath, int maxFileSizeMB, int maxFiles, ILogger logger)
+        public ServerFactory(TimeSpan tokenLifeTime,TimeSpan onlineTimeout,TimeSpan rsaLifeTime,TimeSpan aesLifeTime,string salt, string filesPath, 
+                            string imagesPath, int maxFileSizeMB, int maxFiles, ILogger logger)
         {
-            Authentication = new Authentication(salt,tokenLifeTIme);
-
-            Crypt = new Crypt();
+            Authentication = new Authentications(salt);
+            Crypt = new Crypts(rsaLifeTime, aesLifeTime);
             Messages = new Messages();
             Chats = new Chats(Messages);
             Friends = new Friends(Chats);
             Friends = new Friends(Chats);
             Files = new DataBase.Interaction.Files(filesPath, imagesPath);
             LongPolling = new DataBase.Interaction.LongPolling();
+            Tokens = new Tokens(tokenLifeTime);
 
-            Security = new Security(maxFileSizeMB, maxFiles);
-            Users = new Users();
+            Security = new Security(Tokens,Crypt,maxFileSizeMB, maxFiles);
+            Users = new Users(onlineTimeout);
             var Converter = new DbConverter(Files);
 
-            AuthHandler = new AuthHandler(Crypt, LongPolling, Security, Authentication);
+            AuthHandler = new AuthHandler(Crypt, LongPolling, Security, Authentication,Tokens);
             ChatsHandler = new ChatsHandler(Security, Chats, Converter);
             FriendsHandler = new FriendsHandler(Security, Friends, Converter);
             FileHandler = new FileHandler(Files, Chats, Users, Messages, Security, Converter);

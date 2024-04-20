@@ -1,4 +1,5 @@
 ﻿using ApiTypes.Communication.Users;
+using TMServer.DataBase.MemoryEntities;
 
 namespace TMServer.DataBase.Tables;
 
@@ -20,9 +21,9 @@ public partial class DBUser
 
     public required string Password { get; set; }
 
-    public virtual ICollection<DBToken> Tokens { get; set; } = new List<DBToken>();
+    public virtual ICollection<RamToken> Tokens { get; set; } = new List<RamToken>();
 
-    public virtual ICollection<DBAes> Crypts { get; set; } = new List<DBAes>();
+    public virtual ICollection<RamAes> Crypts { get; set; } = new List<RamAes>();
 
     public virtual ICollection<DBChat> Chats { get; set; } = new List<DBChat>();
 

@@ -228,5 +228,17 @@ namespace TMServer {
                 this["FileUploadPort"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("7")]
+        public ushort AesKeyLifetimeDays {
+            get {
+                return ((ushort)(this["AesKeyLifetimeDays"]));
+            }
+            set {
+                this["AesKeyLifetimeDays"] = value;
+            }
+        }
     }
 }

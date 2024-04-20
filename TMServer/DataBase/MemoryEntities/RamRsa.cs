@@ -1,6 +1,6 @@
-﻿namespace TMServer.DataBase.Tables;
+﻿namespace TMServer.DataBase.MemoryEntities;
 
-public partial class DBRsa
+public class RamRsa
 {
     public int Id { get; set; }
 

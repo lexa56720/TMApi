@@ -21,6 +21,7 @@ namespace TMServer
         public static TimeSpan LongPollLifeTime => TimeSpan.FromSeconds(ServerConfig.Default.LongPollLifeTimeSeconds);
         public static TimeSpan TokenLifeTime => TimeSpan.FromHours(ServerConfig.Default.TokenLifetimeHours);
         public static TimeSpan RsaLifeTime => TimeSpan.FromHours(ServerConfig.Default.RsaKeyLifetimeHours);
+        public static TimeSpan AesLifeTime => TimeSpan.FromDays(ServerConfig.Default.AesKeyLifetimeDays);
 
         public static string TMDBConnectionString => ServerConfig.Default.TMDBConnectionString;
         public static string FilesDBConnectionString => ServerConfig.Default.TMDBFilesConnetctionString;

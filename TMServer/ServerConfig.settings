@@ -53,5 +53,8 @@
     <Setting Name="FileUploadPort" Type="System.UInt16" Scope="User">
       <Value Profile="(Default)">0</Value>
     </Setting>
+    <Setting Name="AesKeyLifetimeDays" Type="System.UInt16" Scope="User">
+      <Value Profile="(Default)">7</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

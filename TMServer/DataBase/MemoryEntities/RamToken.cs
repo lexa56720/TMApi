@@ -1,6 +1,8 @@
-﻿namespace TMServer.DataBase.Tables;
+﻿using TMServer.DataBase.Tables;
 
-public partial class DBToken
+namespace TMServer.DataBase.MemoryEntities;
+
+public class RamToken
 {
     public int Id { get; set; }
     public required int UserId { get; set; }
@@ -8,6 +10,4 @@ public partial class DBToken
     public required string AccessToken { get; set; }
 
     public required DateTime Expiration { get; set; }
-
-    public virtual DBUser User { get; set; } = null!;
 }

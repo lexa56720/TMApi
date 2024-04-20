@@ -5,7 +5,6 @@ using TMServer.Logger;
 using TMServer.ServerComponent;
 using TMServer.ServerComponent.Basics;
 using TMServer.ServerComponent.Info;
-using TMServer.Services;
 
 namespace TMServer
 {
@@ -20,6 +19,9 @@ namespace TMServer
             Serializer.SerializerProvider = new ApiTypes.SerializerProvider();
             Logger = new ConsoleLogger();
             Factory = new ServerFactory(Settings.TokenLifeTime,
+                                        Settings.OnlineTimeout,
+                                        Settings.RsaLifeTime,
+                                        Settings.AesLifeTime,
                                         Settings.PasswordSalt,
                                         Settings.FilesFolder,
                                         Settings.ImagesFolder,
@@ -45,21 +47,11 @@ namespace TMServer
             infoServer.Start();
             mainServer.Start();
 
-            RunServices();
-
             Thread.Sleep(1500);
             Logger.Log("\n\n" + new string('*', 10) + "INITIALIZATION OVER" + new string('*', 10));
             Console.ReadLine();
         }
 
-        private static void RunServices()
-        {
-            var tokenCleaner = new TokenCleaner(TimeSpan.FromMinutes(15), Logger);
-            tokenCleaner.Start();
-
-            var keyCleaner = new KeyCleaner(TimeSpan.FromMinutes(15), Logger);
-            keyCleaner.Start();
-        }
 
         private static void DataBaseInit()
         {

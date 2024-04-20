@@ -9,9 +9,9 @@ namespace TMServer.ServerComponent.Api
 {
     internal class ApiEncryptProvider : IEncryptProvider
     {
-        private readonly Crypt Crypt;
+        private readonly Crypts Crypt;
 
-        public ApiEncryptProvider(Crypt crypt)
+        public ApiEncryptProvider(Crypts crypt)
         {
             Crypt = crypt;
         }
@@ -24,24 +24,24 @@ namespace TMServer.ServerComponent.Api
         {
             encrypter.Dispose();
         }
-        public async Task<IEncrypter?> GetDecrypter(Memory<byte> bytes)
+        public Task<IEncrypter?> GetDecrypter(Memory<byte> bytes)
         {
             var cryptId = BitConverter.ToInt32(bytes.Slice(bytes.Length - 4, 4).Span);
-            var key =await Crypt.GetAesKey(cryptId);
-            if (key == null)
-                return null;
-            return new AesEncrypter(key);
+            var aes = Crypt.GetAesKey(cryptId);
+            if (aes == null)
+                return Task.FromResult<IEncrypter?>(null);
+            return Task.FromResult<IEncrypter?>(new AesEncrypter((byte[])aes.AesKey.Clone()));
         }
 
-        public async Task<IEncrypter?> GetEncrypter(IPacketInfo responsePacket, IPacketInfo? requestPacket = null)
+        public Task<IEncrypter?> GetEncrypter(IPacketInfo responsePacket, IPacketInfo? requestPacket = null)
         {
             if (requestPacket is not ITMPacket reqPacket || responsePacket is not ITMPacket resPacket)
-                return null;
+                return Task.FromResult<IEncrypter?>(null);
             resPacket.Id = reqPacket.Id;
-            var key =await Crypt.GetAesKey(resPacket.Id);
-            if (key == null)
-                return null;
-            return new AesEncrypter(key);
+            var aes = Crypt.GetAesKey(resPacket.Id);
+            if (aes == null)
+                return Task.FromResult<IEncrypter?>(null);
+            return Task.FromResult<IEncrypter?>(new AesEncrypter((byte[])aes.AesKey.Clone()));
         }
     }
 }

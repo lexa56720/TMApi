@@ -23,12 +23,9 @@ public partial class TmdbContext : DbContext
     {
     }
 
-    public virtual DbSet<DBAes> AesCrypts { get; set; }
     public virtual DbSet<DBChat> Chats { get; set; }
     public virtual DbSet<DBFriend> Friends { get; set; }
     public virtual DbSet<DBMessage> Messages { get; set; }
-    public virtual DbSet<DBRsa> RsaCrypts { get; set; }
-    public virtual DbSet<DBToken> Tokens { get; set; }
     public virtual DbSet<DBUser> Users { get; set; }
     public virtual DbSet<DBChatInvite> ChatInvites { get; set; }
     public virtual DbSet<DBFriendRequest> FriendRequests { get; set; }
@@ -54,24 +51,7 @@ public partial class TmdbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<DBAes>(entity =>
-        {
-            entity.ToTable("aes");
 
-            entity.HasKey(e => e.Id).HasName("aes_pkey");
-            entity.Property(e => e.Id).HasColumnName("id");
-
-            entity.Property(e => e.AesKey)
-                  .HasMaxLength(32)
-                  .HasColumnName("aes_key");
-
-            entity.Property(e => e.Expiration)
-                  .HasColumnName("expiration_date");
-
-            entity.HasOne(e => e.User)
-                  .WithMany(u => u.Crypts)
-                  .HasForeignKey(u => u.UserId);
-        });
         modelBuilder.Entity<DBChat>(entity =>
         {
             entity.ToTable("chats");
@@ -176,46 +156,7 @@ public partial class TmdbContext : DbContext
                   .HasForeignKey(d => d.DestinationId)
                   .OnDelete(DeleteBehavior.ClientSetNull);
         });
-        modelBuilder.Entity<DBRsa>(entity =>
-        {
-            entity.ToTable("rsa");
 
-            entity.HasKey(e => e.Id).HasName("rsa_pkey");
-            entity.Property(e => e.Id).HasColumnName("id");
-
-            entity.Property(e => e.PrivateServerKey)
-                  .HasMaxLength(4096)
-                  .HasColumnName("private_server_key");
-
-            entity.Property(e => e.PublicClientKey)
-                  .HasMaxLength(1024)
-                  .HasColumnName("public_client_key");
-
-            entity.Property(e => e.Expiration)
-                  .HasColumnName("expiration_date");
-        });
-        modelBuilder.Entity<DBToken>(entity =>
-        {
-            entity.ToTable("tokens");
-
-            entity.HasKey(e => e.Id).HasName("tokens_pkey");
-            entity.Property(e => e.Id).HasColumnName("id");
-
-            entity.Property(e => e.UserId)
-                  .HasColumnName("user_id");
-
-            entity.Property(e => e.AccessToken)
-                  .HasMaxLength(512)
-                  .HasColumnName("token");
-
-            entity.Property(e => e.Expiration).HasColumnName("expiration_date");
-
-
-            entity.HasOne(d => d.User).WithMany(p => p.Tokens)
-                  .HasForeignKey(d => d.UserId)
-                  .OnDelete(DeleteBehavior.ClientSetNull)
-                  .HasConstraintName("tokens_userid_fkey");
-        });
         modelBuilder.Entity<DBUser>(entity =>
         {
             entity.ToTable("users");

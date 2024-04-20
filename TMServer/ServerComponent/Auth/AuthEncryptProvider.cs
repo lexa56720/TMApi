@@ -4,15 +4,15 @@ using CSDTP.Cryptography.Providers;
 using CSDTP.Packets;
 using System.Net.Sockets;
 using TMServer.DataBase.Interaction;
-using TMServer.DataBase.Tables;
+using TMServer.DataBase.MemoryEntities;
 
 namespace TMServer.ServerComponent.Auth
 {
     internal class AuthEncryptProvider : IEncryptProvider
     {
-        private readonly Crypt Crypt;
+        private readonly Crypts Crypt;
 
-        public AuthEncryptProvider(Crypt crypt) 
+        public AuthEncryptProvider(Crypts crypt)
         {
             Crypt = crypt;
         }
@@ -26,32 +26,30 @@ namespace TMServer.ServerComponent.Auth
             encrypter.Dispose();
         }
 
-        public async Task<IEncrypter?> GetDecrypter(Memory<byte> bytes)
+        public Task<IEncrypter?> GetDecrypter(Memory<byte> bytes)
         {
             var cryptId = BitConverter.ToInt32(bytes.Slice(bytes.Length - sizeof(int), sizeof(int)).Span);
             if (cryptId == 0)
-                return null;
-            var keys =await Crypt.GetRsaKeysById(cryptId);
+                return Task.FromResult<IEncrypter?>(null);
+            var keys = Crypt.GetRsaKeysById(cryptId);
             if (keys == null)
-                return null;
-            var rsaDecrypter = new RsaEncrypter(keys.PrivateServerKey);
-            return rsaDecrypter;
+                return Task.FromResult<IEncrypter?>(null);
+            return Task.FromResult<IEncrypter?>(new RsaEncrypter(keys.PrivateServerKey));
         }
-        public async Task<IEncrypter?> GetEncrypter(IPacketInfo responsePacket, IPacketInfo? requestPacket)
+        public Task<IEncrypter?> GetEncrypter(IPacketInfo responsePacket, IPacketInfo? requestPacket)
         {
             if (requestPacket == null || IsInitPacket(requestPacket))
-                return null;
+                return Task.FromResult<IEncrypter?>(null);
 
-            var keys =await GetKeys(requestPacket);
+            var keys = GetKeys(requestPacket);
             if (keys == null)
-                return null;
-            var rsaDecrypter = new RsaEncrypter(keys.PublicClientKey);
-            return rsaDecrypter;
+                return Task.FromResult<IEncrypter?>(null);
+            return Task.FromResult<IEncrypter?>(new RsaEncrypter(keys.PublicClientKey));
         }
 
-        private async Task<DBRsa?> GetKeys(IPacketInfo packet)
+        private RamRsa? GetKeys(IPacketInfo packet)
         {
-            return await Crypt.GetRsaKeysById(((ITMPacket)packet).Id);
+            return Crypt.GetRsaKeysById(((ITMPacket)packet).Id);
         }
         private bool IsInitPacket(IPacketInfo packet)
         {

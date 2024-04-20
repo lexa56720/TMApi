@@ -1,38 +1,36 @@
 ﻿using ApiTypes;
 using ApiTypes.Communication.Auth;
-using ApiTypes.Communication.BaseTypes;
 using ApiTypes.Communication.Users;
 using ApiTypes.Shared;
 using CSDTP.Cryptography.Algorithms;
-using CSDTP.Packets;
-using TMServer.DataBase;
 using TMServer.DataBase.Interaction;
 
 namespace TMServer.RequestHandlers
 {
     public class AuthHandler
     {
-        private readonly Crypt Crypt;
+        private readonly Crypts Crypt;
         private readonly LongPolling LongPolling;
-        private readonly Authentication Authentication;
+        private readonly Authentications Authentication;
+        private readonly Tokens Tokens;
         private readonly Security Security;
-        public AuthHandler(Crypt crypt, LongPolling longPolling, Security security, Authentication authentication)
+        public AuthHandler(Crypts crypt, LongPolling longPolling, Security security, Authentications authentication, Tokens tokens)
         {
             Crypt = crypt;
             LongPolling = longPolling;
             Security = security;
             Authentication = authentication;
+            Tokens = tokens;
         }
 
-        public async Task<RsaPublicKey?> RsaKeyTrade(RsaPublicKey clientKey)
+        public Task<RsaPublicKey?> RsaKeyTrade(RsaPublicKey clientKey)
         {
             using var encrypter = new RsaEncrypter();
             var serverKey = encrypter.PublicKey;
 
-            var id = await Crypt.SaveRsaKeyPair(encrypter.PrivateKey, clientKey.Key,
-                                          DateTime.UtcNow + Settings.RsaLifeTime);
+            var rsa = Crypt.AddRsaKeys(encrypter.PrivateKey, clientKey.Key);
 
-            return new RsaPublicKey(serverKey, id);
+            return Task.FromResult<RsaPublicKey?>(new RsaPublicKey(serverKey, rsa.Id));
         }
 
         public async Task<AuthorizationResponse?> Login(AuthorizationRequest request)
@@ -44,23 +42,24 @@ namespace TMServer.RequestHandlers
                     IsSuccessful = false
                 };
             await LongPolling.ClearAllUpdates(id);
-            return await GetAuthData(id);
+            return await CreateAuth(id);
         }
-        private async Task<AuthorizationResponse?> GetAuthData(int userId)
+        private Task<AuthorizationResponse?> CreateAuth(int userId)
         {
-            var aesCrypter = new AesEncrypter();
+            using var aesCrypter = new AesEncrypter();
 
-            var (token,crypt) = await Authentication.SaveAuth(userId, aesCrypter.Key);
+            var token = Tokens.AddToken(userId);
+            var crypt = Crypt.AddAes(userId, aesCrypter.Key);
 
-            return new AuthorizationResponse()
+            return Task.FromResult<AuthorizationResponse?>(new AuthorizationResponse()
             {
                 AccessToken = token.AccessToken,
-                AesKey = aesCrypter.Key,
-                Expiration =token.Expiration,
+                AesKey = crypt.AesKey,
+                Expiration = token.Expiration,
                 UserId = userId,
                 CryptId = crypt.Id,
                 IsSuccessful = true
-            };
+            });
         }
 
         public async Task<RegisterResponse?> Register(RegisterRequest request)
@@ -71,7 +70,8 @@ namespace TMServer.RequestHandlers
             if (isSuccsessful)
             {
                 using var aes = new AesEncrypter();
-                await Authentication.CreateUser(request.Username, request.Login, request.Password, aes.Key);
+                var user = await Authentication.CreateUser(request.Username, request.Login, request.Password);
+                Crypt.AddAes(user.Id, aes.Key);
             }
 
             return new RegisterResponse(isSuccsessful);
@@ -81,8 +81,8 @@ namespace TMServer.RequestHandlers
         {
             if (!await Security.IsCryptIdCorrect(request.UserId, request.CryptId))
                 return null;
-            await Crypt.SetDeprecated(request.CryptId);
-            var newAuth = await GetAuthData(request.UserId);
+            Crypt.SetDeprecated(request.CryptId);
+            var newAuth = await CreateAuth(request.UserId);
             return newAuth;
         }
 
@@ -94,8 +94,8 @@ namespace TMServer.RequestHandlers
             var result = await Authentication.ChangePassword(request.UserId, request.Data.NewPasswordHash);
             if (result)
             {
-                await Crypt.SetDeprecated(request.CryptId);
-                return await GetAuthData(request.UserId);
+                Crypt.SetDeprecated(request.CryptId);
+                return await CreateAuth(request.UserId);
             }
             return null;
         }

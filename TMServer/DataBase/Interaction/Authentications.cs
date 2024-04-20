@@ -5,16 +5,13 @@ using TMServer.DataBase.Tables;
 
 namespace TMServer.DataBase.Interaction
 {
-    public class Authentication
+    public class Authentications
     {
         private readonly string Salt;
 
-        private readonly TimeSpan TokenLifeTime;
-
-        public Authentication(string salt, TimeSpan tokenLifeTime)
+        public Authentications(string salt)
         {
             Salt = salt;
-            TokenLifeTime = tokenLifeTime;
         }
 
         public async Task<int> GetUserId(string login, string password)
@@ -31,7 +28,7 @@ namespace TMServer.DataBase.Interaction
             using var db = new TmdbContext();
             return !await db.Users.AnyAsync(u => u.Login == login);
         }
-        public async Task CreateUser(string username, string login, string password, byte[] aesKey)
+        public async Task<DBUser> CreateUser(string username, string login, string password)
         {
             using var db = new TmdbContext();
 
@@ -45,44 +42,7 @@ namespace TMServer.DataBase.Interaction
             };
             await db.Users.AddAsync(user);
             await db.SaveChangesAsync();
-
-            await AddAes(user.Id, aesKey);
-        }
-
-        public async Task<(DBToken token,DBAes aes)> SaveAuth(int userId, byte[] aesKey)
-        {
-            var token = HashGenerator.GetRandomString();
-            var expiration = DateTime.UtcNow.Add(TokenLifeTime);
-            var dbToken = await AddToken(userId, token, expiration);
-            var dbAes = await AddAes(userId, aesKey);
-            return (dbToken,dbAes);
-        }
-        private async Task<DBAes> AddAes(int userId, byte[] aesKey)
-        {
-            using var db = new TmdbContext();
-
-            var aes = new DBAes()
-            {
-                AesKey = aesKey,
-                Expiration = DateTime.MaxValue,
-                UserId = userId,
-            };
-            await db.AesCrypts.AddAsync(aes);
-            await db.SaveChangesAsync();
-            return aes;
-        }
-        private async Task<DBToken> AddToken(int userId, string token, DateTime expiration)
-        {
-            using var db = new TmdbContext();
-            var dbToken = new DBToken()
-            {
-                AccessToken = token,
-                UserId = userId,
-                Expiration = expiration
-            };
-            await db.Tokens.AddAsync(dbToken);
-            await db.SaveChangesAsync();
-            return dbToken;
+            return user;
         }
 
         public async Task<bool> IsPasswordMatch(int userId, string password)

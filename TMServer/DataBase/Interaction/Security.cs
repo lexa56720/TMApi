@@ -9,21 +9,36 @@ using TMServer.DataBase.Tables;
 
 namespace TMServer.DataBase.Interaction
 {
-    public class Security
+    public class Security : IDisposable
     {
         private readonly int MaxFileSizeMb;
         private readonly int MaxFilesInMessage;
 
-        public Security(int maxFileSizeMB, int maxFilesInMessage)
+        private readonly Tokens Tokens;
+        public readonly Crypts Crypt;
+
+        private bool IsDisposed;
+
+
+        public Security(Tokens tokens, Crypts crypt, int maxFileSizeMB, int maxFilesInMessage)
         {
+            Tokens = tokens;
+            Crypt = crypt;
             MaxFileSizeMb = maxFileSizeMB;
             MaxFilesInMessage = maxFilesInMessage;
         }
-
-        public async Task<bool> IsTokenCorrect(string token, int userId)
+        public void Dispose()
         {
-            using var db = new TmdbContext();
-            return await db.Tokens.AnyAsync(t => t.UserId == userId && token.Equals(t.AccessToken) && DateTime.UtcNow < t.Expiration);
+            if (IsDisposed)
+                return;
+            Tokens.Dispose();
+            Crypt.Dispose();
+            IsDisposed = true;
+        }
+        public bool IsTokenCorrect(string token, int userId)
+        {
+            return Tokens.GetTokens(userId)
+                         .Any(t => t.AccessToken == token);
         }
 
         public async Task<bool> IsHaveAccessToChat(int chatId, int userId)
@@ -167,7 +182,7 @@ namespace TMServer.DataBase.Interaction
                                    .ThenInclude(c => c.Members)
                                    .Select(m => m.Destination)
                                    .ToArrayAsync();
-   
+
             return chats.DistinctBy(c => c.Id)
                         .All(c => c.Members.Any(m => m.Id == userId));
         }
@@ -175,9 +190,10 @@ namespace TMServer.DataBase.Interaction
         public async Task<bool> IsCryptIdCorrect(int userId, int cryptId)
         {
             using var db = new TmdbContext();
-
-            var result = await db.AesCrypts.SingleOrDefaultAsync(c => c.UserId == userId && c.Id == cryptId);
-            return result != null;
+            var aes = Crypt.GetAesKey(cryptId);
+            if (aes != null && aes.UserId == userId)
+                return true;
+            return false;
         }
 
 
@@ -193,7 +209,7 @@ namespace TMServer.DataBase.Interaction
 
         public bool IsValidImage(Image image)
         {
-            if (image.Width >= 64 && image.Height >= 64 && 
+            if (image.Width >= 64 && image.Height >= 64 &&
                 image.Width <= 4096 && image.Height <= 4096)
                 return true;
 

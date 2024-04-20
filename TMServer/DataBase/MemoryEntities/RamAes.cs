@@ -1,6 +1,8 @@
-﻿namespace TMServer.DataBase.Tables;
+﻿using TMServer.DataBase.Tables;
 
-public partial class DBAes
+namespace TMServer.DataBase.MemoryEntities;
+
+public class RamAes
 {
     public int Id { get; set; }
 
@@ -8,5 +10,4 @@ public partial class DBAes
 
     public required int UserId { get; set; }
     public required DateTime Expiration { get; set; }
-    public virtual DBUser User { get; set; } = null!;
 }

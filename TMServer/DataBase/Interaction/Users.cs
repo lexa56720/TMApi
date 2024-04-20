@@ -9,11 +9,12 @@ namespace TMServer.DataBase.Interaction
     public class Users : IDisposable
     {
         private readonly LifeTimeDictionary<int, int> OnlineUsers;
-
+        private readonly TimeSpan OnlineTimeout;
         private bool IsDisposed = false;
-        public Users()
+        public Users(TimeSpan onlineTimeout)
         {
             OnlineUsers = new(SetOffline);
+            OnlineTimeout = onlineTimeout;
         }
         public void Dispose()
         {
@@ -119,24 +120,17 @@ namespace TMServer.DataBase.Interaction
 
         public async Task UpdateOnlineStatus(int userId)
         {
-            using var db = new TmdbContext();
-            var user = await db.Users.SingleOrDefaultAsync(u => u.Id == userId);
-            if (user == null)
-                return;
-            var prevOnlineState = user.IsOnline;
-            user.LastRequest = DateTime.UtcNow;
-
-            if (!OnlineUsers.TryAdd(userId, userId, Settings.OnlineTimeout))
-                OnlineUsers.UpdateLifetime(userId, Settings.OnlineTimeout);
-
-            if (user.IsOnline == prevOnlineState)
+            if (OnlineUsers.TryGetValue(userId, out userId))
             {
-                await db.SaveChangesAsync();
-                return;
+                OnlineUsers.UpdateLifetime(userId, OnlineTimeout);
             }
-
-            await StatusUpdate(userId, user.IsOnline, db);
-            await db.SaveChangesAsync(true);
+            else
+            {
+                using var db = new TmdbContext();
+                OnlineUsers.TryAdd(userId, userId, OnlineTimeout);
+                await StatusUpdate(userId, true, db);
+                await db.SaveChangesAsync(true);
+            }
         }
 
         private async Task SetOffline(int userId)
@@ -145,7 +139,7 @@ namespace TMServer.DataBase.Interaction
             var user = db.Users.SingleOrDefault(u => u.Id == userId);
             if (user == null)
                 return;
-            db.Entry(user).State = EntityState.Modified;
+            user.LastRequest = DateTime.UtcNow;
             await StatusUpdate(userId, false, db);
             await db.SaveChangesAsync(true);
         }
