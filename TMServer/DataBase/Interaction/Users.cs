@@ -120,13 +120,17 @@ namespace TMServer.DataBase.Interaction
 
         public async Task UpdateOnlineStatus(int userId)
         {
-            if (OnlineUsers.TryGetValue(userId, out userId))
+            if (OnlineUsers.TryGetValue(userId, out var id))
             {
-                OnlineUsers.UpdateLifetime(userId, OnlineTimeout);
+                OnlineUsers.UpdateLifetime(id, OnlineTimeout);
             }
             else
             {
-                using var db = new TmdbContext();
+                using var db = new TmdbContext(); 
+                var user = db.Users.SingleOrDefault(u => u.Id == userId);
+                if (user == null)
+                    return;
+                user.LastRequest = DateTime.UtcNow;
                 OnlineUsers.TryAdd(userId, userId, OnlineTimeout);
                 await StatusUpdate(userId, true, db);
                 await db.SaveChangesAsync(true);
