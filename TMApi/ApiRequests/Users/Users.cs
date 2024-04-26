@@ -6,6 +6,7 @@ using ApiTypes.Communication.Messages;
 using ApiTypes.Communication.Search;
 using ApiTypes.Communication.Users;
 using ApiTypes.Shared;
+using TMApi.API;
 using TMApi.ApiRequests.Messages;
 
 namespace TMApi.ApiRequests.Users

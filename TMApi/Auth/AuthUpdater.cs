@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TMApi.API;
 using TMApi.ApiRequests.Security;
 
-namespace TMApi
+namespace TMApi.Auth
 {
     internal class AuthUpdater : IDisposable
     {

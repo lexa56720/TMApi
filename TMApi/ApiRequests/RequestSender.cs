@@ -8,7 +8,7 @@ using CSDTP.Protocols;
 using CSDTP.Requests;
 using System.Net;
 
-namespace TMApi
+namespace TMApi.ApiRequests
 {
     public enum RequestKind
     {
@@ -61,11 +61,11 @@ namespace TMApi
         {
             var requester = new RequestSender(server, authPort, apiPort, longPollPort, fileUploadPort);
 
-            requester.Requester =await RequesterFactory.Create(new IPEndPoint(server, requester.GetPort(kind)),
-                                                encryptProvider,typeof(TMPacket<>));
+            requester.Requester = await RequesterFactory.Create(new IPEndPoint(server, requester.GetPort(kind)),
+                                                encryptProvider, typeof(TMPacket<>));
 
             requester.FileRequester = await RequesterFactory.Create(new IPEndPoint(server, requester.GetPort(RequestKind.File)),
-                                                    encryptProvider,typeof(TMPacket<>), Protocol.Http);
+                                                    encryptProvider, typeof(TMPacket<>), Protocol.Http);
 
             requester.LongPollRequester = await RequesterFactory.Create(new IPEndPoint(server, requester.GetPort(RequestKind.LongPoll)),
                                                         encryptProvider, typeof(TMPacket<>), Protocol.Udp);
@@ -78,7 +78,7 @@ namespace TMApi
 
             requester.Requester = await RequesterFactory.Create(new IPEndPoint(server, requester.GetPort(kind)), typeof(TMPacket<>));
             requester.LongPollRequester = await RequesterFactory.Create(new IPEndPoint(server, requester.GetPort(RequestKind.LongPoll)),
-                                                                        typeof(TMPacket<>),Protocol.Udp);
+                                                                        typeof(TMPacket<>), Protocol.Udp);
             return requester;
         }
 

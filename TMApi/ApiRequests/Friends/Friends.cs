@@ -2,6 +2,7 @@
 using ApiTypes.Communication.BaseTypes;
 using ApiTypes.Communication.Chats;
 using ApiTypes.Communication.Friends;
+using TMApi.API;
 using TMApi.ApiRequests.Chats;
 
 namespace TMApi.ApiRequests.Friends

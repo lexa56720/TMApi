@@ -62,7 +62,7 @@ namespace TMServer.RequestHandlers
             });
         }
 
-        public async Task<RegisterResponse?> Register(RegisterRequest request)
+        public async Task<RegistrationResponse?> Registration(RegistrationRequest request)
         {
             var isSuccsessful = DataConstraints.IsLoginLegal(request.Login)
                 && await Authentication.IsLoginAvailable(request.Login);
@@ -74,7 +74,7 @@ namespace TMServer.RequestHandlers
                 Crypt.AddAes(user.Id, aes.Key);
             }
 
-            return new RegisterResponse(isSuccsessful);
+            return new RegistrationResponse(isSuccsessful);
         }
 
         public async Task<AuthorizationResponse?> UpdateAuth(ApiData<AuthUpdateRequest> request)

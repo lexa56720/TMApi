@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace ApiTypes.Communication.Auth
 {
-    public class RegisterRequest : ISerializable<RegisterRequest>
+    public class RegistrationRequest : ISerializable<RegistrationRequest>
     {
         public string Username { get; set; }
 
@@ -11,13 +11,13 @@ namespace ApiTypes.Communication.Auth
 
         public string Password { get; set; }
 
-        public RegisterRequest(string username, string login, string password)
+        public RegistrationRequest(string username, string login, string password)
         {
             Username = username;
             Login = login;
             Password = password;
         }
-        public RegisterRequest()
+        public RegistrationRequest()
         {
 
         }

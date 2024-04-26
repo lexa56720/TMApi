@@ -1,5 +1,6 @@
 ﻿using ApiTypes;
 using ApiTypes.Communication.LongPolling;
+using TMApi.API;
 
 namespace TMApi.ApiRequests
 {

@@ -10,8 +10,10 @@ using CSDTP.Requests;
 using CSDTP.Utils;
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
+using TMApi.ApiRequests;
+using TMApi.Auth;
 
-namespace TMApi
+namespace TMApi.API
 {
     public class ApiProvider
     {
@@ -53,7 +55,7 @@ namespace TMApi
             using var rsaRequester = await RequestSender.Create(Server, AuthPort, ApiPort,
                 LongPollPort, FileUploadPort, RequestKind.Auth, rsaEncryptProvider);
 
-            RegisterResponse? registerResult = await rsaRequester.RequestAsync<RegisterResponse, RegisterRequest>(new RegisterRequest()
+            RegistrationResponse? registerResult = await rsaRequester.RequestAsync<RegistrationResponse, RegistrationRequest>(new RegistrationRequest()
             {
                 Username = username,
                 Login = login,

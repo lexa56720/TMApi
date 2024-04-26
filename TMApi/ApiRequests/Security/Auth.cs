@@ -1,5 +1,6 @@
 ﻿using ApiTypes;
 using ApiTypes.Communication.Auth;
+using TMApi.API;
 
 namespace TMApi.ApiRequests.Security
 {

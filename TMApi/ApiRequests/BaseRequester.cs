@@ -1,4 +1,5 @@
 ﻿using ApiTypes.Communication.BaseTypes;
+using TMApi.API;
 
 namespace TMApi.ApiRequests
 {

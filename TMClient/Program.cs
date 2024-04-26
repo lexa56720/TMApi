@@ -2,7 +2,7 @@
 using ApiTypes.Shared;
 using Microsoft.Win32;
 using System.Net;
-using TMApi;
+using TMApi.API;
 
 namespace TMClient
 {

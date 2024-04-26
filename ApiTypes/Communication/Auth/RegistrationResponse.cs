@@ -6,18 +6,18 @@ using System.Threading.Tasks;
 
 namespace ApiTypes.Communication.Auth
 {
-    public class RegisterResponse : ISerializable<RegisterResponse>
+    public class RegistrationResponse : ISerializable<RegistrationResponse>
     {
         public bool IsAccepted { get; set; }
 
         public int RequestId { get; set; } = -1;
 
-        public RegisterResponse(bool isAccepted)
+        public RegistrationResponse(bool isAccepted)
         {
             IsAccepted = isAccepted;
         }
 
-        public RegisterResponse()
+        public RegistrationResponse()
         {
         }
     }

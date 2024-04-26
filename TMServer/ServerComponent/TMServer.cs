@@ -68,7 +68,7 @@ namespace TMServer.ServerComponent
         {
             AuthServer.Register<RsaPublicKey, RsaPublicKey>(AuthHandler.RsaKeyTrade);
             AuthServer.Register<AuthorizationRequest, AuthorizationResponse>(AuthHandler.Login);
-            AuthServer.Register<RegisterRequest, RegisterResponse>(AuthHandler.Register);
+            AuthServer.Register<RegistrationRequest, RegistrationResponse>(AuthHandler.Registration);
         }
         private void RegisterApiMethods()
         {

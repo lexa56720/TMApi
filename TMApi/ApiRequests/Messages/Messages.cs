@@ -3,6 +3,7 @@ using ApiTypes.Communication.BaseTypes;
 using ApiTypes.Communication.Friends;
 using ApiTypes.Communication.Messages;
 using ApiTypes.Shared;
+using TMApi.API;
 using TMApi.ApiRequests.Chats;
 
 namespace TMApi.ApiRequests.Messages

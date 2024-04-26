@@ -3,6 +3,7 @@ using ApiTypes.Communication.BaseTypes;
 using ApiTypes.Communication.Chats;
 using ApiTypes.Shared;
 using System;
+using TMApi.API;
 
 namespace TMApi.ApiRequests.Chats
 {

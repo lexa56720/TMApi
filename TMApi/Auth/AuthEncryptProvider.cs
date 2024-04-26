@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TMApi
+namespace TMApi.Auth
 {
     internal class AuthEncryptProvider : IEncryptProvider
     {

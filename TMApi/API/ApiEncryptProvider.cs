@@ -10,7 +10,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TMApi
+namespace TMApi.API
 {
     internal class ApiEncryptProvider : IEncryptProvider
     {

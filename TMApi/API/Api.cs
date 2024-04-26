@@ -11,8 +11,9 @@ using TMApi.ApiRequests.Friends;
 using TMApi.ApiRequests.Messages;
 using TMApi.ApiRequests.Security;
 using TMApi.ApiRequests.Users;
+using TMApi.Auth;
 
-namespace TMApi
+namespace TMApi.API
 {
     public class Api : IDisposable
     {
