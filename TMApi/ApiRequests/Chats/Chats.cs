@@ -81,7 +81,7 @@ namespace TMApi.ApiRequests.Chats
         {
             if (newCover.Length == 0)
                 return false;
-            return await Requester.SendFileAsync(new ChagneCoverRequest(chatId, newCover));
+            return await Requester.SendFileAsync(new ChangeCoverRequest(chatId, newCover));
         }
 
         public async Task<bool> RenameChat(int chatId, string newName)

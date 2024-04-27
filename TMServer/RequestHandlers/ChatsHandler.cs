@@ -76,7 +76,7 @@ namespace TMServer.RequestHandlers
             return new IntArrayContainer(await Chats.GetAllChatInvites(request.UserId));
         }
 
-        public async Task RegisterChatInvite(ApiData<InviteToChatRequest> request)
+        public async Task AddChatInvite(ApiData<InviteToChatRequest> request)
         {
             if (!await Security.IsCanInviteToChat(request.UserId, request.Data.UserIds, request.Data.ChatId))
                 return;

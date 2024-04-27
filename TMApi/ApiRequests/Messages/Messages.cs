@@ -16,20 +16,20 @@ namespace TMApi.ApiRequests.Messages
 
         public async Task<Message[]> GetMessagesByOffset(int chatId, int count, int offset)
         {
-            var messages = await Requester.ApiRequestAsync<MessageHistoryResponse, LastMessagesRequest>(new LastMessagesRequest(chatId, offset, count));
+            var messages = await Requester.ApiRequestAsync<SerializableArray<Message>, LastMessagesRequest>(new LastMessagesRequest(chatId, offset, count));
             if (messages == null)
                 return [];
 
-            return messages.Messages;
+            return messages.Items;
         }
         public async Task<Message[]> GetMessages(int chatId, int fromMessageId,int count)
         {
-            var messages = await Requester.ApiRequestAsync<MessageHistoryResponse, MessageHistoryRequest>
+            var messages = await Requester.ApiRequestAsync<SerializableArray<Message>, MessageHistoryRequest>
                 (new MessageHistoryRequest(chatId, fromMessageId,count));
             if (messages == null)
                 return [];
 
-            return messages.Messages;
+            return messages.Items;
         }
         public async Task<Message[]> GetMessages(params int[] messageIds)
         {

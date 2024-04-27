@@ -98,7 +98,7 @@ namespace TMServer.RequestHandlers
             return ext != null && (ext == "png" || ext == "jpg" || ext == "jpeg");
         }
 
-        internal async Task SetChatCover(ApiData<ChagneCoverRequest> request)
+        internal async Task SetChatCover(ApiData<ChangeCoverRequest> request)
         {
             if (!await Security.IsAdminOfChat(request.UserId, request.Data.ChatId))
                 return;

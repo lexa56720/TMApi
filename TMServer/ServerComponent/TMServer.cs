@@ -82,13 +82,15 @@ namespace TMServer.ServerComponent
         }
         private void RegisterMessageMethods()
         {
-            ApiServer.RegisterRequestHandler<LastMessagesRequest, MessageHistoryResponse>(MessagesHandler.GetMessagesByOffset);
+            ApiServer.RegisterRequestHandler<LastMessagesRequest, SerializableArray<Message>>(MessagesHandler.GetMessagesByOffset);
             ApiServer.RegisterRequestHandler<MessageSendRequest, Message>(MessagesHandler.NewMessage);
-            ApiServer.RegisterRequestHandler<MessageHistoryRequest, MessageHistoryResponse>(MessagesHandler.GetMessagesByLastId);
+            ApiServer.RegisterRequestHandler<MessageHistoryRequest, SerializableArray<Message>>(MessagesHandler.GetMessagesByLastId);
             ApiServer.RegisterRequestHandler<MessageRequestById, SerializableArray<Message>>(MessagesHandler.GetMessagesById);
             ApiServer.RegisterRequestHandler<MessageRequestByChats, SerializableArray<Message>>(MessagesHandler.GetMessagesByChatIds);
 
             ApiServer.RegisterDataHandler<MarkAsReaded>(MessagesHandler.MarkAsReaded);
+
+            FileServer.RegisterRequestHandler<MessageWithFilesSendRequest, Message>(FileHandler.MessageWithFiles);
         }
         private void RegisterUserMethods()
         {
@@ -111,7 +113,7 @@ namespace TMServer.ServerComponent
         {
             ApiServer.RegisterRequestHandler<ChatCreationRequest, Chat>(ChatsHandler.CreateChat);
             ApiServer.RegisterRequestHandler<ChatRequest, SerializableArray<Chat>>(ChatsHandler.GetChats);
-            ApiServer.RegisterDataHandler<InviteToChatRequest>(ChatsHandler.RegisterChatInvite);
+            ApiServer.RegisterDataHandler<InviteToChatRequest>(ChatsHandler.AddChatInvite);
             ApiServer.RegisterRequestHandler<InviteRequest, SerializableArray<ChatInvite>>(ChatsHandler.GetChatInvites);
             ApiServer.RegisterDataHandler<ResponseToInvite>(ChatsHandler.ChatInviteResponse);
             ApiServer.RegisterRequestHandler<InviteRequestAll, IntArrayContainer>(ChatsHandler.GetAllChatInvites);
@@ -122,10 +124,7 @@ namespace TMServer.ServerComponent
 
             ApiServer.RegisterDataHandler<ChatLeaveRequest>(ChatsHandler.LeaveChat);
 
-
-            FileServer.RegisterRequestHandler<MessageWithFilesSendRequest, Message>(FileHandler.MessageWithFiles);
-            FileServer.RegisterDataHandler<ChagneCoverRequest>(FileHandler.SetChatCover);
-
+            FileServer.RegisterDataHandler<ChangeCoverRequest>(FileHandler.SetChatCover);
         }
 
         private void RegisterLongPollMethods()
