@@ -11,7 +11,7 @@ using TMApi.ApiRequests.Friends;
 using TMApi.ApiRequests.Messages;
 using TMApi.ApiRequests.Security;
 using TMApi.ApiRequests.Users;
-using TMApi.Auth;
+using TMApi.Authentication;
 
 namespace TMApi.API
 {

@@ -11,7 +11,8 @@ using CSDTP.Utils;
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using TMApi.ApiRequests;
-using TMApi.Auth;
+using TMApi.ApiRequests.Security;
+using TMApi.Authentication;
 
 namespace TMApi.API
 {
@@ -63,10 +64,15 @@ namespace TMApi.API
             });
 
 
-            if (registerResult != null && registerResult.IsAccepted)
-                return await Login(login, password, rsaRequester);
+            if (registerResult == null || !registerResult.IsAccepted)
+                return null;
 
-            return null;
+            var authResult = await Auth.Login(login, password, rsaRequester);
+            if (authResult == null || !authResult.IsSuccessful)
+                return null;
+
+            return await GetApi(authResult.AccessToken, authResult.Expiration,
+                                authResult.UserId, authResult.CryptId, authResult.AesKey);
         }
 
         public async Task<Api?> GetApiLogin(string login, string password)
@@ -76,22 +82,14 @@ namespace TMApi.API
                 return null;
             using var rsaRequester = await RequestSender.Create(Server, AuthPort, ApiPort,
                  LongPollPort, FileUploadPort, RequestKind.Auth, rsaEncryptProvider);
-            return await Login(login, password, rsaRequester);
+            var authResult = await Auth.Login(login, password, rsaRequester);
+            if (authResult == null || !authResult.IsSuccessful)
+                return null;
+
+            return await GetApi(authResult.AccessToken, authResult.Expiration,
+                                authResult.UserId, authResult.CryptId, authResult.AesKey);
         }
 
-        private async Task<Api?> Login(string login, string password, RequestSender rsaRequester)
-        {
-            password = HashGenerator.GetPasswordHash(password, login);
-
-            var authResult = await rsaRequester.RequestAsync<AuthorizationResponse, AuthorizationRequest>
-                                                              (new AuthorizationRequest(login, password));
-            rsaRequester.Dispose();
-
-            if (authResult != null && authResult.IsSuccessful)
-                return await GetApi(authResult.AccessToken, authResult.Expiration,
-                                    authResult.UserId, authResult.CryptId, authResult.AesKey);
-            return null;
-        }
 
         public async Task<Api?> DeserializeAuthData(byte[] authData)
         {
@@ -131,8 +129,8 @@ namespace TMApi.API
             try
             {
                 var inputDecoder = new RsaEncrypter();
-
-                var (publicKey, id) = await GetRsaKey(inputDecoder);
+                using var uncryptRequester = await RequestSender.Create(Server, AuthPort, ApiPort, LongPollPort, RequestKind.Auth);
+                var (publicKey, id) = await Auth.GetRsaKey(uncryptRequester, inputDecoder);
                 var outputEncoder = new RsaEncrypter(publicKey);
 
                 return new AuthEncryptProvider(outputEncoder, inputDecoder, id);
@@ -142,17 +140,5 @@ namespace TMApi.API
                 return null;
             }
         }
-        private async Task<(string publicKey, int id)> GetRsaKey(RsaEncrypter inputDecoder)
-        {
-            using var uncryptRequester = await RequestSender.Create(Server, AuthPort, ApiPort, LongPollPort, RequestKind.Auth);
-            var request = new RsaPublicKey(inputDecoder.PublicKey);
-            var response = await uncryptRequester.RequestAsync<RsaPublicKey, RsaPublicKey>(request)
-                ?? throw new Exception("no response");
-
-            string serverRsaPublicKey = response.Key;
-            return (serverRsaPublicKey, response.Id);
-        }
-
-
     }
 }

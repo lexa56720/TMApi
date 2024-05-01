@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using TMApi.API;
 using TMApi.ApiRequests.Security;
 
-namespace TMApi.Auth
+namespace TMApi.Authentication
 {
     internal class AuthUpdater : IDisposable
     {
