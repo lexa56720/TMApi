@@ -1,4 +1,5 @@
 ﻿using ApiTypes.Communication.BaseTypes;
+using ApiTypes.Communication.Medias;
 using ApiTypes.Communication.Messages;
 using ApiTypes.Shared;
 using CSDTP;

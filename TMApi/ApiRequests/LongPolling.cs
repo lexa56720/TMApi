@@ -55,16 +55,20 @@ namespace TMApi.ApiRequests
         {
             Task.Run(async () =>
             {
+                //идентификатор прошлого запроса
                 var prevLongPollId = -1;
                 while (IsPolling)
                 {
+                    //Получение ответа от сервера
                     var notification = await Requester.LongPollAsync<Notification, LongPollingRequest>
                                                       (new LongPollingRequest(prevLongPollId),
                                                        LongPollPeriod,
                                                        TokenSource.Token);
                     if (notification != null)
-                    {
+                    {                    
+                        //Если ответ не null, то вывзывается события с уведомлением
                         HandleNotification(notification);
+                        //Сохранение идентификатора прошлого запроса
                         prevLongPollId = notification.LongPollId;
                     }
                 }

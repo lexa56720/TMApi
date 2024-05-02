@@ -1,6 +1,7 @@
 ﻿using ApiTypes;
 using ApiTypes.Communication.BaseTypes;
 using ApiTypes.Communication.Friends;
+using ApiTypes.Communication.Medias;
 using ApiTypes.Communication.Messages;
 using ApiTypes.Shared;
 using TMApi.API;

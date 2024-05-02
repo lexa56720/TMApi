@@ -1,4 +1,5 @@
 ﻿using ApiTypes.Communication.BaseTypes;
+using ApiTypes.Communication.Medias;
 using Microsoft.EntityFrameworkCore;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
@@ -81,7 +82,7 @@ namespace TMServer.DataBase.Interaction
                 var dbImage = new DBImage()
                 {
                     Url = GenerateUrl(),
-                    Size = ImageSize.Large
+                    Size = Tables.FileTables.ImageSize.Large
                 };
                 await db.Images.AddAsync(dbImage);
                 result[i] = dbImage;
@@ -106,9 +107,9 @@ namespace TMServer.DataBase.Interaction
 
             using var db = new FilesDBContext();
             var set = new DBImageSet();
-            var smallDbImage = await AddSetPart(set, ImageSize.Small, db);
-            var mediumDbImage = await AddSetPart(set, ImageSize.Medium, db);
-            var largeDbImage = await AddSetPart(set, ImageSize.Large, db);
+            var smallDbImage = await AddSetPart(set, Tables.FileTables.ImageSize.Small, db);
+            var mediumDbImage = await AddSetPart(set, Tables.FileTables.ImageSize.Medium, db);
+            var largeDbImage = await AddSetPart(set, Tables.FileTables.ImageSize.Large, db);
             await db.SaveChangesAsync();
 
             await SaveImageDataAsync(smallDbImage, smallImageData);
@@ -117,7 +118,7 @@ namespace TMServer.DataBase.Interaction
 
             return set;
         }
-        private async Task<DBImage> AddSetPart(DBImageSet set, ImageSize size, FilesDBContext db)
+        private async Task<DBImage> AddSetPart(DBImageSet set, Tables.FileTables.ImageSize size, FilesDBContext db)
         {
             var dbImage = new DBImage()
             {
