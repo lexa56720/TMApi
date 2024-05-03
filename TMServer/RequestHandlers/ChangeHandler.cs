@@ -30,8 +30,10 @@ namespace TMServer.RequestHandlers
         {
             if (!IsUpdateTracked)
                 return;
-
+            //Получение списка пользователей, которых затронуло изменение
             var userIds = await GetAffectedUsers(entities);
+
+            //Уведомление каждого из пользователй
             foreach (var userId in userIds)
                 NotifyUser(userId);
         }

@@ -23,13 +23,16 @@ namespace TMServer.ServerComponent.LongPolling
 {
     internal class LongPollServer : Server
     {
-
+        //Словарь для хранения полученных запросов
         private readonly LifeTimeDictionary<int, (IPacket<IRequestContainer> packet, Func<byte[], Task<bool>> replyFunc)> Requests = new();
 
+        //Словарь для хранения отпраленных уведомлений
         private readonly LifeTimeDictionary<int, LongPollResponseInfo> ResponseInfos = new();
 
+        //Обработчик запросов
         private readonly LongPollHandler LongPollHandler;
 
+        //Время хранения полученного запроса
         public TimeSpan LongPollLifetime { get; }
 
         public LongPollServer(int port, TimeSpan longPollLifetime, IEncryptProvider encryptProvider, ILogger logger)
@@ -51,23 +54,6 @@ namespace TMServer.ServerComponent.LongPolling
         {
             await RespondOnSaved(userId);
         }
-
-        public async Task<Notification?> LongPollArrived(ApiData<LongPollingRequest> request, IPacketInfo info, Func<byte[], Task<bool>> replyFunc)
-        {
-            if (ResponseInfos.TryRemove(request.UserId, out var responseInfo) &&
-                responseInfo.Id == request.Data.PreviousLongPollId)
-            {
-                LongPollHandler.Clear(responseInfo);
-            }
-
-            var notification = await GetNotification(request.UserId);
-            if (notification != null)
-                return notification;
-
-            Requests.TryRemove(request.UserId, out _);
-            Requests.TryAdd(request.UserId, ((IPacket<IRequestContainer>)info, replyFunc), LongPollLifetime);
-            return null;
-        }
         private async Task RespondOnSaved(int userId)
         {
             var notification = await GetNotification(userId);
@@ -75,6 +61,28 @@ namespace TMServer.ServerComponent.LongPolling
                 await Responder.ResponseManually(requestInfo.packet, notification, requestInfo.replyFunc);
         }
 
+        //Обработка входящего запроса
+        public async Task<Notification?> LongPollArrived(ApiData<LongPollingRequest> request, IPacketInfo info, Func<byte[], Task<bool>> replyFunc)
+        {
+            //Удаление обновлений из предыдущего запроса
+            if (ResponseInfos.TryRemove(request.UserId, out var responseInfo) &&
+                responseInfo.Id == request.Data.PreviousLongPollId)
+            {
+                LongPollHandler.Clear(responseInfo);
+            }
+
+            //Отправка обнолений
+            var notification = await GetNotification(request.UserId);
+            if (notification != null)
+                return notification;
+
+            //Сохранение запроса если обновлений нет
+            Requests.TryRemove(request.UserId, out _);
+            Requests.TryAdd(request.UserId, ((IPacket<IRequestContainer>)info, replyFunc), LongPollLifetime);
+            return null;
+        }
+
+        //Получение всех обновлени йдля пользователя
         private async Task<Notification?> GetNotification(int userId)
         {
             var (notification, info) = await LongPollHandler.GetUpdates(userId);

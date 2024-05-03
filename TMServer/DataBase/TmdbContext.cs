@@ -8,7 +8,7 @@ namespace TMServer.DataBase;
 
 public partial class TmdbContext : DbContext
 {
-    public static ChangeHandler ChangeHandler { get; private set; } 
+    public static ChangeHandler ChangeHandler { get; private set; }
 
     static TmdbContext()
     {
@@ -51,7 +51,7 @@ public partial class TmdbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-
+        //Код для создания таблицы Chats
         modelBuilder.Entity<DBChat>(entity =>
         {
             entity.ToTable("chats");
@@ -92,6 +92,7 @@ public partial class TmdbContext : DbContext
                   .WithOne(m => m.Destination)
                   .HasForeignKey(m => m.DestinationId);
         });
+        //Код для создания таблицы Friends
         modelBuilder.Entity<DBFriend>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("friends_pkey");
@@ -116,6 +117,7 @@ public partial class TmdbContext : DbContext
             .HasForeignKey(f => f.DestId)
             .HasPrincipalKey(u => u.Id);
         });
+        //Код для создания таблицы Messages
         modelBuilder.Entity<DBMessage>(entity =>
         {
             entity.ToTable("messages");
@@ -211,7 +213,7 @@ public partial class TmdbContext : DbContext
 
             entity.HasOne(e => e.DestinationUser)
                   .WithMany()
-                  .HasForeignKey(i => i.ToUserId) ;
+                  .HasForeignKey(i => i.ToUserId);
         });
         modelBuilder.Entity<DBFriendRequest>(entity =>
         {
@@ -513,15 +515,22 @@ public partial class TmdbContext : DbContext
 
     public async Task<int> SaveChangesAsync(bool trackChanges)
     {
+        //Проверка на то, нужно ли обрабатывать изменения
         if (!trackChanges || !ChangeHandler.IsUpdateTracked || !ChangeTracker.HasChanges())
             return await base.SaveChangesAsync();
 
+        //Получение массива изменённых сущностей
         var changes = GetChangedEntities();
+
+        //Сохранение изменений
         var value = await base.SaveChangesAsync();
-       await ChangeHandler.HandleChanges(changes);
+
+        //Передача изменённых сущностей обработчику изменений
+        await ChangeHandler.HandleChanges(changes);
         return value;
     }
 
+    //Получение массива изменённых сущностей
     private (EntityEntry entity, EntityState state)[] GetChangedEntities()
     {
         var entries = ChangeTracker.Entries();

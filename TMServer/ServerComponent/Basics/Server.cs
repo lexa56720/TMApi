@@ -79,6 +79,5 @@ namespace TMServer.ServerComponent.Basics
                 await Users.UpdateOnlineStatus(request.UserId);
             return isLegal;
         }
-
     }
 }

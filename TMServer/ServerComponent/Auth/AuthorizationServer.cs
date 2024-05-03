@@ -20,7 +20,7 @@ namespace TMServer.ServerComponent.Auth
         {
             return new Func<TRequest, Task<TResponse?>>(async o =>
             {
-                Logger.Log($"auth request");
+                Logger.Log($"authorization request");
                 return await func(o);
             });
         }

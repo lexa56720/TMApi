@@ -27,11 +27,13 @@ namespace TMServer.ServerComponent
 {
     internal class MainServer : Startable, IDisposable
     {
+        //Точки входа
         public required AuthorizationServer AuthServer { get; init; }
         public required ApiServer ApiServer { get; init; }
         public required LongPollServer LongPollServer { get; init; }
         public required FileServer FileServer { get; init; }
 
+        //Класс содержащие обработчики запросов
         public required AuthHandler AuthHandler { private get; init; }
         public required ChatsHandler ChatsHandler { private get; init; }
         public required FriendsHandler FriendsHandler { private get; init; }
@@ -40,8 +42,8 @@ namespace TMServer.ServerComponent
         public required SearchHandler SearchHandler { private get; init; }
         public required UsersHandler UsersHandler { private get; init; }
 
+        //Класс для логирования событий
         private readonly ILogger Logger;
-
 
         public MainServer(ILogger logger)
         {
@@ -64,12 +66,14 @@ namespace TMServer.ServerComponent
             FileServer.Dispose();
 
         }
+        //Регистрация методов сервера авторизации
         private void RegisterAuthMethods()
         {
             AuthServer.Register<RsaPublicKey, RsaPublicKey>(AuthHandler.RsaKeyTrade);
             AuthServer.Register<AuthorizationRequest, AuthorizationResponse>(AuthHandler.Login);
             AuthServer.Register<RegistrationRequest, RegistrationResponse>(AuthHandler.Registration);
         }
+        //Регистрация методов основных методов API
         private void RegisterApiMethods()
         {
             ApiServer.RegisterRequestHandler<AuthUpdateRequest, AuthorizationResponse>(AuthHandler.UpdateAuth);
@@ -80,6 +84,7 @@ namespace TMServer.ServerComponent
             RegisterFriendMethods();
             RegisterChatMethods();
         }
+        //Регистрация методов API для работы с сообщениями
         private void RegisterMessageMethods()
         {
             ApiServer.RegisterRequestHandler<LastMessagesRequest, SerializableArray<Message>>(MessagesHandler.GetMessagesByOffset);
@@ -92,6 +97,7 @@ namespace TMServer.ServerComponent
 
             FileServer.RegisterRequestHandler<MessageWithFilesSendRequest, Message>(FileHandler.MessageWithFiles);
         }
+        //Регистрация методов API для работы с пользователями
         private void RegisterUserMethods()
         {
             ApiServer.RegisterRequestHandler<UserFullRequest, UserInfo>(UsersHandler.GetUserInfo);
@@ -100,7 +106,8 @@ namespace TMServer.ServerComponent
             ApiServer.RegisterRequestHandler<SearchRequest, SerializableArray<User>>(SearchHandler.GetUserByName);
 
             FileServer.RegisterRequestHandler<ChangeProfileImageRequest, User>(FileHandler.SetProfileImage);
-        }
+        }       
+        //Регистрация методов API для работы со списком друзей
         private void RegisterFriendMethods()
         {
             ApiServer.RegisterRequestHandler<GetFriendRequests, SerializableArray<FriendRequest>>(FriendsHandler.GetFriendRequests);
@@ -109,6 +116,7 @@ namespace TMServer.ServerComponent
             ApiServer.RegisterRequestHandler<GetAllFriendRequests, IntArrayContainer>(FriendsHandler.GetAllFriendRequests);
             ApiServer.RegisterDataHandler<FriendRemoveRequest>(FriendsHandler.RemoveFriend);
         }
+        //Регистрация методов API для работы с чатами
         private void RegisterChatMethods()
         {
             ApiServer.RegisterRequestHandler<ChatCreationRequest, Chat>(ChatsHandler.CreateChat);
@@ -126,12 +134,13 @@ namespace TMServer.ServerComponent
 
             FileServer.RegisterDataHandler<ChangeCoverRequest>(FileHandler.SetChatCover);
         }
-
+        //Регистрация методов для длинных опросов
         private void RegisterLongPollMethods()
         {
             LongPollServer.RegisterRequestHandler<LongPollingRequest, Notification>(LongPollServer.LongPollArrived);
         }
 
+        //Запуск серверов
         public override async Task Start()
         {
             if (IsRunning)
@@ -145,7 +154,8 @@ namespace TMServer.ServerComponent
             await FileServer.Start();
 
             Logger.Log("MainServer is ready");
-        }
+        }        
+        //Остановка серверов
         public override async Task Stop()
         {
             if (!IsRunning)

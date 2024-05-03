@@ -15,7 +15,7 @@ namespace TMServer
             DataBaseInit();
 
             var logger = CreateLogger();
-            var factory = CreateFactrory(logger);
+            var factory = CreateFactory(logger);
             var (main, info) = CreateServers(factory);
 
             await main.Start();
@@ -91,7 +91,7 @@ namespace TMServer
         {
             return new ConsoleLogger();
         }
-        private static ServerFactory CreateFactrory(ILogger logger)
+        private static ServerFactory CreateFactory(ILogger logger)
         {
             return new ServerFactory(Settings.TokenLifeTime,
                                         Settings.OnlineTimeout,
