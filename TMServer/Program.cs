@@ -1,5 +1,4 @@
 ﻿using ApiTypes.Communication.BaseTypes;
-using Microsoft.Extensions.Logging;
 using TMServer.DataBase;
 using TMServer.Logger;
 using TMServer.ServerComponent;
@@ -10,15 +9,91 @@ namespace TMServer
 {
     internal class Program
     {
-        public static ServerFactory Factory { get; private set; }
-        public static ConsoleLogger Logger { get; private set; }
-
-
-        private static void Main(string[] args)
+        private static async Task Main(string[] args)
         {
             Serializer.SerializerProvider = new ApiTypes.SerializerProvider();
-            Logger = new ConsoleLogger();
-            Factory = new ServerFactory(Settings.TokenLifeTime,
+            DataBaseInit();
+
+            var logger = CreateLogger();
+            var factory = CreateFactrory(logger);
+            var (main, info) = CreateServers(factory);
+
+            await main.Start();
+            await info.Start();
+
+            ServerRunned(logger);
+            await CommandParsingLoop(logger, main, info);
+            ServerShutdown(logger);
+        }
+
+
+
+        private static async Task CommandParsingLoop(ILogger logger, params Startable[] servers)
+        {
+            while (true)
+            {
+                var command = Console.ReadLine();
+                switch (command)
+                {
+                    case "help":
+                        Console.WriteLine("Existing commands: help, start, stop, restart, exit.");
+                        break;
+                    case "stop":
+                        await Task.WhenAll(servers.Select(s => s.Stop()));
+                        ServerStopped(logger);
+                        break;
+                    case "restart":
+                        await Task.WhenAll(servers.Select(s => s.Stop()));
+                        ServerStopped(logger);
+                        await Task.WhenAll(servers.Select(s => s.Start()));
+                        ServerRunned(logger);
+                        break;
+                    case "start":
+                        await Task.WhenAll(servers.Select(s => s.Start()));
+                        ServerRunned(logger);
+                        break;
+                    case "exit":
+                        await Task.WhenAll(servers.Select(s => s.Stop()));
+                        ServerStopped(logger);
+                        return;
+                }
+            }
+        }
+
+        private static void ServerRunned(ILogger logger)
+        {
+            logger.LogEmptyLine();
+            logger.Log(new string('*', 10) + "SERVER IS RUNNING" + new string('*', 10));
+        }
+        private static void ServerStopped(ILogger logger)
+        {
+            logger.LogEmptyLine();
+            logger.Log(new string('*', 10) + "SERVER IS STOPPED" + new string('*', 10));
+        }
+        private static void ServerShutdown(ILogger logger)
+        {
+            logger.LogEmptyLine();
+            logger.Log(new string('*', 10) + "SERVER IS SHUTDOWN" + new string('*', 10));
+        }
+
+        private static void DataBaseInit()
+        {
+            using var mainDB = new TmdbContext();
+            using var filesDB = new FilesDBContext();
+
+            filesDB.Database.EnsureCreated();
+            filesDB.SaveChanges();
+
+            mainDB.Database.EnsureCreated();
+            mainDB.SaveChanges();
+        }
+        private static ILogger CreateLogger()
+        {
+            return new ConsoleLogger();
+        }
+        private static ServerFactory CreateFactrory(ILogger logger)
+        {
+            return new ServerFactory(Settings.TokenLifeTime,
                                         Settings.OnlineTimeout,
                                         Settings.RsaLifeTime,
                                         Settings.AesLifeTime,
@@ -27,56 +102,39 @@ namespace TMServer
                                         Settings.ImagesFolder,
                                         Settings.MaxFileSizeMB,
                                         Settings.MaxAttachments,
-                                        Logger);
+                                        logger);
+        }
+        private static (MainServer main, InfoServer info) CreateServers(ServerFactory factory)
+        {
+            var mainServer = CreateMainServer(factory,
+                                    Settings.LongPollLifeTime,
+                                    Settings.AuthPort,
+                                    Settings.ApiPort,
+                                    Settings.LongPollPort,
+                                    Settings.FileDownloadPort,
+                                    Settings.FileUploadPort);
 
-            DataBaseInit();
-
-            using var mainServer = Create(Settings.LongPollLifeTime,
-                                          Settings.AuthPort,
-                                          Settings.ApiPort,
-                                          Settings.LongPollPort,
-                                          Settings.FileDownloadPort,
-                                          Settings.FileUploadPort);
-
-            using var infoServer = Create(Settings.InfoPort, Settings.Version);
+            var infoServer = CreateInfoServer(factory, Settings.InfoPort, Settings.Version);
             infoServer.Add(mainServer.ApiServer);
             infoServer.Add(mainServer.AuthServer);
             infoServer.Add(mainServer.LongPollServer);
             infoServer.Add(mainServer.FileServer);
 
-            infoServer.Start();
-            mainServer.Start();
-
-            Thread.Sleep(1500);
-            Logger.Log("\n\n" + new string('*', 10) + "INITIALIZATION OVER" + new string('*', 10));
-            Console.ReadLine();
+            return (mainServer, infoServer);
         }
-
-
-        private static void DataBaseInit()
+        private static InfoServer CreateInfoServer(ServerFactory factory, int port, int version)
         {
-            using var db = new TmdbContext();
-            using var idb = new FilesDBContext();
-            idb.Database.EnsureCreated();
-            idb.SaveChanges();
-            db.Database.EnsureCreated();
-            db.SaveChanges();
+            return factory.CreateInfoServer(port, version);
         }
-
-
-        private static InfoServer Create(int port, int version)
+        private static MainServer CreateMainServer(ServerFactory factory, TimeSpan longPollPeriod, int authPort, int apiPort, int longPollPort, int fileGetPort, int fileUploadPort)
         {
-            return Factory.CreateInfoServer(port, version);
-        }
-        private static ServerComponent.TMServer Create(TimeSpan longPollPeriod, int authPort, int apiPort, int longPollPort, int fileGetPort, int fileUploadPort)
-        {
-            var authServer = Factory.CreateAuthServer(authPort);
-            var apiServer = Factory.CreateApiServer(apiPort);
+            var authServer = factory.CreateAuthServer(authPort);
+            var apiServer = factory.CreateApiServer(apiPort);
 
-            var longPollServer = Factory.CreateLongPollServer(longPollPort, longPollPeriod);
-            var fileServer = Factory.CreateFileServer(fileUploadPort, fileGetPort);
+            var longPollServer = factory.CreateLongPollServer(longPollPort, longPollPeriod);
+            var fileServer = factory.CreateFileServer(fileUploadPort, fileGetPort);
 
-            return Factory.CreateMainServer(apiServer, authServer, longPollServer, fileServer);
+            return factory.CreateMainServer(apiServer, authServer, longPollServer, fileServer);
         }
     }
 }

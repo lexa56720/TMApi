@@ -4,13 +4,13 @@
     {
         public virtual bool IsRunning { get; protected set; }
 
-        public virtual void Start()
+        public virtual async Task Start()
         {
             if (IsRunning)
                 return;
             IsRunning = true;
         }
-        public virtual void Stop()
+        public virtual async Task Stop()
         {
             if (!IsRunning)
                 return;

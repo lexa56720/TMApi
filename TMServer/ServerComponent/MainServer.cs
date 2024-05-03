@@ -25,12 +25,12 @@ using TMServer.ServerComponent.LongPolling;
 
 namespace TMServer.ServerComponent
 {
-    internal class TMServer : Startable,IDisposable
+    internal class MainServer : Startable, IDisposable
     {
-        public required AuthorizationServer AuthServer {  get; init; }
-        public required ApiServer ApiServer {  get; init; }
-        public required LongPollServer LongPollServer {  get; init; }
-        public required FileServer FileServer {  get; init; }
+        public required AuthorizationServer AuthServer { get; init; }
+        public required ApiServer ApiServer { get; init; }
+        public required LongPollServer LongPollServer { get; init; }
+        public required FileServer FileServer { get; init; }
 
         public required AuthHandler AuthHandler { private get; init; }
         public required ChatsHandler ChatsHandler { private get; init; }
@@ -43,7 +43,7 @@ namespace TMServer.ServerComponent
         private readonly ILogger Logger;
 
 
-        public TMServer(ILogger logger)
+        public MainServer(ILogger logger)
         {
             Logger = logger;
         }
@@ -62,7 +62,7 @@ namespace TMServer.ServerComponent
             ApiServer.Dispose();
             LongPollServer.Dispose();
             FileServer.Dispose();
-            
+
         }
         private void RegisterAuthMethods()
         {
@@ -132,32 +132,32 @@ namespace TMServer.ServerComponent
             LongPollServer.RegisterRequestHandler<LongPollingRequest, Notification>(LongPollServer.LongPollArrived);
         }
 
-        public override void Start()
+        public override async Task Start()
         {
             if (IsRunning)
                 return;
 
-            base.Start();
+            await base.Start();
 
-            AuthServer.Start();
-            ApiServer.Start();
-            LongPollServer.Start();
-            FileServer.Start();
+            await AuthServer.Start();
+            await ApiServer.Start();
+            await LongPollServer.Start();
+            await FileServer.Start();
 
-            Logger.Log("Server is ready\n");
+            Logger.Log("MainServer is ready");
         }
-        public override void Stop()
+        public override async Task Stop()
         {
             if (!IsRunning)
                 return;
 
-            base.Stop();
-            AuthServer.Stop();
-            ApiServer.Stop();
-            LongPollServer.Stop();
-            FileServer.Stop();
+            await base.Stop();
+            await AuthServer.Stop();
+            await ApiServer.Stop();
+            await LongPollServer.Stop();
+            await FileServer.Stop();
 
-            Logger.Log("\n Server is down");
+            Logger.Log("MainServer is down");
         }
     }
 }

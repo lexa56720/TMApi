@@ -7,6 +7,7 @@ namespace TMServer.Logger
     {
         public void Log(string message);
         public void Log(string message, Exception exception);
+        public void LogEmptyLine();
 
         public void Log<T>(ApiData<T> apiData) where T : ISerializable<T>,new();
     }

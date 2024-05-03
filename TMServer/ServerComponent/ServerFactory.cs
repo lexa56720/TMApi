@@ -113,10 +113,10 @@ namespace TMServer.ServerComponent
                 Users = Users
             }; ;
         }
-        public TMServer CreateMainServer(ApiServer responseServer, AuthorizationServer authServer,
+        public MainServer CreateMainServer(ApiServer responseServer, AuthorizationServer authServer,
                                          LongPollServer longPollServer, FileServer fileServer)
         {
-            var server = new TMServer(Logger)
+            var server = new MainServer(Logger)
             {
                 AuthServer = authServer,
                 ApiServer = responseServer,

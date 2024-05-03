@@ -50,20 +50,22 @@ namespace TMServer.ServerComponent.Basics
             IsDisposed = true;
         }
 
-        public override void Start()
+        public override async Task Start()
         {
             if (IsRunning)
                 return;
-            base.Start();
+            await base.Start();
 
-            Responder.Start();
+            await Responder.Start();
             Logger.Log($"{GetType().Name} started on port {Responder.ListenPort} {Responder.Protocol}");
         }
-        public override void Stop()
+        public override async Task Stop()
         {
             if (!IsRunning)
-                return;
-            Responder.Stop();
+                return; 
+            await base.Stop();
+
+            await Responder.Stop();
             Logger.Log($"{GetType().Name} stopped on port {Responder.ListenPort} {Responder.Protocol}");
         }
 

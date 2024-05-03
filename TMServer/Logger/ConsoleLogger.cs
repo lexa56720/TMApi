@@ -20,10 +20,13 @@ namespace TMServer.Logger
         {
             Log(message+": "+exception.StackTrace);
         }
-
+        public void LogEmptyLine()
+        {
+            Console.WriteLine(Environment.NewLine);
+        }
         public void Log<T>(ApiData<T> apiData) where T : ISerializable<T>,new()
         {
-            Log($"{apiData.UserId} {apiData.Data.GetType().Name}");
+            Log($"userid: [{apiData.UserId}]\t{apiData.Data.GetType().Name}");
         }
     }
 }

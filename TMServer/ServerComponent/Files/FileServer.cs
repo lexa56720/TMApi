@@ -44,7 +44,7 @@ namespace TMServer.ServerComponent.Files
             base.Dispose();
         }
 
-        public override async void Start()
+        public override async Task Start()
         {
             if (IsRunning)
                 return;
@@ -52,15 +52,15 @@ namespace TMServer.ServerComponent.Files
                 await CSDTP.Utils.PortUtils.ModifyHttpSettings(DownloadPort, true);
             Listener.Start();
             Logger.Log($"FileGetServer started on port {DownloadPort} Http");
-            base.Start();
+            await base.Start();
 
-            await Listen();
+            Task.Run(Listen);
         }
 
 
-        public override async void Stop()
+        public override async Task Stop()
         {
-            base.Stop();
+            await base.Stop();
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 await CSDTP.Utils.PortUtils.ModifyHttpSettings(DownloadPort, false);
         }
@@ -72,8 +72,6 @@ namespace TMServer.ServerComponent.Files
                 await HandleRequest(context);
             }
             Listener.Stop();
-
-
         }
 
         private async Task HandleRequest(HttpListenerContext context)
