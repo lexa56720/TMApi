@@ -16,16 +16,21 @@ namespace TMClient
 
             var peterApi = await apiProvider.GetApiRegistration("peter alexandros", "peter", "peter");
             var ramsulApi = await apiProvider.GetApiRegistration("ramsul abdulHalif", "ramsul", "ramsul");
-            var adminApi = await apiProvider.GetApiRegistration("adminstarotr", "admin", "admin");
-            var mudakApi = await apiProvider.GetApiRegistration("mudak", "mudak", "mudak");
+            var adminApi = await apiProvider.GetApiRegistration("administrator", "admin", "admin");
+            var ivanApi = await apiProvider.GetApiRegistration("ivan", "ivan", "ivan");
+
+            if (peterApi == null || ramsulApi == null || ivanApi == null || adminApi == null)
+            {
+                Console.WriteLine("error");
+                return;
+            }
 
             await peterApi.Friends.SendFriendRequest(2);
             await peterApi.Friends.SendFriendRequest(3);
             await peterApi.Friends.SendFriendRequest(4);
 
-
             await AcceptAll(ramsulApi);
-            await AcceptAll(mudakApi);
+            await AcceptAll(ivanApi);
             await AcceptAll(adminApi);
 
             Console.WriteLine("done");
@@ -43,11 +48,10 @@ namespace TMClient
 
         private static async Task Register(ApiProvider apiProvider)
         {
-            var peterApi = await apiProvider.GetApiRegistration("peter alexandros", "peter", "peter");
-            var ramsulApi = await apiProvider.GetApiRegistration("ramsul abdulHalif", "ramsul", "ramsul");
-            var adminApi = await apiProvider.GetApiRegistration("adminstarotr", "admin", "admin");
-            var mudakApi = await apiProvider.GetApiRegistration("mudak", "mudak", "mudak");
-
+            using var peterApi = await apiProvider.GetApiRegistration("peter alexandros", "peter", "peter");
+            using var ramsulApi = await apiProvider.GetApiRegistration("ramsul abdulHalif", "ramsul", "ramsul");
+            using var adminApi = await apiProvider.GetApiRegistration("adminstarotr", "admin", "admin");
+            using var mudakApi = await apiProvider.GetApiRegistration("ivan", "ivan", "ivan");
         }
     }
 }
