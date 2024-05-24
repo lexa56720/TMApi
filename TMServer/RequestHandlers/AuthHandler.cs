@@ -7,13 +7,17 @@ using TMServer.DataBase.Interaction;
 
 namespace TMServer.RequestHandlers
 {
-    public class AuthHandler
+    public class AuthHandler : IDisposable
     {
         private readonly Crypts Crypt;
         private readonly LongPolling LongPolling;
         private readonly Authentications Authentication;
         private readonly Tokens Tokens;
         private readonly Security Security;
+
+        private readonly RsaEncrypter RsaEncrypter = new();
+
+        private bool IsDisposed = false;
         public AuthHandler(Crypts crypt, LongPolling longPolling, Security security, Authentications authentication, Tokens tokens)
         {
             Crypt = crypt;
@@ -22,13 +26,18 @@ namespace TMServer.RequestHandlers
             Authentication = authentication;
             Tokens = tokens;
         }
-
+        public void Dispose()
+        {
+            if (IsDisposed)
+                return;
+            RsaEncrypter.Dispose();
+            IsDisposed = true;
+        }
         public Task<RsaPublicKey?> RsaKeyTrade(RsaPublicKey clientKey)
         {
-            using var encrypter = new RsaEncrypter();
-            var serverKey = encrypter.PublicKey;
+            var serverKey = RsaEncrypter.PublicKey;
 
-            var rsa = Crypt.AddRsaKeys(encrypter.PrivateKey, clientKey.Key);
+            var rsa = Crypt.AddRsaKeys(RsaEncrypter.PrivateKey, clientKey.Key);
 
             return Task.FromResult<RsaPublicKey?>(new RsaPublicKey(serverKey, rsa.Id));
         }
@@ -99,5 +108,7 @@ namespace TMServer.RequestHandlers
             }
             return null;
         }
+
+
     }
 }

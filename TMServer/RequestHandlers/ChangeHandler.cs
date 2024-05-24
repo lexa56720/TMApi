@@ -34,8 +34,11 @@ namespace TMServer.RequestHandlers
             var userIds = await GetAffectedUsers(entities);
 
             //Уведомление каждого из пользователй
-            foreach (var userId in userIds)
-                NotifyUser(userId);
+            Task.Run(() =>
+            {
+                foreach (var userId in userIds)
+                    NotifyUser(userId);
+            }).ConfigureAwait(false);
         }
 
         private async Task<int[]> GetAffectedUsers((EntityEntry entity, EntityState state)[] entities)
