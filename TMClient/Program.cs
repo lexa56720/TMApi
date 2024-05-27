@@ -1,7 +1,4 @@
-﻿using ApiTypes;
-using ApiTypes.Shared;
-using Microsoft.Win32;
-using System.Net;
+﻿using System.Net;
 using TMApi.API;
 
 namespace TMClient
