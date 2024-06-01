@@ -18,6 +18,14 @@ namespace TMServer
         public static int FileDownloadPort => ServerConfig.Default.FileDownloadPort;
         public static int FileUploadPort => ServerConfig.Default.FileUploadPort;
 
+
+        public static int ExternalInfoPort => ServerConfig.Default.ExternalInfoPort;
+        public static int ExternalAuthPort => ServerConfig.Default.ExternalAuthPort;
+        public static int ExternalApiPort => ServerConfig.Default.ExternalApiPort;
+        public static int ExternalLongPollPort => ServerConfig.Default.ExternalLongPollPort;
+        public static int ExternalFileDownloadPort => ServerConfig.Default.ExternalFileDownloadPort;
+        public static int ExternalFileUploadPort => ServerConfig.Default.ExternalFileUploadPort;
+
         public static TimeSpan LongPollLifeTime => TimeSpan.FromSeconds(ServerConfig.Default.LongPollLifeTimeSeconds);
         public static TimeSpan TokenLifeTime => TimeSpan.FromHours(ServerConfig.Default.TokenLifetimeHours);
         public static TimeSpan RsaLifeTime => TimeSpan.FromHours(ServerConfig.Default.RsaKeyLifetimeHours);

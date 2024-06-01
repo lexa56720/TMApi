@@ -26,8 +26,6 @@ namespace TMServer
             ServerShutdown(logger);
         }
 
-
-
         private static async Task CommandParsingLoop(ILogger logger, params Startable[] servers)
         {
             while (true)
@@ -112,9 +110,14 @@ namespace TMServer
                                     Settings.ApiPort,
                                     Settings.LongPollPort,
                                     Settings.FileDownloadPort,
-                                    Settings.FileUploadPort);
+                                    Settings.FileUploadPort,
+                                    Settings.ExternalAuthPort,
+                                    Settings.ExternalApiPort,
+                                    Settings.ExternalLongPollPort,
+                                    Settings.ExternalFileDownloadPort,
+                                    Settings.ExternalFileUploadPort);
 
-            var infoServer = CreateInfoServer(factory, Settings.InfoPort, Settings.Version);
+            var infoServer = CreateInfoServer(factory, Settings.InfoPort, Settings.Version,Settings.ExternalInfoPort);
             infoServer.Add(mainServer.ApiServer);
             infoServer.Add(mainServer.AuthServer);
             infoServer.Add(mainServer.LongPollServer);
@@ -122,17 +125,19 @@ namespace TMServer
 
             return (mainServer, infoServer);
         }
-        private static InfoServer CreateInfoServer(ServerFactory factory, int port, int version)
+        private static InfoServer CreateInfoServer(ServerFactory factory, int port, int version,int externalPort=0)
         {
-            return factory.CreateInfoServer(port, version);
+            return factory.CreateInfoServer(port, version,externalPort);
         }
-        private static MainServer CreateMainServer(ServerFactory factory, TimeSpan longPollPeriod, int authPort, int apiPort, int longPollPort, int fileGetPort, int fileUploadPort)
+        private static MainServer CreateMainServer(ServerFactory factory, TimeSpan longPollPeriod, 
+            int authPort, int apiPort, int longPollPort, int fileGetPort, int fileUploadPort,
+            int externalAuthPort, int externalApiPort, int externalLongPollPort, int externalFileGetPort, int externalFileUploadPort)
         {
-            var authServer = factory.CreateAuthServer(authPort);
-            var apiServer = factory.CreateApiServer(apiPort);
+            var authServer = factory.CreateAuthServer(authPort,externalAuthPort);
+            var apiServer = factory.CreateApiServer(apiPort,externalApiPort);
 
-            var longPollServer = factory.CreateLongPollServer(longPollPort, longPollPeriod);
-            var fileServer = factory.CreateFileServer(fileUploadPort, fileGetPort);
+            var longPollServer = factory.CreateLongPollServer(longPollPort, longPollPeriod,externalLongPollPort);
+            var fileServer = factory.CreateFileServer(fileUploadPort, fileGetPort,externalFileUploadPort,externalFileGetPort);
 
             return factory.CreateMainServer(apiServer, authServer, longPollServer, fileServer);
         }

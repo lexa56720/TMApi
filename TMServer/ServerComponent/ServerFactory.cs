@@ -70,39 +70,44 @@ namespace TMServer.ServerComponent
             Logger = logger;
         }
 
-        public ApiServer CreateApiServer(int port)
+        public ApiServer CreateApiServer(int port, int externalPort = 0)
         {
             return new ApiServer(port, new ApiEncryptProvider(Crypt), Logger)
             {
                 Security = Security,
-                Users = Users
+                Users = Users,
+                ExternalPort = externalPort
             };
         }
-        public AuthorizationServer CreateAuthServer(int port)
+        public AuthorizationServer CreateAuthServer(int port, int externalPort = 0)
         {
             return new AuthorizationServer(port, new AuthEncryptProvider(Crypt), Logger)
             {
                 Security = Security,
-                Users = Users
+                Users = Users,
+                ExternalPort = externalPort
             };
         }
-        public LongPollServer CreateLongPollServer(int port, TimeSpan longPollLifetime)
+        public LongPollServer CreateLongPollServer(int port, TimeSpan longPollLifetime, int externalPort = 0)
         {
             return new LongPollServer(port, longPollLifetime, new ApiEncryptProvider(Crypt), Logger)
             {
                 Security = Security,
-                Users = Users
-            }; ;
+                Users = Users,
+                ExternalPort = externalPort
+            };
         }
-        public FileServer CreateFileServer(int uploadPort, int downloadPort)
+        public FileServer CreateFileServer(int uploadPort, int downloadPort, int externalUploadPort = 0, int externalDownloadPort = 0)
         {
             return new FileServer(uploadPort, downloadPort, FileHandler, new ApiEncryptProvider(Crypt), Logger)
             {
                 Security = Security,
-                Users = Users
+                Users = Users,
+                ExternalPort = externalUploadPort,
+                ExternalDownloadPort = externalDownloadPort,
             }; ;
         }
-        public InfoServer CreateInfoServer(int port, int version)
+        public InfoServer CreateInfoServer(int port, int version,int externalPort=0)
         {
             return new InfoServer(port, Logger)
             {
@@ -110,7 +115,8 @@ namespace TMServer.ServerComponent
                 MaxAttachments = MaxFiles,
                 MaxFileSizeMB = MaxFileSizeMB,
                 Security = Security,
-                Users = Users
+                Users = Users,
+                ExternalPort = externalPort
             }; ;
         }
         public MainServer CreateMainServer(ApiServer responseServer, AuthorizationServer authServer,

@@ -240,5 +240,77 @@ namespace TMServer {
                 this["AesKeyLifetimeDays"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public ushort ExternalApiPort {
+            get {
+                return ((ushort)(this["ExternalApiPort"]));
+            }
+            set {
+                this["ExternalApiPort"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public ushort ExternalAuthPort {
+            get {
+                return ((ushort)(this["ExternalAuthPort"]));
+            }
+            set {
+                this["ExternalAuthPort"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public ushort ExternalInfoPort {
+            get {
+                return ((ushort)(this["ExternalInfoPort"]));
+            }
+            set {
+                this["ExternalInfoPort"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public ushort ExternalLongPollPort {
+            get {
+                return ((ushort)(this["ExternalLongPollPort"]));
+            }
+            set {
+                this["ExternalLongPollPort"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public ushort ExternalFileDownloadPort {
+            get {
+                return ((ushort)(this["ExternalFileDownloadPort"]));
+            }
+            set {
+                this["ExternalFileDownloadPort"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public ushort ExternalFileUploadPort {
+            get {
+                return ((ushort)(this["ExternalFileUploadPort"]));
+            }
+            set {
+                this["ExternalFileUploadPort"] = value;
+            }
+        }
     }
 }

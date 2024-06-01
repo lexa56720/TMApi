@@ -22,7 +22,19 @@ namespace TMServer.ServerComponent.Files
         private HttpListener Listener;
         private readonly FileHandler FileHandler;
 
-        public int DownloadPort { get; }
+        public int ExternalDownloadPort
+        {
+            get
+            {
+                if (externalDownloadPort > 0)
+                    return externalDownloadPort;
+                return DownloadPort;
+            }
+            set => externalDownloadPort = value;
+        }
+        private int externalDownloadPort;
+
+        protected int DownloadPort { get; }
         public FileServer(int uploadPort, int dowloadPort, FileHandler fileHandler, IEncryptProvider encryptProvider, ILogger logger)
                            : base(uploadPort, encryptProvider, logger, Protocol.Http)
         {
@@ -31,6 +43,7 @@ namespace TMServer.ServerComponent.Files
                 DownloadPort = CSDTP.Utils.PortUtils.GetFreePort(6666);
             else
                 DownloadPort = dowloadPort;
+            ExternalDownloadPort = DownloadPort;
 
             Listener.Prefixes.Add($"http://+:{DownloadPort}/");
             FileHandler = fileHandler;
@@ -51,7 +64,7 @@ namespace TMServer.ServerComponent.Files
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 await CSDTP.Utils.PortUtils.ModifyHttpSettings(DownloadPort, true);
             Listener.Start();
-            Logger.Log($"FileGetServer started on port {DownloadPort} Http");
+            Logger.Log($"FileGetServer started on port {DownloadPort}/{ExternalDownloadPort} Http");
             await base.Start();
 
             Task.Run(Listen);

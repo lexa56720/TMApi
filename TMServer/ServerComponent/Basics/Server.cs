@@ -14,7 +14,19 @@ namespace TMServer.ServerComponent.Basics
         protected Responder Responder { get; }
         protected ILogger Logger { get; }
 
-        public virtual int ListenPort => Responder.ListenPort;
+        protected virtual int ListenPort => Responder.ListenPort;
+
+        public int ExternalPort
+        {
+            get
+            {
+                if (externalPort > 0)
+                    return externalPort;
+                return ListenPort;
+            }
+            set => externalPort = value;
+        }
+        private int externalPort;
 
         public required Security Security { private get; init; }
         public required Users Users { private get; init; }
@@ -25,6 +37,7 @@ namespace TMServer.ServerComponent.Basics
         protected Server(int port, ILogger logger, Protocol protocol = Protocol.Udp)
         {
             Responder = ResponderFactory.Create(port, protocol);
+            ExternalPort = ListenPort;
             Logger = logger;
         }
         protected Server(int port, IEncryptProvider encryptProvider, ILogger logger, Protocol protocol = Protocol.Udp)
@@ -33,11 +46,13 @@ namespace TMServer.ServerComponent.Basics
                 Responder = ResponderFactory.Create(encryptProvider, typeof(TMPacket<>), protocol);
             else
                 Responder = ResponderFactory.Create(port, encryptProvider, typeof(TMPacket<>), protocol);
+            ExternalPort = ListenPort;
             Logger = logger;
         }
         protected Server(IEncryptProvider encryptProvider, ILogger logger, Protocol protocol = Protocol.Udp)
         {
             Responder = ResponderFactory.Create(encryptProvider, typeof(TMPacket<>), protocol);
+            ExternalPort = ListenPort;
             Logger = logger;
         }
         public virtual void Dispose()
@@ -57,16 +72,16 @@ namespace TMServer.ServerComponent.Basics
             await base.Start();
 
             await Responder.Start();
-            Logger.Log($"{GetType().Name} started on port {Responder.ListenPort} {Responder.Protocol}");
+            Logger.Log($"{GetType().Name} started on port {Responder.ListenPort}/{ExternalPort} {Responder.Protocol}");
         }
         public override async Task Stop()
         {
             if (!IsRunning)
-                return; 
+                return;
             await base.Stop();
 
             await Responder.Stop();
-            Logger.Log($"{GetType().Name} stopped on port {Responder.ListenPort} {Responder.Protocol}");
+            Logger.Log($"{GetType().Name} stopped on port {Responder.ListenPort}/{ExternalPort} {Responder.Protocol}");
         }
 
 

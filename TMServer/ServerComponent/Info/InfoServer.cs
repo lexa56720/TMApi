@@ -67,7 +67,7 @@ namespace TMServer.ServerComponent.Info
 
         private Task<ServerInfo?> GetInfo(ServerInfoRequest request, IPacketInfo info)
         {
-            Logger.Log($"inf request from {info.Source?.ToString()}");
+            Logger.Log($"info request from {info.Source?.ToString()}");
             var (longPollPort, longPollPeriod) = GetLongPollInfo();
             var (uploadPort, downloadPort) = GetFilePorts();
             var apiPort = GetApiPort();
@@ -96,28 +96,28 @@ namespace TMServer.ServerComponent.Info
             var auth = Pick(AuthServers);
             if (auth == null)
                 return -1;
-            return auth.ListenPort;
+            return auth.ExternalPort;
         }
         private int GetApiPort()
         {
             var api = Pick(ApiServers);
             if (api == null)
                 return -1;
-            return api.ListenPort;
+            return api.ExternalPort;
         }
         private (int port, int period) GetLongPollInfo()
         {
             var longPoll = Pick(LongPollServers);
             if (longPoll == null)
                 return (-1, -1);
-            return (longPoll.ListenPort, (int)longPoll.LongPollLifetime.TotalSeconds);
+            return (longPoll.ExternalPort, (int)longPoll.LongPollLifetime.TotalSeconds);
         }
         private (int uploadPort, int downloadPort) GetFilePorts()
         {
-            var image = Pick(FileServers);
-            if (image == null)
+            var file = Pick(FileServers);
+            if (file == null)
                 return (-1, -1);
-            return (image.ListenPort, image.DownloadPort);
+            return (file.ExternalPort, file.ExternalDownloadPort);
         }
         private T? Pick<T>(IList<T> list)
         {
