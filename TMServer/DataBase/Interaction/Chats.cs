@@ -50,7 +50,7 @@ namespace TMServer.DataBase.Interaction
                 });
 
             await Messages.AddInviteMessages(chatId, inviterId, userIds, db);
-            db.SaveChanges(true);
+            await db.SaveChangesAsync(true);
         }
 
         public async Task<DBChat[]?> GetChat(int[] chatIds)

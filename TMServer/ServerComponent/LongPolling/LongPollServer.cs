@@ -50,7 +50,7 @@ namespace TMServer.ServerComponent.LongPolling
             Requests.Clear();
             ResponseInfos.Clear();
         }
-        private async void DBUpdateForUser(object? sender, int userId)
+        private async Task DBUpdateForUser(int userId)
         {
             await RespondOnSaved(userId);
         }
@@ -82,7 +82,7 @@ namespace TMServer.ServerComponent.LongPolling
             return null;
         }
 
-        //Получение всех обновлени йдля пользователя
+        //Получение всех обновлений для пользователя
         private async Task<Notification?> GetNotification(int userId)
         {
             var (notification, info) = await LongPollHandler.GetUpdates(userId);

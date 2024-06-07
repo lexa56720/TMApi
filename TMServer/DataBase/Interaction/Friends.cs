@@ -92,8 +92,8 @@ namespace TMServer.DataBase.Interaction
             db.Friends.Remove(friend);
             var dialogue = await db.Chats.Include(c => c.Members)
                                         .SingleAsync(c => c.IsDialogue
-                                              && c.Members.ElementAt(0).Id == userId && c.Members.ElementAt(1).Id == friendId
-                                              || (c.Members.ElementAt(1).Id == userId && c.Members.ElementAt(0).Id == friendId));
+                                              && (c.Members.ElementAt(0).Id == userId && c.Members.ElementAt(1).Id == friendId
+                                              || (c.Members.ElementAt(1).Id == userId && c.Members.ElementAt(0).Id == friendId)));
 
             await Chats.RemoveChat(dialogue.Id, db);
             return await db.SaveChangesAsync(true) > 0;

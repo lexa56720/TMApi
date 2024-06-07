@@ -18,7 +18,8 @@ namespace TMServer.RequestHandlers
     {
         private readonly Changes Changes;
 
-        public event EventHandler<int>? UpdateForUser;
+        public delegate Task UpdateDelegate(int id);
+        public event UpdateDelegate? UpdateForUser;
         public bool IsUpdateTracked => UpdateForUser != null;
 
         public ChangeHandler(Changes changes)
@@ -26,7 +27,7 @@ namespace TMServer.RequestHandlers
             Changes = changes;
         }
 
-        public async Task HandleChanges((EntityEntry entity, EntityState state)[] entities)
+        public void HandleChanges((EntityEntry entity, EntityState state)[] entities)
         {
             if (!IsUpdateTracked)
                 return;
@@ -36,8 +37,7 @@ namespace TMServer.RequestHandlers
                 var userIds = await GetAffectedUsers(entities);
 
                 //Уведомление каждого из пользователй
-                foreach (var userId in userIds)
-                    NotifyUser(userId);
+                await Task.WhenAll(userIds.Select(u => NotifyUser(u)));
             }).ConfigureAwait(false);
         }
 
@@ -101,9 +101,10 @@ namespace TMServer.RequestHandlers
             };
         }
 
-        private void NotifyUser(int id)
+        private async Task NotifyUser(int id)
         {
-            UpdateForUser?.Invoke(null, id);
+            if (UpdateForUser != null)
+                await UpdateForUser.Invoke(id);
         }
     }
 }

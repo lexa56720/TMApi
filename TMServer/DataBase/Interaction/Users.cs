@@ -24,11 +24,6 @@ namespace TMServer.DataBase.Interaction
             OnlineUsers.Clear();
             IsDisposed = true;
         }
-        public async Task<DBUser?> GetUser(int id)
-        {
-            using var db = new TmdbContext();
-            return await db.Users.SingleOrDefaultAsync(u => u.Id == id);
-        }
         public async Task<DBUser?> GetUserWithFriends(int id)
         {
             using var db = new TmdbContext();
@@ -70,24 +65,26 @@ namespace TMServer.DataBase.Interaction
             using var db = new TmdbContext();
 
             var users = db.Users.Where(u => ids.Contains(u.Id));
-            return await users.ToArrayAsync();
+            return GetUserWithStatus(await users.ToArrayAsync());
         }
 
         public async Task<DBUser[]> GetUserByName(string name)
         {
             using var db = new TmdbContext();
 
-            return await db.Users.Where(u => u.Name.Contains(name))
-                                 .Take(20)
-                                 .ToArrayAsync();
+            return GetUserWithStatus(await db.Users
+                                             .Where(u => u.Name.Contains(name))
+                                             .Take(20)
+                                             .ToArrayAsync());
         }
         public async Task<DBUser[]> GetUserByLogin(string login)
         {
             using var db = new TmdbContext();
 
-            return await db.Users.Where(u => u.Login.Contains(login))
-                                 .Take(20)
-                                 .ToArrayAsync();
+            return GetUserWithStatus(await db.Users
+                                             .Where(u => u.Login.Contains(login))
+                                             .Take(20)
+                                             .ToArrayAsync());
         }
 
         public async Task<(DBUser? user, int prevSetId)> SetProfileImage(int userId, int imageId)
@@ -126,7 +123,7 @@ namespace TMServer.DataBase.Interaction
             }
             else
             {
-                using var db = new TmdbContext(); 
+                using var db = new TmdbContext();
                 var user = db.Users.SingleOrDefault(u => u.Id == userId);
                 if (user == null)
                     return;
@@ -135,6 +132,18 @@ namespace TMServer.DataBase.Interaction
                 await StatusUpdate(userId, true, db);
                 await db.SaveChangesAsync(true);
             }
+        }
+
+        private DBUser[] GetUserWithStatus(DBUser[] users)
+        {
+            foreach (var user in users)
+            {
+                if (OnlineUsers.TryGetValue(user.Id, out var id))
+                {
+                    user.LastRequest = DateTime.UtcNow;
+                }
+            }
+            return users;
         }
 
         private async Task SetOffline(int userId)
@@ -166,6 +175,7 @@ namespace TMServer.DataBase.Interaction
             var related = await GetAllRelatedUsers(userId);
             foreach (var relatedUser in related)
             {
+                db.RemoveRange(db.UserOnlineUpdates.Where(u => u.UserId == relatedUser && u.RelatedUserId == userId));
                 await db.UserOnlineUpdates.AddAsync(new DBUserOnlineUpdate()
                 {
                     Date = DateTime.UtcNow,

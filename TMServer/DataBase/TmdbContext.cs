@@ -526,7 +526,7 @@ public partial class TmdbContext : DbContext
         var value = await base.SaveChangesAsync();
 
         //Передача изменённых сущностей обработчику изменений
-        await ChangeHandler.HandleChanges(changes);
+        ChangeHandler.HandleChanges(changes);
         return value;
     }
 
